@@ -1,0 +1,20 @@
+name: Mirroring
+
+on: [push]
+
+env:
+  TARGET_REPO_URL: "git@github.com:EpitechPromo2027/B-CPP-500-LYN-5-2-rtype-maxence.lupion.git"
+
+jobs:
+  mirroring:
+    if: github.repository == 'AREA-EPITECH/RTYPE-mirror'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Mirroring Epitech repository
+        uses: pixta-dev/repository-mirroring-action@v1
+        with:
+          target_repo_url: ${{ TARGET_REPO_URL }}
+          ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }}
