@@ -61,3 +61,7 @@ cmake-build-default
 
 # Debug
 vgcore.*
+
+# VCPKG
+CMakeUserPresets.json
+build
