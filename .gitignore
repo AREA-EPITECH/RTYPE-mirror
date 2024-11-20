@@ -42,3 +42,7 @@ build-dir
 *.exe
 *.out
 *.app
+
+# VCPKG
+CMakeUserPresets.json
+build
