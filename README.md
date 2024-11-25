@@ -1,6 +1,10 @@
 # RTYPE-mirror
 RTYPE Epitech project mirror
 
+# Install VCPKG
+
+Follow this tutorial: [https://learn.microsoft.com/en-us/vcpkg/get_started/get-started?pivots=shell-bash](https://learn.microsoft.com/en-us/vcpkg/get_started/get-started?pivots=shell-bash)
+
 # CMakeUserPresets
 
 You need to setup a CMake configuration file where you set up your VCPKG installation root like this:
