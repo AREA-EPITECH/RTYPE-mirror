@@ -20,14 +20,14 @@ int main()
         45.0f, CAMERA_PERSPECTIVE);
 
     // Load models
-    std::vector<Model> models = client::Game::loadModelsFromPath("assets/voxels/");
+    std::vector<Model> models = client::Game::loadModelsFromPath("client/assets/voxels/");
 
     size_t currentModel = 0;
     const size_t nb_vox = models.size();
 
     // Load shader
-    Shader shader = LoadShader("assets/voxels/shaders/voxel_lighting.vs",
-        "assets/voxels/shaders/voxel_lighting.fs");
+    Shader shader = LoadShader("client/assets/voxels/shaders/voxel_lighting.vs",
+        "client/assets/voxels/shaders/voxel_lighting.fs");
     shader.locs[SHADER_LOC_VECTOR_VIEW] = GetShaderLocation(shader, "viewPos");
     int ambientLoc = GetShaderLocation(shader, "ambient");
     SetShaderValue(shader, ambientLoc, (float[4]) { 0.1f, 0.1f, 0.1f, 1.0f }, SHADER_UNIFORM_VEC4);
