@@ -12,6 +12,6 @@ project(r-type)
 set(CMAKE_CXX_STANDARD 17)
 
 # Add subdirectories for client, server, and shared code
+add_subdirectory(shared)
 add_subdirectory(client)
 add_subdirectory(server)
-# add_subdirectory(shared)
