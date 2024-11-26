@@ -127,11 +127,11 @@ namespace client
         Vector3 camerarot = {};
         size_t currentModel = 0;
         size_t nb_vox = models.size();
+        bool rotating = true;
+        float rotationAngle = 0.01f;
 
         while (!WindowShouldClose())
             {
-            bool rotating = true;
-            float rotationAngle = 0.01f;
             UpdateCamera(&camera, CAMERA_FIRST_PERSON);
             if (IsKeyDown(KEY_LEFT_SHIFT))
             {
