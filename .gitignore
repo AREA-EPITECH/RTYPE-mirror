@@ -34,7 +34,9 @@ build/
 
 # Cmake user presets
 CMakeUserPresets.json
+cmake-build-debug
 
 # ide preset
 .vscode/
+.idea
 .clangd
