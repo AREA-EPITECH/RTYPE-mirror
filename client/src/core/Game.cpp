@@ -99,6 +99,7 @@ namespace client
         for (int i = 0; i < models.size(); i++)
         {
             UnloadModel(models[i]);
+            TraceLog(LOG_WARNING, TextFormat("Unloaded model number %d.", i));
         }
     }
 
