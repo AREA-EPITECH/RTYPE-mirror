@@ -31,6 +31,8 @@ build/
 *.exe
 *.out
 *.app
+r-type_client
+r-type_server
 
 # Cmake user presets
 CMakeUserPresets.json
