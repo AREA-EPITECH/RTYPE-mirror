@@ -44,8 +44,8 @@ int main()
     // Main loop
     client::Game::mainLoopVoxelVisualizer(models, lights, camera, shader);
 
-    // Unload models and close window
-    client::Game::unloadModels(models);
+    // Close and unload everything
     CloseWindow();
+    client::Game::unloadModels(models);
     return 0;
 }
