@@ -6,10 +6,6 @@
 cmake-build-debug
 build-dir
 
-# Coding style
-.clang-format
-.clang-tidy
-
 # Prerequisites
 *.d
 
@@ -58,3 +54,6 @@ cmake-build-debug
 # VCPKG
 CMakeUserPresets.json
 build
+
+# Debug
+vgcore.*

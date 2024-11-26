@@ -7,9 +7,5 @@
 
 #pragma once
 
-#include "raylib.h"
-#include "raymath.h"
-#define RLIGHTS_IMPLEMENTATION
-#include "core/Rlights.hpp"
-#include <filesystem>
-#include <vector>
+#include "core/Game.hpp"
+#include "core/Lights.hpp"
