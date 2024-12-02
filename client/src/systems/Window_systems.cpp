@@ -32,15 +32,6 @@ void close_window_system(Registry& ecs, const WindowCloseEvent&) {
             }
         }
     }
-
-    auto& models = ecs.get_components<ModelComponent>();
-
-    for (size_t i = 0; i < models.size(); ++i) {
-        if (models[i]) {
-            UnloadModel(models[i]->model);
-            TraceLog(LOG_WARNING, TextFormat("Unloaded model number %d.", i));
-        }
-    }
 }
 
 void update_window_system(Registry& ecs, const WindowUpdateEvent&) {

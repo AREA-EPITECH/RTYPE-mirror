@@ -102,6 +102,5 @@ int main() {
     while (!WindowShouldClose()) {
         ecs.run_event(WindowUpdateEvent{});
     }
-
     return 0;
 }
