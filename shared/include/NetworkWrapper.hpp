@@ -12,6 +12,7 @@
 #include <vector>
 
 #include <enet/enet.h>
+#include "Packet.hpp"
 
 namespace network
 {
@@ -21,6 +22,30 @@ namespace network
         static bool initialized;
         static bool initialize();
         static void shutdown();
+    };
+
+    // Server Events
+    enum class ServerEventType {
+        ClientConnect,
+        ClientDisconnect,
+        DataReceive
+    };
+
+    struct ServerEvent {
+        ServerEventType type;
+        ENetPeer* peer;
+        std::vector<uint8_t> data; // Only valid for DataReceive events
+    };
+
+    // Client Events
+    enum class ClientEventType {
+        ServerDisconnect,
+        DataReceive
+    };
+
+    struct ClientEvent {
+        ClientEventType type;
+        SnapshotPacket data; // Only valid for DataReceive events
     };
 
     class NetworkServer
@@ -35,7 +60,7 @@ namespace network
         bool start(uint16_t port);
         void stop();
         bool sendPacket(const std::vector<uint8_t>& data, ENetPeer* peer);
-        void processEvents();
+        bool pollEvent(ServerEvent& event);
     };
 
     class NetworkClient
@@ -51,6 +76,6 @@ namespace network
         bool connectToServer(const std::string& host, uint16_t port);
         void disconnect();
         bool sendPacket(const std::vector<uint8_t>& data);
-        void processEvents();
+        bool pollEvent(ClientEvent& event);
     };
 }  // namespace network
