@@ -52,6 +52,7 @@ namespace network
     {
     private:
         ENetHost* host;
+        uint16_t lastPacketId = 0;
 
     public:
         NetworkServer();
@@ -60,6 +61,7 @@ namespace network
         bool start(uint16_t port);
         void stop();
         bool sendPacket(const std::vector<uint8_t>& data, ENetPeer* peer);
+        bool sendSnapshotPacket(const SnapshotPacket& packet, ENetPeer* peer);
         bool pollEvent(ServerEvent& event);
     };
 
@@ -68,6 +70,7 @@ namespace network
     private:
         ENetHost* client;
         ENetPeer* serverPeer;
+        uint16_t lastPacketId = 0;
 
     public:
         NetworkClient();
@@ -76,6 +79,7 @@ namespace network
         bool connectToServer(const std::string& host, uint16_t port);
         void disconnect();
         bool sendPacket(const std::vector<uint8_t>& data);
+        bool sendInputPacket(const InputPacket& packet);
         bool pollEvent(ClientEvent& event);
     };
 }  // namespace network

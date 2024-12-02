@@ -79,6 +79,23 @@ bool network::NetworkServer::sendPacket(const std::vector<uint8_t> &data, ENetPe
     return enet_peer_send(peer, 0, packet) >= 0;
 }
 
+bool network::NetworkServer::sendSnapshotPacket(const SnapshotPacket& packet, ENetPeer* peer)
+{
+    SnapshotPacket newPacket;
+
+    lastPacketId++;
+    newPacket.header.packetId = lastPacketId;
+
+    auto now = std::chrono::steady_clock::now();
+    newPacket.header.timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count();
+
+    newPacket.numEntities = packet.entities.size();
+    newPacket.entities = packet.entities;
+
+    const std::vector<uint8_t> binary = Packet::serializeSnapshotPacket(packet);
+    return sendPacket(binary, peer);
+}
+
 bool network::NetworkServer::pollEvent(network::ServerEvent &event)
 {
     if (!host)
@@ -175,6 +192,23 @@ bool network::NetworkClient::sendPacket(const std::vector<uint8_t> &data)
         return enet_peer_send(serverPeer, 0, packet) >= 0;
     }
     return false;
+}
+
+bool network::NetworkClient::sendInputPacket(const InputPacket& packet)
+{
+    InputPacket newPacket;
+
+    lastPacketId++;
+    newPacket.header.packetId = lastPacketId;
+
+    auto now = std::chrono::steady_clock::now();
+    newPacket.header.timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count();
+
+    newPacket.fire = packet.fire;
+    newPacket.move = packet.move;
+
+    const std::vector<uint8_t> binary = Packet::serializeInputPacket(newPacket);
+    return sendPacket(binary);
 }
 
 bool network::NetworkClient::pollEvent(ClientEvent &event)

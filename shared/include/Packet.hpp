@@ -19,10 +19,17 @@ namespace network
         uint32_t timestamp; // Timestamp for synchronization
     };
 
+    enum EntityType {
+        Player = 1,
+        Opponent = 2,
+        Rocket = 3,
+        ChargedRocket = 4,
+    };
+
     struct EntityUpdate
     {
         uint16_t entityId; // Unique ID of the entity
-        uint8_t type; // Type (e.g., enemy type)
+        EntityType type; // Type (e.g., enemy type)
         float posX, posY; // Position of the entity
         float velocityX, velocityY; // Optional velocity
     };
@@ -34,10 +41,25 @@ namespace network
         std::vector<EntityUpdate> entities; // Array of entity updates
     };
 
+    enum MoveDirection {
+        UpDirection = 1,
+        DownDirection = 2,
+        LeftDirection = 3,
+        RightDirection = 4,
+        NoneDirection = 0
+    };
+
+    enum FireType {
+        NormalFire = 1,
+        ChargedFire = 2,
+        NoneFire = 0
+    };
+
     struct InputPacket
     {
         PacketHeader header;
-        char *data; // data string
+        MoveDirection move;
+        FireType fire;
     };
     #pragma pack(pop)
 
