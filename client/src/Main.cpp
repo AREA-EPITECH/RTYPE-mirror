@@ -7,9 +7,15 @@
 
 #include "core/Game.hpp"
 #include "core/Lights.hpp"
+#include "Registry.hpp"
+#include "systems/Components.hpp"
+#include "systems/Events.hpp"
+#include "systems/Systems.hpp"
 
+/*
 int main()
 {
+
     // Init Raylib window
     client::Game::createRaylibWindow(600, 600, "Voxels Visualizer");
     client::Game::disableRaylibCursor();
@@ -47,5 +53,55 @@ int main()
     // Unload models and close window
     client::Game::unloadModels(models);
     CloseWindow();
+    return 0;
+
+}
+*/
+
+Registry init_ecs () {
+    Registry ecs;
+
+    ecs.register_component<Window>();
+    ecs.register_component<ModelComponent>();
+    ecs.register_component<ShaderComponent>();
+    ecs.register_component<CameraComponent>();
+
+    ecs.register_event<WindowOpenEvent>();
+    ecs.register_event<WindowCloseEvent>();
+    ecs.register_event<WindowUpdateEvent>();
+    ecs.register_event<InitCameraEvent>();
+    ecs.register_event<InitModelEvent>();
+
+    ecs.subscribe<WindowOpenEvent>(init_window_system);
+    ecs.subscribe<WindowUpdateEvent>(update_window_system);
+    ecs.subscribe<WindowCloseEvent>([](Registry &e, const WindowCloseEvent &event) {
+        unload_models_system(e, event);
+        close_window_system(e, event);
+    });
+
+    ecs.subscribe<InitCameraEvent>(create_camera_system);
+    ecs.subscribe<InitModelEvent>([](Registry& e, const InitModelEvent& event) {
+        load_models_system(e, event);
+        apply_shader_system(e, event);
+    });
+
+    return ecs;
+}
+
+int main() {
+    Registry ecs = init_ecs();
+
+    auto windowEntity = ecs.spawn_entity();
+    ecs.add_component<Window>(windowEntity, {800, 600, "ECS Raylib - Multi Events", false});
+
+    ecs.run_event(WindowOpenEvent{});
+
+    ecs.run_event(InitCameraEvent{ { 0.0f, 10.0f, 10.0f }, { 0.0f, 0.0f, 0.0f }, { 0.0f, 1.0f, 0.0f }, 45.0f, CAMERA_PERSPECTIVE});
+    ecs.run_event(InitModelEvent{});
+
+    while (!WindowShouldClose()) {
+        ecs.run_event(WindowUpdateEvent{});
+    }
+
     return 0;
 }
