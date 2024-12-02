@@ -10,6 +10,9 @@
 #include "NetworkWrapper.hpp"
 #include "ThreadPool.hpp"
 #include "spdlog/spdlog.h"
+#include "Server.hpp"
+#include <sstream>
+#include <iostream>
 
 std::atomic<bool> shutdownRequested(false);
 
