@@ -7,6 +7,8 @@
 *.o
 *.obj
 build/
+cmake-build-debug/
+cmake-build-default/
 
 # Precompiled Headers
 *.gch
@@ -38,3 +40,4 @@ CMakeUserPresets.json
 # ide preset
 .vscode/
 .clangd
+.idea/
