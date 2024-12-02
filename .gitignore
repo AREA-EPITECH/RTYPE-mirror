@@ -33,9 +33,12 @@ cmake-build-default/
 *.exe
 *.out
 *.app
+r-type_client
+r-type_server
 
 # Cmake user presets
 CMakeUserPresets.json
+cmake-build-debug
 
 # ide preset
 .vscode/

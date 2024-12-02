@@ -1,10 +1,10 @@
 {
   "name": "r-type-network",
   "version-semver": "0.1.0",
+  "builtin-baseline": "eba7c6a894fce24146af4fdf161fef8e90dd6be3",
   "dependencies": [
     "fmt",
-    "spdlog"
-  ],
-  "default-features": [],
-  "builtin-baseline": "eba7c6a894fce24146af4fdf161fef8e90dd6be3"
+    "spdlog",
+    "enet"
+  ]
 }
