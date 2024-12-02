@@ -8,9 +8,9 @@
 #include "core/Game.hpp"
 #include "core/Lights.hpp"
 #include "Registry.hpp"
-#include "systems/Components.hpp"
-#include "systems/Events.hpp"
-#include "systems/Systems.hpp"
+#include "systems/include/Components.hpp"
+#include "systems/include/Events.hpp"
+#include "systems/include/Systems.hpp"
 
 /*
 int main()
@@ -68,12 +68,13 @@ Registry init_ecs () {
 
     ecs.register_event<WindowOpenEvent>();
     ecs.register_event<WindowCloseEvent>();
-    ecs.register_event<WindowUpdateEvent>();
+    ecs.register_event<WindowDrawEvent>();
     ecs.register_event<InitCameraEvent>();
     ecs.register_event<InitModelEvent>();
+    ecs.register_event<ControlsEvent>();
 
     ecs.subscribe<WindowOpenEvent>(init_window_system);
-    ecs.subscribe<WindowUpdateEvent>(update_window_system);
+    ecs.subscribe<WindowDrawEvent>(draw_menu_system);
     ecs.subscribe<WindowCloseEvent>([](Registry &e, const WindowCloseEvent &event) {
         unload_models_system(e, event);
         close_window_system(e, event);
@@ -84,6 +85,7 @@ Registry init_ecs () {
         load_models_system(e, event);
         apply_shader_system(e, event);
     });
+    ecs.subscribe<ControlsEvent>(menu_controls_system);
 
     return ecs;
 }
@@ -96,11 +98,12 @@ int main() {
 
     ecs.run_event(WindowOpenEvent{});
 
-    ecs.run_event(InitCameraEvent{ { 0.0f, 10.0f, 10.0f }, { 0.0f, 0.0f, 0.0f }, { 0.0f, 1.0f, 0.0f }, 45.0f, CAMERA_PERSPECTIVE});
+    ecs.run_event(InitCameraEvent{ { 0.0f, 25.0f, 20.0f }, { 0.0f, 0.0f, 0.0f }, { 0.0f, 1.0f, 0.0f }, 45.0f, CAMERA_PERSPECTIVE});
     ecs.run_event(InitModelEvent{});
 
     while (!WindowShouldClose()) {
-        ecs.run_event(WindowUpdateEvent{});
+        ecs.run_event(WindowDrawEvent{});
     }
+
     return 0;
 }

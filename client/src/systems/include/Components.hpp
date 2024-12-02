@@ -15,6 +15,7 @@ struct CameraComponent {
 
 struct ModelComponent {
     Model model;
+    bool drawable;
 };
 
 struct ShaderComponent {

@@ -1,7 +1,7 @@
 //
 // Created by lferraro on 12/2/24.
 //
-#include "Systems.hpp"
+#include "include/Systems.hpp"
 
 void load_models_system(Registry& ecs, const InitModelEvent&) {
     std::vector<std::string> vox_files;
@@ -16,7 +16,7 @@ void load_models_system(Registry& ecs, const InitModelEvent&) {
     {
         Model models;
         const double t0 = GetTime() * 1000.0;
-        // Loading the model
+
         TraceLog(LOG_WARNING, TextFormat("Trying to load file %s...", vox_files[i].c_str()));
         models = LoadModel(vox_files[i].c_str());
         const double t1 = GetTime() * 1000.0;
@@ -31,7 +31,7 @@ void load_models_system(Registry& ecs, const InitModelEvent&) {
         models.transform = matTranslate;
 
         auto ModelEntity = ecs.spawn_entity();
-        ecs.add_component<ModelComponent>(ModelEntity, {models});
+        ecs.add_component<ModelComponent>(ModelEntity, {models, (i == 0)});
     }
 }
 

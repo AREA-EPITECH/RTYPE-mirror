@@ -121,6 +121,15 @@ public:
             system(*this, event);
     }
 
+    template <typename Event>
+    void unsubscribe_all() {
+        auto event_idx = std::type_index(typeid(Event));
+        auto it = _event_systems.find(event_idx);
+        if (it != _event_systems.end()) {
+            it->second = std::vector<system_type<Event>>{};
+        }
+    }
+
 private:
     std::unordered_map<std::type_index, std::any> _components_arrays;
     std::unordered_map<std::type_index, std::function<void(Registry&, entity_t const&)>> _erase_functions;

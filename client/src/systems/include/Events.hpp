@@ -15,7 +15,7 @@ struct WindowCloseEvent {
     bool shouldClose = false;
 };
 
-struct WindowUpdateEvent {};
+struct WindowDrawEvent {};
 
 
 //Camera
@@ -32,3 +32,7 @@ struct InitCameraEvent {
 //Models
 
 struct InitModelEvent {};
+
+// Controls
+
+struct ControlsEvent {};
