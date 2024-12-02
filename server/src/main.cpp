@@ -2,11 +2,12 @@
 #include "spdlog/spdlog.h"
 #include "Server.hpp"
 #include <sstream>
+#include <iostream>
 
 int main(int argc, char const *argv[])
 {
     try {
-        std::string s = argv[1];
+        const std::string s = argv[1];
         std::stringstream stream;
         stream << s;
         u_int port = 0;

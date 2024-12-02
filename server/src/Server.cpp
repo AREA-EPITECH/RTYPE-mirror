@@ -9,7 +9,6 @@
 #include "spdlog/spdlog.h"
 
 #include <exception>
-#include <iostream>
 #include <sys/types.h>
 
 namespace server {
