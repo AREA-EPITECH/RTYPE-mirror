@@ -9,17 +9,19 @@
 
 #include <cstdint>
 #include <vector>
+#include <string>
 
 namespace network
 {
-    #pragma pack(push, 1)
+#pragma pack(push, 1)
     struct PacketHeader
     {
         uint16_t packetId; // Unique ID for the packet type
         uint32_t timestamp; // Timestamp for synchronization
     };
 
-    enum EntityType {
+    enum EntityType
+    {
         Player = 1,
         Opponent = 2,
         Rocket = 3,
@@ -41,7 +43,8 @@ namespace network
         std::vector<EntityUpdate> entities; // Array of entity updates
     };
 
-    enum MoveDirection {
+    enum MoveDirection
+    {
         UpDirection = 1,
         DownDirection = 2,
         LeftDirection = 3,
@@ -49,7 +52,8 @@ namespace network
         NoneDirection = 0
     };
 
-    enum FireType {
+    enum FireType
+    {
         NormalFire = 1,
         ChargedFire = 2,
         NoneFire = 0
@@ -61,15 +65,63 @@ namespace network
         MoveDirection move;
         FireType fire;
     };
-    #pragma pack(pop)
+
+    enum LobbyActionType
+    {
+        CreateRoom = 1,
+        JoinRoom = 2,
+        LeaveRoom = 3,
+        ChangeName = 4,
+        ChangeShip = 5,
+        ChangeReady = 6
+    };
+
+    struct LobbyActionPacket
+    {
+        PacketHeader header;
+        LobbyActionType actionType;
+        uint32_t roomId;
+        std::string name;
+        uint16_t shipId;
+        bool readyState;
+    };
+
+    enum LobbyGameState
+    {
+        Waiting = 1,
+        Starting = 2,
+        Playing = 3,
+    };
+
+    struct LobbyPlayer
+    {
+        uint32_t id;
+        std::string name;
+        uint16_t shipId;
+        bool ready;
+    };
+
+    struct LobbySnapshotPacket
+    {
+        uint32_t roomId;
+        std::vector<LobbyPlayer> players;
+        LobbyGameState gameState;
+    };
+#pragma pack(pop)
 
     class Packet
     {
     public:
-        static std::vector<uint8_t> serializeSnapshotPacket(const SnapshotPacket& packet);
-        static SnapshotPacket deserializeSnapshotPacket(const std::vector<uint8_t>& data);
+        static std::vector<uint8_t> serializeSnapshotPacket(const SnapshotPacket &packet);
+        static SnapshotPacket deserializeSnapshotPacket(const std::vector<uint8_t> &data);
 
-        static std::vector<uint8_t> serializeInputPacket(const InputPacket& packet);
-        static InputPacket deserializeInputPacket(const std::vector<uint8_t>& data);
+        static std::vector<uint8_t> serializeInputPacket(const InputPacket &packet);
+        static InputPacket deserializeInputPacket(const std::vector<uint8_t> &data);
+
+        static std::vector<uint8_t> serializeLobbyActionPacket(const LobbyActionPacket &packet);
+        static LobbyActionPacket deserializeLobbyActionPacket(const std::vector<uint8_t> &data);
+
+        static std::vector<uint8_t> serializeLobbySnapshotPacket(const LobbySnapshotPacket &packet);
+        static LobbySnapshotPacket deserializeLobbySnapshotPacket(const std::vector<uint8_t> &data);
     };
 } // namespace network
