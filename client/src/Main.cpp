@@ -7,9 +7,9 @@
 
 #include "core/Lights.hpp"
 #include "Registry.hpp"
-#include "systems/include/Components.hpp"
-#include "systems/include/Events.hpp"
-#include "systems/include/Systems.hpp"
+#include "ecs/Components.hpp"
+#include "ecs/Events.hpp"
+#include "ecs/Systems.hpp"
 
 Registry init_ecs () {
     Registry ecs;
@@ -25,23 +25,18 @@ Registry init_ecs () {
     ecs.register_event<ecs::InitCameraEvent>();
     ecs.register_event<ecs::InitModelEvent>();
     ecs.register_event<ecs::ControlsEvent>();
-    
-    ecs.subscribe<ecs::WindowOpenEvent>([](Registry &ecs, const ecs::WindowOpenEvent &event) {
-        init_window_system(ecs, event);
-        open_selector_system(ecs, event);
-    });
-    ecs.subscribe<ecs::WindowDrawEvent>(ecs::draw_selector_system);
-    ecs.subscribe<ecs::WindowCloseEvent>([](Registry &e, const ecs::WindowCloseEvent &event) {
-        close_selector_system(e, event);
-        close_window_system(e, event);
-    });
+
+    ecs.subscribe<ecs::WindowOpenEvent>(ecs::init_window_system);
+
+    ecs.subscribe<ecs::WindowDrawEvent>(ecs::draw_menu_system);
+    ecs.subscribe<ecs::WindowCloseEvent>(ecs::close_window_system);
 
     ecs.subscribe<ecs::InitCameraEvent>(ecs::create_camera_system);
     ecs.subscribe<ecs::InitModelEvent>([](Registry& e, const ecs::InitModelEvent& event) {
         load_models_system(e, event);
         apply_shader_system(e, event);
     });
-    ecs.subscribe<ecs::ControlsEvent>(ecs::selector_controls_system);
+    ecs.subscribe<ecs::ControlsEvent>(ecs::menu_controls_system);
 
     return ecs;
 }

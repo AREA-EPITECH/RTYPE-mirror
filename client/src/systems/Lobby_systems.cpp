@@ -1,9 +1,9 @@
 //
 // Created by lferraro on 12/2/24.
 //
-#include "include/Systems.hpp"
+#include "ecs/Systems.hpp"
 namespace ecs {
-    void draw_selector_system(Registry &ecs, const WindowDrawEvent &) {
+    void draw_lobby_system(Registry &ecs, const WindowDrawEvent &) {
         ecs.run_event(ControlsEvent{});
         BeginDrawing();
         ClearBackground(RAYWHITE);
@@ -38,13 +38,13 @@ namespace ecs {
         }
     }
 
-    void open_selector_system(Registry &ecs, const WindowOpenEvent &) {
+    void open_lobby_system(Registry &ecs, const WindowOpenEvent &) {
         ecs.run_event(InitCameraEvent{{0.0f, 25.0f, 10.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, 45.0f,
                                       CAMERA_PERSPECTIVE});
         ecs.run_event(InitModelEvent{});
     }
 
-    void close_selector_system(Registry &ecs, const WindowCloseEvent &) {
+    void close_lobby_system(Registry &ecs, const WindowCloseEvent &) {
         auto &models = ecs.get_components<ModelComponent>();
 
         for (std::size_t i = 0; i < models.size(); ++i) {
