@@ -34,6 +34,10 @@ namespace ecs {
                 break;
 
             case WindowType::GAME:
+                ecs.subscribe<ControlsEvent>(game_controls_system);
+                ecs.subscribe<WindowOpenEvent>(init_window_system);
+                ecs.subscribe<WindowCloseEvent>(close_window_system);
+                ecs.subscribe<WindowDrawEvent>(draw_game_system);
                 break;
         }
 
@@ -42,7 +46,6 @@ namespace ecs {
 
     void menu_controls_system(Registry &ecs, const ControlsEvent &) {
         if (IsKeyPressed(KEY_ENTER)) {
-            std::cout << "go to selector" << std::endl;
             change_window(ecs, WindowType::SELECTOR);
             //for (std::size_t i = 0;  ;i++) {
             //
@@ -65,8 +68,7 @@ namespace ecs {
     void selector_controls_system(Registry &ecs, const ControlsEvent &) {
         auto &models = ecs.get_components<ModelComponent>();
         if (IsKeyPressed(KEY_ENTER)) {
-            std::cout << "go to menu" << std::endl;
-            change_window(ecs, WindowType::MENU);
+            change_window(ecs, WindowType::GAME);
             //for (std::size_t i = 0;  ;i++) {
             //
             //}
@@ -88,9 +90,7 @@ namespace ecs {
     void game_controls_system(Registry &ecs, const ControlsEvent &) {
         auto &models = ecs.get_components<ModelComponent>();
         if (IsKeyPressed(KEY_ENTER)) {
-            std::cout << "game" << std::endl;
-            ecs.unsubscribe_all<ControlsEvent>();
-            ecs.subscribe<ControlsEvent>(menu_controls_system);
+            change_window(ecs, WindowType::MENU);
             //for (std::size_t i = 0;  ;i++) {
             //
             //}

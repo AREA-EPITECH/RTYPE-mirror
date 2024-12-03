@@ -18,6 +18,9 @@ namespace ecs {
 // Menu
     void draw_menu_system(Registry &ecs, const WindowDrawEvent &);
 
+// Game
+    void draw_game_system(Registry &ecs, const WindowDrawEvent &);
+
 // Camera
     void create_camera_system(Registry &ecs, const InitCameraEvent &);
 

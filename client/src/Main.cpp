@@ -36,6 +36,7 @@ Registry init_ecs () {
         load_models_system(e, event);
         apply_shader_system(e, event);
     });
+
     ecs.subscribe<ecs::ControlsEvent>(ecs::menu_controls_system);
 
     return ecs;
