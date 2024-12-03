@@ -130,6 +130,15 @@ public:
         }
     }
 
+    void remove_all_components() {
+        for (auto& [type_idx, component_array] : _components_arrays) {
+            auto& sparse_array = std::any_cast<Sparse_array<std::any>&>(component_array);
+            sparse_array.clear();
+        }
+        _components_arrays.clear();
+        _erase_functions.clear();
+    }
+
 private:
     std::unordered_map<std::type_index, std::any> _components_arrays;
     std::unordered_map<std::type_index, std::function<void(Registry&, entity_t const&)>> _erase_functions;

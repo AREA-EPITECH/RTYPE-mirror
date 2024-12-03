@@ -4,6 +4,7 @@
 #include "Events.hpp"
 #include "Components.hpp"
 #include "DataType.hpp"
+#include "Main.hpp"
 
 namespace ecs {
 // Window

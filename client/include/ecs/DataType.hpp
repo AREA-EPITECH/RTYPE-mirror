@@ -3,7 +3,7 @@
 namespace ecs {
     enum WindowType {
         MENU,
-        SELECTOR,
+        LOBBY,
         GAME,
     };
 }

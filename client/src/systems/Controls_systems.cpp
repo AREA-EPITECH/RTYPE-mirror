@@ -14,30 +14,15 @@ namespace ecs {
 
         switch (type) {
             case WindowType::MENU:
-                ecs.subscribe<ControlsEvent>(menu_controls_system);
-                ecs.subscribe<WindowOpenEvent>(init_window_system);
-                ecs.subscribe<WindowCloseEvent>(close_window_system);
-                ecs.subscribe<WindowDrawEvent>(draw_menu_system);
+                init_menu_window(ecs);
                 break;
 
-            case WindowType::SELECTOR:
-                ecs.subscribe<ControlsEvent>(selector_controls_system);
-                ecs.subscribe<ecs::WindowOpenEvent>([](Registry &ecs, const ecs::WindowOpenEvent &event) {
-                    init_window_system(ecs, event);
-                    open_lobby_system(ecs, event);
-                });
-                ecs.subscribe<ecs::WindowCloseEvent>([](Registry &e, const ecs::WindowCloseEvent &event) {
-                    close_lobby_system(e, event);
-                    close_window_system(e, event);
-                });
-                ecs.subscribe<ecs::WindowDrawEvent>(ecs::draw_lobby_system);
+            case WindowType::LOBBY:
+                init_lobby_window(ecs);
                 break;
 
             case WindowType::GAME:
-                ecs.subscribe<ControlsEvent>(game_controls_system);
-                ecs.subscribe<WindowOpenEvent>(init_window_system);
-                ecs.subscribe<WindowCloseEvent>(close_window_system);
-                ecs.subscribe<WindowDrawEvent>(draw_game_system);
+                init_game_window(ecs);
                 break;
         }
 
@@ -46,7 +31,7 @@ namespace ecs {
 
     void menu_controls_system(Registry &ecs, const ControlsEvent &) {
         if (IsKeyPressed(KEY_ENTER)) {
-            change_window(ecs, WindowType::SELECTOR);
+            change_window(ecs, WindowType::LOBBY);
         }
 
         if (IsKeyPressed(KEY_LEFT)) {
