@@ -7,32 +7,31 @@
 #include <string>
 #include "raymath.h"
 
-//Window
+namespace ecs {
+// Window
+    struct WindowOpenEvent {
+    };
 
-struct WindowOpenEvent {};
+    struct WindowCloseEvent {
+        bool shouldClose = false;
+    };
 
-struct WindowCloseEvent {
-    bool shouldClose = false;
-};
+    struct WindowDrawEvent {
+    };
 
-struct WindowDrawEvent {};
-
-
-//Camera
-
-struct InitCameraEvent {
-    Vector3 position;
-    Vector3 target;
-    Vector3 up;
-    float fovy;
-    int projection;
-};
+// Camera
+    struct InitCameraEvent {
+        Vector3 position;
+        Vector3 target;
+        Vector3 up;
+        float fovy;
+        int projection;
+    };
 
 
-//Models
-
-struct InitModelEvent {};
+// Models
+    struct InitModelEvent {};
 
 // Controls
-
-struct ControlsEvent {};
+    struct ControlsEvent {};
+}
