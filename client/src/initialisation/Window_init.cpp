@@ -23,7 +23,7 @@ void init_lobby_window (Registry& ecs) {
         apply_shader_system(e, event);
     });
 
-    ecs.subscribe<ecs::ControlsEvent>(ecs::selector_controls_system);
+    ecs.subscribe<ecs::ControlsEvent>(ecs::lobby_controls_system);
     ecs.subscribe<ecs::WindowOpenEvent>([](Registry &ecs, const ecs::WindowOpenEvent &event) {
         init_window_system(ecs, event);
         open_lobby_system(ecs, event);

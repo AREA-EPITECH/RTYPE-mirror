@@ -30,7 +30,7 @@ namespace ecs {
     void apply_shader_system(Registry &ecs, const InitModelEvent &);
 
 // Controls
-    void selector_controls_system(Registry &ecs, const ControlsEvent &);
+    void lobby_controls_system(Registry &ecs, const ControlsEvent &);
     void menu_controls_system(Registry &ecs, const ControlsEvent &);
     void game_controls_system(Registry &ecs, const ControlsEvent &);
 }

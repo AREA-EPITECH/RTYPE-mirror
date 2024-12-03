@@ -38,7 +38,7 @@ namespace ecs {
         }
     }
 
-    void selector_controls_system(Registry &ecs, const ControlsEvent &) {
+    void lobby_controls_system(Registry &ecs, const ControlsEvent &) {
         auto &models = ecs.get_components<ModelComponent>();
         if (IsKeyPressed(KEY_ENTER)) {
             change_window(ecs, WindowType::GAME);
@@ -62,7 +62,7 @@ namespace ecs {
                         current = i;
                 }
             }
-            if (models[current].has_value()) {
+            if (current != -1 && models[current].has_value()) {
                 models[current].value().drawable = true;
                 models[to_change].value().drawable = false;
             }
@@ -89,7 +89,7 @@ namespace ecs {
                 }
             }
 
-            if (models[current].has_value()) {
+            if (current != -1 && models[current].has_value()) {
                 models[current].value().drawable = true;
                 models[to_change].value().drawable = false;
             }
