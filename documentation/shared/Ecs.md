@@ -1,11 +1,13 @@
 # Ecs documentation
 
 An ECS is an architectural design pattern, mostly used in video game development. This pattern follows
-the principle of composition over inheritance. Instead of defining an inheritance tree as usual in Object Ori-
-ented Programming, types are split into small yet highly reusable components
+the principle of composition over inheritance. Instead of defining an inheritance tree as usual in Object Oriented
+Programming, types are split into small yet highly reusable components.
 
 ## Initialise registry 
-the Registry will be the body of our Ecs. This is where we'll add all the components, systems, events and control data for our game.
+The Registry will be the body of our Ecs. This is where we'll add all the components, systems, events and control data 
+for our game.
+
 ### Add components to registry
 
 #### - Create Structure for components:
@@ -30,6 +32,7 @@ struct Drawable {
 
 struct Controllable {};
 ```
+*Example using SFML2. Not accurate in out actual project.*
 
 #### - Register a component to the registry:
 ```c++
@@ -43,7 +46,9 @@ reg.register_component<Controllable>();
 ###
 ## Entities in the registry
 ### Add / Remove / Modify an Entity
-your data will be represented in the form of entities, which will simply be **ids** where you can add your components. Here, our entity will be a player, so we'll add a position, velocity, sprite (here, just a simple square) and a controllable component that lets us define that the entity is a player.
+Your data will be represented in the form of entities, which will simply be **ids** where you can add your components. 
+Here, our entity will be a player, so we'll add a position, velocity, sprite (here, just a simple square) and a 
+controllable component that lets us define that the entity is a player.
 
 #### - Create an entity and add components to the entity
 ```c++
@@ -102,7 +107,8 @@ if (velocity[entity2].has_value()) { // or if (velocity[1].has_value())
 ```
 
 #### - Kill an entity
-the entities are stored in an array, so you can have three entities, kill the second and when you iterate on your entities, the loop will pass over the third entity.
+The entities are stored in an array, so you can have three entities, kill the second and when you iterate on your 
+entities, the loop will pass over the third entity.
 ```c++
 auto entity1 = reg.spawn_entity();
 auto entity2 = reg.spawn_entity();
@@ -139,8 +145,12 @@ if (velocity[entity3].has_value()) { // or if (velocity[2].has_value())
 
 ###
 ## Event and Systems
-Here, functions will be launched by systems associated with events. It's in your systems that you'll be able to access or modify the values of your entities (you can also do this externally with **get_component()**). You will then associate these systems with events, and each time you launch an event with **run_event()**, all associated systems will be executed in the order in which they were added.
-Events are represented by structures or classes. You can therefore pass elements as parameters to your systems using events (e.g. the game window reference to modify it in a system).
+Here, functions will be launched by systems associated with events. It's in your systems that you'll be able to access 
+or modify the values of your entities (you can also do this externally with **get_component()**). You will then 
+associate these systems with events, and each time you launch an event with **run_event()**, all associated systems 
+will be executed in the order in which they were added. Events are represented by structures or classes. You can 
+therefore pass elements as parameters to your systems using events (e.g. the game window reference to modify it in a 
+system).
 #### - Create structure for each event
 ```c++
 struct ControlEvent {};
