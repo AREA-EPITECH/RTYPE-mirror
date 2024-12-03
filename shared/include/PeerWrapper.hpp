@@ -5,6 +5,8 @@
 ** PeerWrapper.hpp
 */
 
+#pragma once
+
 #include <any>
 #include <enet/enet.h>
 #include <memory>
