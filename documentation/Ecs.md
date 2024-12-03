@@ -231,6 +231,11 @@ reg.subscribe<RenderEvent>([](Registry &r, const RenderEvent &event) {
     control_system(r, ControlEvent{});
 });
 ```
+#### - Remove all systems from an event
+```c++
+reg.unsubscribe_all<ControlEvent>();
+reg.unsubscribe_all<RenderEvent>();
+```
 
 #### - Run an event
 ```c++
