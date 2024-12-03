@@ -16,7 +16,7 @@ public:
 
     template <typename Component>
     Sparse_array<Component>& get_components() {
-        std::type_index type_idx = std::type_index(typeid(Component));
+        auto type_idx = std::type_index(typeid(Component));
         auto it = _components_arrays.find(type_idx);
         if (it == _components_arrays.end())
             throw std::runtime_error("Component type not registered.");
@@ -26,7 +26,7 @@ public:
 
     template <typename Component>
     const Sparse_array<Component>& get_components() const {
-        std::type_index type_idx = std::type_index(typeid(Component));
+        auto type_idx = std::type_index(typeid(Component));
         auto it = _components_arrays.find(type_idx);
         if (it == _components_arrays.end())
             throw std::runtime_error("Component type not registered.");
@@ -36,7 +36,7 @@ public:
 
     template <typename Component>
     Sparse_array<Component>& register_component() {
-        std::type_index type_idx = std::type_index(typeid(Component));
+        auto type_idx = std::type_index(typeid(Component));
         if (_components_arrays.find(type_idx) != _components_arrays.end())
             throw std::runtime_error("Component type already registered.");
 
@@ -97,7 +97,7 @@ public:
 
     template <typename Event>
     void register_event() {
-        std::type_index event_idx = std::type_index(typeid(Event));
+        auto event_idx = std::type_index(typeid(Event));
         if (_event_systems.find(event_idx) == _event_systems.end()) {
             _event_systems[event_idx] = std::vector<system_type<Event>>{};
         }
@@ -105,7 +105,7 @@ public:
 
     template <typename Event>
     auto& get_event_systems() {
-        std::type_index event_idx = std::type_index(typeid(Event));
+        auto event_idx = std::type_index(typeid(Event));
         return std::any_cast<std::vector<system_type<Event>>&>(_event_systems[event_idx]);
     }
 

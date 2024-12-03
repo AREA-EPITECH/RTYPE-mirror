@@ -46,7 +46,7 @@ int main() {
     Registry ecs = init_ecs();
 
     auto windowEntity = ecs.spawn_entity();
-    ecs.add_component<ecs::Window>(windowEntity, {800, 600, "ECS Raylib - Multi Events", false});
+    ecs.add_component<ecs::Window>(windowEntity, {1920, 1080, "ECS Raylib - Multi Events", false});
 
     ecs.run_event(ecs::WindowOpenEvent{});
 

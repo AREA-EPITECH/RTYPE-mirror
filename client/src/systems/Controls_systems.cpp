@@ -47,21 +47,9 @@ namespace ecs {
     void menu_controls_system(Registry &ecs, const ControlsEvent &) {
         if (IsKeyPressed(KEY_ENTER)) {
             change_window(ecs, WindowType::SELECTOR);
-            //for (std::size_t i = 0;  ;i++) {
-            //
-            //}
-            //currentModel = (currentModel + 1) % nb_vox;
         }
 
         if (IsKeyPressed(KEY_LEFT)) {
-            //if (currentModel != 0)
-            //{
-            //    currentModel = (currentModel - 1) % nb_vox;
-            //}
-            //else
-            //{
-            //    currentModel = nb_vox - 1;
-            //}
         }
     }
 
@@ -69,43 +57,66 @@ namespace ecs {
         auto &models = ecs.get_components<ModelComponent>();
         if (IsKeyPressed(KEY_ENTER)) {
             change_window(ecs, WindowType::GAME);
-            //for (std::size_t i = 0;  ;i++) {
-            //
-            //}
-            //currentModel = (currentModel + 1) % nb_vox;
         }
 
         if (IsKeyPressed(KEY_LEFT)) {
-            //if (currentModel != 0)
-            //{
-            //    currentModel = (currentModel - 1) % nb_vox;
-            //}
-            //else
-            //{
-            //    currentModel = nb_vox - 1;
-            //}
+            size_t current = -1;
+            size_t to_change = 0;
+            for (size_t i = 0; i < models.size() ;i++) {
+                if (models[i].has_value()) {
+                    if (models[i].value().drawable)
+                        if (current == -1) {
+                            to_change = i;
+                            continue;
+                        } else {
+                            models[current].value().drawable = true;
+                            models[i].value().drawable = false;
+                            return;
+                        }
+                    if (!models[i].value().drawable)
+                        current = i;
+                }
+            }
+            if (models[current].has_value()) {
+                models[current].value().drawable = true;
+                models[to_change].value().drawable = false;
+            }
+        }
+
+        if (IsKeyPressed(KEY_RIGHT)) {
+            size_t current = -1;
+            size_t to_change = 0;
+
+            for (size_t i = models.size(); i-- > 0;) {
+                if (models[i].has_value()) {
+                    if (models[i].value().drawable) {
+                        if (current == -1) {
+                            to_change = i;
+                            continue;
+                        } else {
+                            models[current].value().drawable = true;
+                            models[i].value().drawable = false;
+                            return;
+                        }
+                    }
+                    if (!models[i].value().drawable)
+                        current = i;
+                }
+            }
+
+            if (models[current].has_value()) {
+                models[current].value().drawable = true;
+                models[to_change].value().drawable = false;
+            }
         }
     }
 
     void game_controls_system(Registry &ecs, const ControlsEvent &) {
-        auto &models = ecs.get_components<ModelComponent>();
         if (IsKeyPressed(KEY_ENTER)) {
             change_window(ecs, WindowType::MENU);
-            //for (std::size_t i = 0;  ;i++) {
-            //
-            //}
-            //currentModel = (currentModel + 1) % nb_vox;
         }
 
         if (IsKeyPressed(KEY_LEFT)) {
-            //if (currentModel != 0)
-            //{
-            //    currentModel = (currentModel - 1) % nb_vox;
-            //}
-            //else
-            //{
-            //    currentModel = nb_vox - 1;
-            //}
         }
     }
 }

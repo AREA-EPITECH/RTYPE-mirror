@@ -8,7 +8,7 @@ namespace ecs {
     void load_models_system(Registry &ecs, const InitModelEvent &) {
         std::vector<std::string> vox_files;
 
-        for (const auto &entry: std::filesystem::directory_iterator("client/assets/voxels/")) {
+        for (const auto &entry: std::filesystem::directory_iterator("client/assets/voxels/player/spaceship")) {
             if (std::string file = entry.path().c_str(); file.find(".vox") != std::string::npos)
                 vox_files.emplace_back(file);
         }
