@@ -46,15 +46,15 @@ void runServer()
             switch (event.type)
             {
             case network::ServerEventType::ClientConnect:
-                spdlog::info("Client connected: {}", (void *)event.peer);
+                spdlog::info("Client connected: {}", (void *)event.peer->getPeer().get());
                 break;
 
             case network::ServerEventType::ClientDisconnect:
-                spdlog::info("Client disconnected: {}", (void *)event.peer);
+                spdlog::info("Client disconnected: {}", (void *)event.peer->getPeer().get());
                 break;
 
             case network::ServerEventType::DataReceive:
-                spdlog::info("Received data of size {} from {}", event.data.size(), (void *)event.peer);
+                spdlog::info("Received data of size {} from {}", event.data.size(), (void *)event.peer->getPeer().get());
                 break;
             }
         }
@@ -69,8 +69,8 @@ void runServer()
 }
 
 void handleClientData(ENetPeer* peer, const std::vector<uint8_t>& data) {
-    network::InputPacket input = network::Packet::deserializeInputPacket(data);
-    spdlog::info("Processing data from client: {}, data: {}", (void*)peer, input.data);
+    //network::InputPacket input = network::Packet::deserializeInputPacket(data);
+    spdlog::info("Processing data from client: {}", (void*)peer);
     // Process the data (game logic, etc.)
 }
 
@@ -92,17 +92,17 @@ void runMultithreadedServer() {
         while (server.pollEvent(event)) {
             switch (event.type) {
                 case network::ServerEventType::ClientConnect:
-                    spdlog::info("Client connected: {}", (void*)event.peer);
+                    spdlog::info("Client connected: {}", (void*)event.peer->getPeer().get());
                     break;
 
                 case network::ServerEventType::ClientDisconnect:
-                    spdlog::info("Client disconnected: {}", (void*)event.peer);
+                    spdlog::info("Client disconnected: {}", (void*)event.peer->getPeer().get());
                     break;
 
                 case network::ServerEventType::DataReceive:
                     // Delegate data processing to the thread pool
                     threadPool.enqueueTask([peer = event.peer, data = std::move(event.data)] {
-                        handleClientData(peer, data);
+                        handleClientData(peer->getPeer().get(), data);
                     });
                     break;
             }

@@ -30,14 +30,14 @@ int main(int argc, char const *argv[])
                     return 0; // Exit loop on server disconnect
                 }
             }
-            std::cout << ">> ";
+            /*std::cout << ">> ";
             std::cin.getline(input, 250);
             auto now = std::chrono::steady_clock::now();
             packet.header.timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count();
             packet.header.packetId = i;
             packet.data = input;
             client.sendPacket(network::Packet::serializeInputPacket(packet));
-            i++;
+            i++;*/
         }
     }
     else
