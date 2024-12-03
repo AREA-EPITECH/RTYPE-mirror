@@ -1,7 +1,12 @@
-//
-// Created by lferraro on 12/2/24.
-//
+/*
+** EPITECH PROJECT, 2024
+** r-type
+** File description:
+** Lobby_systems
+*/
+
 #include "ecs/Systems.hpp"
+
 namespace ecs {
     void draw_lobby_system(Registry &ecs, const WindowDrawEvent &) {
         ecs.run_event(ControlsEvent{});

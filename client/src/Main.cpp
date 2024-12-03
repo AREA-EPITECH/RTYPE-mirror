@@ -15,6 +15,7 @@ Registry init_ecs () {
     ecs.register_component<ecs::ShaderComponent>();
     ecs.register_component<ecs::CameraComponent>();
     ecs.register_component<ecs::ParticleSystemComponent>();
+    ecs.register_component<ecs::LightComponent>();
 
     ecs.register_event<ecs::WindowOpenEvent>();
     ecs.register_event<ecs::WindowCloseEvent>();
@@ -23,6 +24,7 @@ Registry init_ecs () {
     ecs.register_event<ecs::InitModelEvent>();
     ecs.register_event<ecs::ControlsEvent>();
     ecs.register_event<ecs::ParticleSystemEvent>();
+    ecs.register_event<ecs::InitLightEvent>();
 
     init_menu_window(ecs);
 
@@ -33,7 +35,8 @@ int main() {
     Registry ecs = init_ecs();
 
     auto windowEntity = ecs.spawn_entity();
-    ecs.add_component<ecs::Window>(windowEntity, {1920, 1080, "ECS Raylib - Multi Events", false});
+    ecs.add_component<ecs::Window>(windowEntity, {1920, 1080, "ECS Raylib - Multi Events",
+        false});
 
     ecs.run_event(ecs::WindowOpenEvent{});
 

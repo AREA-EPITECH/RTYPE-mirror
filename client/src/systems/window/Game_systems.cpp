@@ -10,7 +10,16 @@
 namespace ecs {
 
     void draw_game_system(Registry &ecs, const WindowDrawEvent &) {
-        ecs.run_event(ControlsEvent{});
+        auto &shaders = ecs.get_components<ShaderComponent>();
+
+        Shader shader = {};
+        for (auto & shader_i : shaders) {
+            if (shader_i.has_value()) {
+                shader = shader_i->shader;
+                break;
+            }
+        }
+
         BeginDrawing();
         ClearBackground(RAYWHITE);
 
@@ -20,6 +29,13 @@ namespace ecs {
         for (auto & camera_i : cameras) {
             if (camera_i.has_value()) {
                 Camera &camera = camera_i->camera;
+
+                auto &lights = ecs.get_components<LightComponent>();
+                for (auto & light : lights) {
+                    if (light.has_value()) {
+                        light->light->UpdateLightValues(shader);
+                    }
+                }
 
                 if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
                 {
@@ -50,8 +66,23 @@ namespace ecs {
                         ModelComponent &modelComponent = model.value();
                         if (modelComponent.drawable) {
                             Matrix rotation = MatrixRotate((Vector3){0.0f, 1.0f, 0.0f}, rotationAngle);
-                            modelComponent.model.transform = MatrixMultiply(modelComponent.model.transform, rotation);
+                            modelComponent.model.transform = MatrixMultiply(modelComponent.model.transform,
+                                rotation);
                             DrawModel(modelComponent.model, {0, 0, 0}, 1.0f, WHITE);
+                        }
+                    }
+                }
+
+                for (auto & light : lights) {
+                    if (light.has_value()) {
+                        if (light->light->_enabled)
+                        {
+                            DrawSphereEx(light->light->_position, 0.2f, 8, 8, light->light->_color);
+                        }
+                        else
+                        {
+                            DrawSphereWires(light->light->_position, 0.2f, 8, 8,
+                            ColorAlpha(light->light->_color, 0.3f));
                         }
                     }
                 }

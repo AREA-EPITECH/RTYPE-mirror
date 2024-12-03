@@ -1,3 +1,10 @@
+/*
+** EPITECH PROJECT, 2024
+** r-type
+** File description:
+** Systems
+*/
+
 #pragma once
 
 #include "Registry.hpp"
@@ -38,4 +45,8 @@ namespace ecs {
 
 // Particles
     void particles_system(Registry &ecs, const ParticleSystemEvent &);
+
+// Lights
+    void create_light_system(Registry &ecs, const InitLightEvent &);
+    void load_lights(Registry &ecs, const InitModelEvent &);
 }

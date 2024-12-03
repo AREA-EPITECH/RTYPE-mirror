@@ -7,6 +7,7 @@
 #include <string>
 #include "raymath.h"
 #include "core/ParticleSystem.hpp"
+#include "core/Lights.hpp"
 
 namespace ecs {
 // Window
@@ -29,6 +30,15 @@ namespace ecs {
         int projection;
     };
 
+// Lights
+    struct InitLightEvent {
+        client::LightType type;
+        Vector3 position;
+        Vector3 target;
+        Color color;
+        Shader shader;
+        int nb;
+    };
 
 // Models
     struct InitModelEvent {};

@@ -1,6 +1,9 @@
-//
-// Created by lferraro on 12/2/24.
-//
+/*
+** EPITECH PROJECT, 2024
+** r-type
+** File description:
+** Models_systems
+*/
 
 #include "ecs/Systems.hpp"
 
@@ -35,19 +38,6 @@ namespace ecs {
         }
     }
 
-    void ApplyShaderSystem(Registry &ecs, const ShaderComponent &event) {
-        auto &models = ecs.get_components<ModelComponent>();
-
-        for (size_t i = 0; i < models.size(); ++i) {
-            if (models[i]) {
-                auto &model = models[i]->model;
-                for (int j = 0; j < model.materialCount; ++j) {
-                    model.materials[j].shader = event.shader;
-                }
-            }
-        }
-    }
-
     void create_camera_system(Registry &ecs, const InitCameraEvent &event) {
         auto entity = ecs.spawn_entity();
 
@@ -78,6 +68,9 @@ namespace ecs {
         int ambientLoc = GetShaderLocation(shader, "ambient");
         SetShaderValue(shader, ambientLoc, (float[4]) {0.1f, 0.1f, 0.1f, 1.0f}, SHADER_UNIFORM_VEC4);
 
+        auto entity = ecs.spawn_entity();
+        ecs.add_component<ShaderComponent>(entity, {shader});
+
         for (std::size_t i = 0; i < models.size(); ++i) {
             if (models[i].has_value()) {
                 Model &model = models[i]->model;
@@ -89,5 +82,33 @@ namespace ecs {
                 TraceLog(LOG_INFO, TextFormat("Applied shader to model of entity %zu.", i));
             }
         }
+    }
+
+    void create_light_system(Registry &ecs, const InitLightEvent &event)
+    {
+        const client::Light light{event.type, event.position, event.target, event.color, event.shader, event.nb};
+        auto entity = ecs.spawn_entity();
+        ecs.add_component<LightComponent>(entity, {std::make_shared<client::Light>(light)});
+    }
+
+    void load_lights(Registry &ecs, const InitModelEvent &) {
+        auto &shaders = ecs.get_components<ShaderComponent>();
+
+        Shader shader = {};
+        for (auto & shader_i : shaders) {
+            if (shader_i.has_value()) {
+                shader = shader_i->shader;
+                break;
+            }
+        }
+        ecs.run_event(ControlsEvent{});
+        ecs.run_event(InitLightEvent{client::LIGHT_POINT, {-20, 20, -20}, Vector3Zero(),
+            WHITE, shader, 0});
+        ecs.run_event(InitLightEvent{client::LIGHT_POINT, {20, -20, 20}, Vector3Zero(),
+            WHITE, shader, 1});
+        ecs.run_event(InitLightEvent{client::LIGHT_POINT, {-20, 20, 20}, Vector3Zero(),
+            WHITE, shader, 2});
+        ecs.run_event(InitLightEvent{client::LIGHT_POINT, {20, -20, -20}, Vector3Zero(),
+            WHITE, shader, 3});
     }
 }

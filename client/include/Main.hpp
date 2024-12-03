@@ -7,7 +7,6 @@
 
 #pragma once
 
-#include "core/Lights.hpp"
 #include "ecs/Systems.hpp"
 
 void init_menu_window (Registry& ecs);

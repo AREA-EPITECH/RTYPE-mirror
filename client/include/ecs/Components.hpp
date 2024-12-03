@@ -2,6 +2,7 @@
 
 #include "Events.hpp"
 #include "core/ParticleSystem.hpp"
+#include "core/Lights.hpp"
 
 namespace ecs {
     struct Window {
@@ -25,8 +26,7 @@ namespace ecs {
     };
 
     struct LightComponent {
-        Vector3 position;
-        Color color;
+        std::shared_ptr<client::Light> light;
     };
 
     struct ParticleSystemComponent {

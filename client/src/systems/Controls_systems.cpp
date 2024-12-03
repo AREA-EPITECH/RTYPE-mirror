@@ -1,8 +1,12 @@
-//
-// Created by lferraro on 12/2/24.
-//
+/*
+** EPITECH PROJECT, 2024
+** r-type
+** File description:
+** Controls_systems
+*/
 
 #include "ecs/Systems.hpp"
+
 namespace ecs {
     void change_window(Registry &ecs, WindowType type) {
         ecs.run_event(WindowCloseEvent{});
