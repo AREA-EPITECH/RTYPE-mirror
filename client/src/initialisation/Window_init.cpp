@@ -37,7 +37,13 @@ void init_lobby_window (Registry& ecs) {
 
 void init_game_window (Registry& ecs) {
     ecs.subscribe<ecs::ControlsEvent>(ecs::game_controls_system);
-    ecs.subscribe<ecs::WindowOpenEvent>(ecs::init_window_system);
-    ecs.subscribe<ecs::WindowCloseEvent>(ecs::close_window_system);
+    ecs.subscribe<ecs::WindowOpenEvent>([](Registry &ecs, const ecs::WindowOpenEvent &event) {
+        init_window_system(ecs, event);
+        open_game_system(ecs, event);
+    });
+    ecs.subscribe<ecs::WindowCloseEvent>([](Registry &e, const ecs::WindowCloseEvent &event) {
+        close_game_system(e, event);
+        close_window_system(e, event);
+    });
     ecs.subscribe<ecs::WindowDrawEvent>(ecs::draw_game_system);
 }

@@ -54,10 +54,12 @@ namespace ecs {
 
         for (std::size_t i = 0; i < models.size(); ++i) {
             if (models[i].has_value()) {
-                UnloadModel(models[i]->model);
-                TraceLog(LOG_WARNING, TextFormat("Unloaded model for entity %zu.", i));
+                if (!models[i].value().drawable) {
+                    UnloadModel(models[i]->model);
+                    TraceLog(LOG_INFO, TextFormat("Unloaded model for entity %zu.", i));
 
-                ecs.kill_entity(static_cast<entity_t>(i));
+                    ecs.kill_entity(static_cast<entity_t>(i));
+                }
             }
         }
     }
