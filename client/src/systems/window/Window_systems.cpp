@@ -1,7 +1,7 @@
 //
 // Created by lferraro on 12/2/24.
 //
-#include "include/Systems.hpp"
+#include "ecs/Systems.hpp"
 namespace ecs {
     void init_window_system(Registry &ecs, const WindowOpenEvent &) {
         auto &windows = ecs.get_components<Window>();

@@ -1,7 +1,9 @@
 //
 // Created by lferraro on 12/2/24.
 //
-#include "include/Systems.hpp"
+
+#include "ecs/Systems.hpp"
+
 namespace ecs {
     void load_models_system(Registry &ecs, const InitModelEvent &) {
         std::vector<std::string> vox_files;
