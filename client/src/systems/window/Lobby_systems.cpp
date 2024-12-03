@@ -9,18 +9,23 @@ namespace ecs {
         ClearBackground(RAYWHITE);
 
         auto &cameras = ecs.get_components<CameraComponent>();
-        for (std::size_t i = 0; i < cameras.size(); ++i) {
-            if (cameras[i].has_value()) {
-                Camera &camera = cameras[i]->camera;
+        static float rotationAngle = 0.01f;
+
+        for (auto & i : cameras) {
+            if (i.has_value()) {
+                Camera &camera = i->camera;
 
                 BeginMode3D(camera);
 
                 auto &models = ecs.get_components<ModelComponent>();
-                for (std::size_t j = 0; j < models.size(); ++j) {
-                    if (models[j].has_value()) {
-                        const Model &model = models[j].value().model;
-                        if (models[j].value().drawable)
-                            DrawModel(model, {0, 0, 0}, 1.0f, WHITE);
+                for (auto & model : models) {
+                    if (model.has_value()) {
+                        ModelComponent &modelComponent = model.value();
+                        if (modelComponent.drawable) {
+                            Matrix rotation = MatrixRotate((Vector3){0.0f, 1.0f, 0.0f}, rotationAngle);
+                            modelComponent.model.transform = MatrixMultiply(modelComponent.model.transform, rotation);
+                            DrawModel(modelComponent.model, {0, 0, 0}, 1.0f, WHITE);
+                        }
                     }
                 }
 
@@ -39,7 +44,7 @@ namespace ecs {
     }
 
     void open_lobby_system(Registry &ecs, const WindowOpenEvent &) {
-        ecs.run_event(InitCameraEvent{{0.0f, 25.0f, 10.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, 45.0f,
+        ecs.run_event(InitCameraEvent{{0.0f, 20.0f, 20.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, 45.0f,
                                       CAMERA_PERSPECTIVE});
         ecs.run_event(InitModelEvent{});
     }
