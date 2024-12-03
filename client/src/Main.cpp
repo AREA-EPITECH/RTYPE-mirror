@@ -17,8 +17,7 @@ int main()
 {
 
     // Init Raylib window
-    client::Game::createRaylibWindow(600, 600, "Voxels Visualizer");
-    client::Game::disableRaylibCursor();
+    client::Game::createRaylibWindow(1080, 1080, "Voxels Visualizer");
 
     // Init camera
     Camera camera = client::Game::createAndSetCamera((Vector3){ 0.0f, 10.0f, 10.0f },
@@ -27,9 +26,6 @@ int main()
 
     // Load models
     std::vector<Model> models = client::Game::loadModelsFromPath("client/assets/voxels/");
-
-    size_t currentModel = 0;
-    const size_t nb_vox = models.size();
 
     // Load shader
     Shader shader = LoadShader("client/assets/voxels/shaders/voxel_lighting.vs",
@@ -44,8 +40,8 @@ int main()
     // Creating lights
     std::vector<Vector3> positions = { { -20, 20, -20 }, { 20, -20, 20 },
         { -20, 20, 20 }, { 20, -20, -20 } };
-    std::vector<Color> colors = { WHITE, WHITE, WHITE, WHITE };
-    std::vector<std::shared_ptr<client::Light>> lights = client::Game::createLights(shader, positions, colors);
+    std::vector colors = {WHITE, WHITE, WHITE, WHITE};
+    const std::vector<std::shared_ptr<client::Light>> lights = client::Game::createLights(shader, positions, colors);
 
     // Main loop
     client::Game::mainLoopVoxelVisualizer(models, lights, camera, shader);

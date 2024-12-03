@@ -2,8 +2,10 @@ cmake_minimum_required(VERSION 3.29)
 project(r-type_client)
 
 file(GLOB_RECURSE PROJECT_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_LIST_DIR}/src/*.cpp")
+file(GLOB_RECURSE PROJECT_HEADERS CONFIGURE_DEPENDS "${CMAKE_CURRENT_LIST_DIR}/include/*.hpp")
 add_executable(${PROJECT_NAME}
     ${PROJECT_SOURCES}
+    ${PROJECT_HEADERS}
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC

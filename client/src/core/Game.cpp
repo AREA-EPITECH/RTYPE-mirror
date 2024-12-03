@@ -6,6 +6,8 @@
 */
 
 #include "core/Game.hpp"
+#include <algorithm>
+#include "core/ParticleSystem.hpp"
 
 namespace client
 {
@@ -63,8 +65,8 @@ namespace client
         for (int i = 0; i < nb_vox; i++)
         {
             const double t0 = GetTime() * 1000.0;
-            // Loading the model
-            TraceLog(LOG_WARNING, TextFormat("Trying to load file %s...", vox_files[i].c_str()));
+
+            // Load the model
             models[i] = LoadModel(vox_files[i].c_str());
             const double t1 = GetTime() * 1000.0;
             TraceLog(LOG_WARNING, TextFormat("Loaded file %s in %f ms.", vox_files[i].c_str(), t1 - t0));
@@ -84,9 +86,8 @@ namespace client
 
     void Game::applyShaderOnModels(const Shader shader, const std::vector<Model> &models)
     {
-        for (size_t i = 0; i < models.size(); i++)
+        for (auto model : models)
         {
-            Model model = models[i];
             for (int j = 0; j < model.materialCount; j++)
             {
                 model.materials[j].shader = shader;
@@ -128,12 +129,19 @@ namespace client
         Vector3 camerarot = {};
         size_t currentModel = 0;
         size_t nb_vox = models.size();
-        bool rotating = true;
+        bool rotating = false;
         float rotationAngle = 0.01f;
+
+        std::vector<ParticleSystem> particle_systems;
 
         while (!WindowShouldClose())
             {
             UpdateCamera(&camera, CAMERA_FIRST_PERSON);
+            if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+            {
+                particle_systems.emplace_back(Vector3{GetMousePosition().x, GetMousePosition().y, 0}, UP, true, 100, 500);
+                TraceLog(LOG_WARNING, "Nb of particle systems: %d", particle_systems.size());
+            }
             if (IsKeyDown(KEY_LEFT_SHIFT))
             {
                 camera.position.y -= 0.1f;
@@ -200,8 +208,22 @@ namespace client
                 lights[i].get()->UpdateLightValues(shader);
             }
             BeginDrawing();
-
             ClearBackground(RAYWHITE);
+            for (auto it = particle_systems.begin(); it != particle_systems.end();)
+            {
+                if (!it->isAlive())
+                {
+                    // Delete the particle system if it is not alive
+                    it = particle_systems.erase(it);
+                }
+                else
+                {
+                    // Update and draw the particle system
+                    it->update();
+                    it->draw();
+                    ++it;
+                 }
+            }
             BeginMode3D(camera);
             DrawModel(models[currentModel], modelpos, 1.0f, WHITE);
             DrawGrid(10, 1.0);
@@ -221,6 +243,4 @@ namespace client
             EndDrawing();
         }
     }
-
-
 }
