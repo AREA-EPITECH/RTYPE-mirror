@@ -139,7 +139,7 @@ namespace client
             UpdateCamera(&camera, CAMERA_FIRST_PERSON);
             if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
             {
-                particle_systems.emplace_back(Vector3{GetMousePosition().x, GetMousePosition().y, 0}, UP, true, 100, 500);
+                particle_systems.emplace_back(Vector3{GetMousePosition().x, GetMousePosition().y, 0}, UP, false, 100, 1000);
                 TraceLog(LOG_WARNING, "Nb of particle systems: %d", particle_systems.size());
             }
             if (IsKeyDown(KEY_LEFT_SHIFT))

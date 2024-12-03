@@ -14,6 +14,7 @@ Registry init_ecs () {
     ecs.register_component<ecs::ModelComponent>();
     ecs.register_component<ecs::ShaderComponent>();
     ecs.register_component<ecs::CameraComponent>();
+    ecs.register_component<ecs::ParticleSystemComponent>();
 
     ecs.register_event<ecs::WindowOpenEvent>();
     ecs.register_event<ecs::WindowCloseEvent>();
@@ -21,6 +22,7 @@ Registry init_ecs () {
     ecs.register_event<ecs::InitCameraEvent>();
     ecs.register_event<ecs::InitModelEvent>();
     ecs.register_event<ecs::ControlsEvent>();
+    ecs.register_event<ecs::ParticleSystemEvent>();
 
     init_menu_window(ecs);
 

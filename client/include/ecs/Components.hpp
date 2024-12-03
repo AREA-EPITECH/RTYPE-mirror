@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Events.hpp"
+#include "core/ParticleSystem.hpp"
 
 namespace ecs {
     struct Window {
@@ -26,5 +27,9 @@ namespace ecs {
     struct LightComponent {
         Vector3 position;
         Color color;
+    };
+
+    struct ParticleSystemComponent {
+        client::ParticleSystem particleSystem;
     };
 }

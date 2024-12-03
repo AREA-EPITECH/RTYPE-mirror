@@ -1,6 +1,9 @@
-//
-// Created by lferraro on 12/3/24.
-//
+/*
+** EPITECH PROJECT, 2024
+** r-type
+** File description:
+** Game_systems
+*/
 
 #include "ecs/Systems.hpp"
 
@@ -14,9 +17,30 @@ namespace ecs {
         auto &cameras = ecs.get_components<CameraComponent>();
         static float rotationAngle = 0.01f;
 
-        for (auto & i : cameras) {
-            if (i.has_value()) {
-                Camera &camera = i->camera;
+        for (auto & camera_i : cameras) {
+            if (camera_i.has_value()) {
+                Camera &camera = camera_i->camera;
+
+                if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+                {
+                    ecs.run_event(ParticleSystemEvent{{GetMousePosition().x, GetMousePosition().y, 0},
+                        client::UP, true, 100, 1000});
+                }
+
+                auto &particles_systems = ecs.get_components<ParticleSystemComponent>();
+                for (size_t i = 0; i < particles_systems.size(); ++i) {
+                    if (particles_systems[i].has_value()) {
+                        ParticleSystemComponent &particleSystemComponent = particles_systems[i].value();
+                        if (!particleSystemComponent.particleSystem.isAlive())
+                        {
+                            ecs.kill_entity(i);
+                        } else
+                        {
+                            particleSystemComponent.particleSystem.update();
+                            particleSystemComponent.particleSystem.draw();
+                        }
+                    }
+                }
 
                 BeginMode3D(camera);
 
@@ -47,8 +71,8 @@ namespace ecs {
     }
 
     void open_game_system(Registry &ecs, const WindowOpenEvent &) {
-        ecs.run_event(InitCameraEvent{{0.0f, 20.0f, 20.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, 45.0f,
-                                      CAMERA_PERSPECTIVE});
+        ecs.run_event(InitCameraEvent{{0.0f, 20.0f, 20.0f}, {0.0f, 0.0f, 0.0f},
+            {0.0f, 1.0f, 0.0f}, 45.0f, CAMERA_PERSPECTIVE});
         ecs.run_event(InitModelEvent{});
     }
 
@@ -60,7 +84,14 @@ namespace ecs {
                 UnloadModel(models[i]->model);
                 TraceLog(LOG_WARNING, TextFormat("Unloaded model for entity %zu.", i));
 
-                ecs.kill_entity(static_cast<entity_t>(i));
+                ecs.kill_entity(i);
+            }
+        }
+
+        auto &particles_systems = ecs.get_components<ParticleSystemComponent>();
+        for (size_t i = 0; i < particles_systems.size(); ++i) {
+            if (particles_systems[i].has_value()) {
+                ecs.kill_entity(i);
             }
         }
     }

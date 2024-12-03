@@ -6,6 +6,7 @@
 #include "raylib.h"
 #include <string>
 #include "raymath.h"
+#include "core/ParticleSystem.hpp"
 
 namespace ecs {
 // Window
@@ -34,4 +35,13 @@ namespace ecs {
 
 // Controls
     struct ControlsEvent {};
+
+// ParticleSystem
+    struct ParticleSystemEvent {
+        Vector3 position;
+        client::Direction direction;
+        bool infinite;
+        float lifetime;
+        size_t max_particles;
+    };
 }

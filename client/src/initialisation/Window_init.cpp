@@ -1,6 +1,10 @@
-//
-// Created by lferraro on 12/3/24.
-//
+/*
+** EPITECH PROJECT, 2024
+** r-type
+** File description:
+** Window_init
+*/
+
 
 #include "Registry.hpp"
 #include "ecs/Systems.hpp"
@@ -36,6 +40,7 @@ void init_lobby_window (Registry& ecs) {
 }
 
 void init_game_window (Registry& ecs) {
+    ecs.subscribe<ecs::ParticleSystemEvent>(ecs::particles_system);
     ecs.subscribe<ecs::ControlsEvent>(ecs::game_controls_system);
     ecs.subscribe<ecs::WindowOpenEvent>([](Registry &ecs, const ecs::WindowOpenEvent &event) {
         init_window_system(ecs, event);

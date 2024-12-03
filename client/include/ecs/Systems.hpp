@@ -35,4 +35,7 @@ namespace ecs {
     void lobby_controls_system(Registry &ecs, const ControlsEvent &);
     void menu_controls_system(Registry &ecs, const ControlsEvent &);
     void game_controls_system(Registry &ecs, const ControlsEvent &);
+
+// Particles
+    void particles_system(Registry &ecs, const ParticleSystemEvent &);
 }
