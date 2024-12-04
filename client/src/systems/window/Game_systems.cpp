@@ -102,8 +102,10 @@ namespace ecs {
         }
     }
 
-    void load_game_lights(Registry &ecs, const InitModelEvent &) {
-        // Load lights for game window, this will be killed after.
+    void open_game_system(Registry &ecs, const WindowOpenEvent &) {
+        ecs.run_event(InitCameraEvent{{0.0f, 20.0f, 20.0f}, {0.0f, 0.0f, 0.0f},
+            {0.0f, 1.0f, 0.0f}, 45.0f, CAMERA_PERSPECTIVE});
+        ecs.run_event(InitModelEvent{});
         auto &shaders = ecs.get_components<ShaderComponent>();
 
         Shader shader = {};
@@ -113,7 +115,6 @@ namespace ecs {
                 break;
             }
         }
-        ecs.run_event(ControlsEvent{});
         ecs.run_event(InitLightEvent{client::LIGHT_POINT, {-20, 20, -20}, Vector3Zero(),
             WHITE, shader, 0});
         ecs.run_event(InitLightEvent{client::LIGHT_POINT, {20, -20, 20}, Vector3Zero(),
@@ -122,12 +123,6 @@ namespace ecs {
             WHITE, shader, 2});
         ecs.run_event(InitLightEvent{client::LIGHT_POINT, {20, -20, -20}, Vector3Zero(),
             WHITE, shader, 3});
-    }
-
-    void open_game_system(Registry &ecs, const WindowOpenEvent &) {
-        ecs.run_event(InitCameraEvent{{0.0f, 20.0f, 20.0f}, {0.0f, 0.0f, 0.0f},
-            {0.0f, 1.0f, 0.0f}, 45.0f, CAMERA_PERSPECTIVE});
-        ecs.run_event(InitModelEvent{});
     }
 
     void close_game_system(Registry &ecs, const WindowCloseEvent &) {

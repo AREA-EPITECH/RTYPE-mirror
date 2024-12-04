@@ -38,6 +38,8 @@ int main() {
     ecs.add_component<ecs::Window>(windowEntity, {1920, 1080, "ECS Raylib - Multi Events",
         false});
 
+    ecs.subscribe<ecs::InitLightEvent>(ecs::create_light_system);
+
     ecs.run_event(ecs::WindowOpenEvent{});
 
     while (!WindowShouldClose()) {
