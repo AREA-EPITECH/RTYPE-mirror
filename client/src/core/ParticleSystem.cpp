@@ -10,7 +10,15 @@
 
 namespace client
 {
-     ParticleSystem::ParticleSystem(const Vector3 &pos, const Direction direction, const bool infinite,
+    /**
+     * @brief Construct a new ParticleSystem:: ParticleSystem object
+     * @param pos
+     * @param direction
+     * @param infinite
+     * @param lifetime
+     * @param max_particles
+     */
+ParticleSystem::ParticleSystem(const Vector3 &pos, const Direction direction, const bool infinite,
         const float lifetime, const size_t max_particles) noexcept : _position(pos), _direction(direction),
         _infinite(infinite), _lifetime(lifetime), _max_particles(max_particles)
     {
@@ -22,6 +30,9 @@ namespace client
          }
     }
 
+    /**
+     * @brief Draw all particles in the particle system
+     */
     void ParticleSystem::draw()
      {
          for (auto obj = _particleSystem.begin(); obj < _particleSystem.end(); ++obj)
@@ -31,6 +42,9 @@ namespace client
          }
      }
 
+     /**
+      * @brief Update all particles in the particle system, remove particles that are too small and replace them
+      */
     void ParticleSystem::update()
      {
          if (!this->isAlive())
@@ -57,6 +71,10 @@ namespace client
              _lifetime -= 1;
      }
 
+    /**
+     * @brief Check if the particle system is alive
+     * @return bool
+     */
     bool ParticleSystem::isAlive() const
      {
          if (!_infinite && _lifetime <= 0)

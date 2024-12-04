@@ -6,6 +6,7 @@
 */
 
 #pragma once
+
 #include <vector>
 #include "core/Particle.hpp"
 
@@ -27,6 +28,6 @@ namespace client
             noexcept;
         void draw();
         void update();
-        bool isAlive() const;
+        [[nodiscard]] bool isAlive() const;
     };
 }

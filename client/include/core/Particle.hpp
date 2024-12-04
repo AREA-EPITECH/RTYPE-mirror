@@ -7,11 +7,11 @@
 
 #pragma once
 
-#include <tuple>
 #include "raylib.h"
 
 namespace client
 {
+    // Particle types
     enum ParticleType
     {
         REACTOR,
@@ -22,6 +22,7 @@ namespace client
 
     };
 
+    // Particle directions where it disperses
     enum Direction
     {
         UP,
@@ -34,7 +35,7 @@ namespace client
     {
     private:
         Vector3 _position;
-        Vector3 _velocity;
+        Vector3 _velocity{};
         Vector3 _acceleration;
         ParticleType _type;
         Color _color;
@@ -47,6 +48,6 @@ namespace client
 
         void draw() const;
         void update();
-        float getSize() const;
+        [[nodiscard]] float getSize() const;
     };
 }

@@ -9,6 +9,10 @@
 
 namespace ecs
 {
+    /**
+     * Create the particles system
+     * @param ecs, event
+     */
     void particles_system(Registry &ecs, const ParticleSystemEvent &event)
     {
         const client::ParticleSystem particle_system_event{event.position, event.direction, event.infinite, event.lifetime,

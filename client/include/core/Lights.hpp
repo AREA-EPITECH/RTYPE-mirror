@@ -24,8 +24,8 @@ namespace client
     private:
         // Light data
         LightType _type;
-        Vector3 _target;
-        float _attenuation;
+        Vector3 _target{};
+        float _attenuation{};
         std::string _name;
 
         // Shader location
@@ -34,12 +34,12 @@ namespace client
         int _positionLoc;
         int _targetLoc;
         int _colorLoc;
-        int _attenuationLoc;
+        int _attenuationLoc{};
 
     public:
         bool _enabled;
-        Vector3 _position;
-        Color _color;
+        Vector3 _position{};
+        Color _color{};
 
         Light(LightType type, Vector3 position, Vector3 target, Color color, Shader shader, int nb);
         void UpdateLightValues(Shader shader) const;
