@@ -1,6 +1,7 @@
+file(GLOB_RECURSE SHARED_SRC_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/**/*.cpp)
+
 add_library(shared STATIC
-    src/NetworkWrapper.cpp
-    src/Packet.cpp
+    ${SHARED_SRC_FILES}
 )
 
 target_include_directories(shared PUBLIC
