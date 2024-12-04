@@ -8,27 +8,30 @@
 #pragma once
 
 #include <condition_variable>
+#include <cstddef>
 #include <functional>
 #include <mutex>
 #include <queue>
 #include <thread>
 #include <vector>
 
-class ThreadPool
-{
-public:
-    explicit ThreadPool(size_t threadCount);
-    ~ThreadPool();
+namespace server {
+    class ThreadPool
+    {
+    public:
+        explicit ThreadPool(size_t thread_count);
+        ~ThreadPool();
 
-    void enqueueTask(std::function<void()> task);
+        void enqueueTask(std::function<void()> task);
 
-private:
-    std::vector<std::thread> workers;
-    std::queue<std::function<void()>> tasks;
+    private:
+        std::vector<std::thread> _workers;
+        std::queue<std::function<void()>> _tasks;
 
-    std::mutex queueMutex;
-    std::condition_variable condition;
-    bool stop;
+        std::mutex _queue_mutex;
+        std::condition_variable _condition;
+        bool _stop;
 
-    void workerThread();
-};
+        void workerThread();
+    };
+}
