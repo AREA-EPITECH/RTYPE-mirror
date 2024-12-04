@@ -56,8 +56,10 @@ namespace ecs {
 
     void close_lobby_system(Registry &ecs, const WindowCloseEvent &) {
         auto &models = ecs.get_components<ModelComponent>();
+        auto &camera = ecs.get_components<CameraComponent>();
 
         for (std::size_t i = 0; i < models.size(); ++i) {
+            std::cout << i << std::endl;
             if (models[i].has_value()) {
                 if (!models[i].value().drawable) {
                     UnloadModel(models[i]->model);
@@ -65,6 +67,12 @@ namespace ecs {
 
                     ecs.kill_entity(static_cast<entity_t>(i));
                 }
+            }
+        }
+        for (std::size_t i = 0; i < camera.size(); ++i) {
+
+            if (camera[i].has_value()) {
+                ecs.kill_entity(i);
             }
         }
     }

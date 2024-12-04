@@ -25,7 +25,6 @@ namespace ecs {
         ClearBackground(RAYWHITE);
 
         auto &cameras = ecs.get_components<CameraComponent>();
-        static float rotationAngle = 0.01f;
 
         for (auto & camera_i : cameras) {
             if (camera_i.has_value()) {
@@ -66,9 +65,6 @@ namespace ecs {
                     if (model.has_value()) {
                         ModelComponent &modelComponent = model.value();
                         if (modelComponent.drawable) {
-                            Matrix rotation = MatrixRotate((Vector3){0.0f, 1.0f, 0.0f}, rotationAngle);
-                            modelComponent.model.transform = MatrixMultiply(modelComponent.model.transform,
-                                rotation);
                             DrawModel(modelComponent.model, {0, 0, 0}, 1.0f, WHITE);
                         }
                     }
@@ -103,8 +99,8 @@ namespace ecs {
     }
 
     void open_game_system(Registry &ecs, const WindowOpenEvent &) {
-        ecs.run_event(InitCameraEvent{{0.0f, 20.0f, 20.0f}, {0.0f, 0.0f, 0.0f},
-            {0.0f, 1.0f, 0.0f}, 45.0f, CAMERA_PERSPECTIVE});
+        ecs.run_event(InitCameraEvent{{0.0f, 20.0f, 20.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, 45.0f,
+                                      CAMERA_PERSPECTIVE});
         ecs.run_event(InitModelEvent{});
         auto &shaders = ecs.get_components<ShaderComponent>();
 
@@ -127,12 +123,16 @@ namespace ecs {
 
     void close_game_system(Registry &ecs, const WindowCloseEvent &) {
         auto &models = ecs.get_components<ModelComponent>();
+        auto &camera = ecs.get_components<CameraComponent>();
 
         for (std::size_t i = 0; i < models.size(); ++i) {
             if (models[i].has_value()) {
                 UnloadModel(models[i]->model);
                 TraceLog(LOG_WARNING, TextFormat("Unloaded model for entity %zu.", i));
 
+                ecs.kill_entity(i);
+            }
+            if (camera[i].has_value()) {
                 ecs.kill_entity(i);
             }
         }

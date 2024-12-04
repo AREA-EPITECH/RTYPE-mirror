@@ -20,10 +20,10 @@ namespace ecs {
             Model models;
             const double t0 = GetTime() * 1000.0;
 
-            TraceLog(LOG_WARNING, TextFormat("Trying to load file %s...", vox_files[i].c_str()));
+            //TraceLog(LOG_WARNING, TextFormat("Trying to load file %s...", vox_files[i].c_str()));
             models = LoadModel(vox_files[i].c_str());
             const double t1 = GetTime() * 1000.0;
-            TraceLog(LOG_WARNING, TextFormat("Loaded file %s in %f ms.", vox_files[i].c_str(), t1 - t0));
+            //TraceLog(LOG_WARNING, TextFormat("Loaded file %s in %f ms.", vox_files[i].c_str(), t1 - t0));
 
             auto [min, max] = GetModelBoundingBox(models);
             Vector3 center = {};
@@ -34,7 +34,44 @@ namespace ecs {
             models.transform = matTranslate;
 
             auto ModelEntity = ecs.spawn_entity();
-            ecs.add_component<ModelComponent>(ModelEntity, {models, (i == 0)});
+            std::cout << "MODEL ID : " << ModelEntity << std::endl;
+            ecs.add_component<ModelComponent>(ModelEntity, {models, (i == 0), vox_files[i]});
+        }
+    }
+
+
+    void load_model_from_file_system(Registry &ecs, const InitModelEvent &) {
+        auto &models = ecs.get_components<ModelComponent>();
+        for (std::size_t i = 0; i < models.size(); ++i) {
+            if (models[i].has_value()) {
+                auto &modelComponent = models[i].value();
+
+                // Unload the current model to free resources
+                UnloadModel(modelComponent.model);
+
+                // Reload the model from the stored path
+                if (!std::filesystem::exists(modelComponent.path)) {
+                    TraceLog(LOG_ERROR, TextFormat("File %s does not exist!", modelComponent.path.c_str()));
+                    continue;
+                }
+
+                const double t0 = GetTime() * 1000.0;
+                TraceLog(LOG_WARNING, TextFormat("Reloading model from %s...", modelComponent.path.c_str()));
+                modelComponent.model = LoadModel(modelComponent.path.c_str());
+                const double t1 = GetTime() * 1000.0;
+                TraceLog(LOG_WARNING, TextFormat("Reloaded model from %s in %f ms.", modelComponent.path.c_str(), t1 - t0));
+
+                // Recalculate bounding box and center the model
+                auto [min, max] = GetModelBoundingBox(modelComponent.model);
+                Vector3 center = {};
+                center.x = min.x + (max.x - min.x) / 2;
+                center.z = min.z + (max.z - min.z) / 2;
+
+                const Matrix matTranslate = MatrixTranslate(-center.x, 0, -center.z);
+                modelComponent.model.transform = matTranslate;
+
+                TraceLog(LOG_INFO, TextFormat("Model reloaded and centered from %s", modelComponent.path.c_str()));
+            }
         }
     }
 

@@ -29,26 +29,33 @@ void init_lobby_window (Registry& ecs) {
 
     ecs.subscribe<ecs::ControlsEvent>(ecs::lobby_controls_system);
     ecs.subscribe<ecs::WindowOpenEvent>([](Registry &ecs, const ecs::WindowOpenEvent &event) {
-        init_window_system(ecs, event);
-        open_lobby_system(ecs, event);
+        ecs::init_window_system(ecs, event);
+        ecs::open_lobby_system(ecs, event);
     });
     ecs.subscribe<ecs::WindowCloseEvent>([](Registry &e, const ecs::WindowCloseEvent &event) {
-        close_lobby_system(e, event);
-        close_window_system(e, event);
+        ecs::close_lobby_system(e, event);
+        ecs::close_window_system(e, event);
     });
     ecs.subscribe<ecs::WindowDrawEvent>(ecs::draw_lobby_system);
 }
 
 void init_game_window (Registry& ecs) {
+    ecs.unsubscribe_all<ecs::InitModelEvent>();
+
+    ecs.subscribe<ecs::InitLightEvent>(ecs::create_light_system);
     ecs.subscribe<ecs::ParticleSystemEvent>(ecs::particles_system);
     ecs.subscribe<ecs::ControlsEvent>(ecs::game_controls_system);
     ecs.subscribe<ecs::WindowOpenEvent>([](Registry &ecs, const ecs::WindowOpenEvent &event) {
-        init_window_system(ecs, event);
-        open_game_system(ecs, event);
+        ecs::init_window_system(ecs, event);
+        ecs::open_game_system(ecs, event);
     });
     ecs.subscribe<ecs::WindowCloseEvent>([](Registry &e, const ecs::WindowCloseEvent &event) {
-        close_game_system(e, event);
-        close_window_system(e, event);
+        ecs::close_game_system(e, event);
+        ecs::close_window_system(e, event);
     });
     ecs.subscribe<ecs::WindowDrawEvent>(ecs::draw_game_system);
+
+    ecs.subscribe<ecs::InitModelEvent>([](Registry& e, const ecs::InitModelEvent& event) {
+       ecs::load_model_from_file_system(e, event);
+    });
 }

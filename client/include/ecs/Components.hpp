@@ -19,6 +19,7 @@ namespace ecs {
     struct ModelComponent {
         Model model;
         bool drawable;
+        std::string path;
     };
 
     struct ShaderComponent {
