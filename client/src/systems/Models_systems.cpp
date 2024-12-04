@@ -50,10 +50,10 @@ namespace ecs {
 * @param ecs
 */
     void load_model_from_file_system(Registry &ecs, const InitModelEvent &) {
-        auto &models = ecs.get_components<VesselsComponent>();
-        for (std::size_t i = 0; i < models.size(); ++i) {
-            if (models[i].has_value()) {
-                auto &modelComponent = models[i].value();
+        auto &vessels = ecs.get_components<VesselsComponent>();
+        for (std::size_t i = 0; i < vessels.size(); ++i) {
+            if (vessels[i].has_value()) {
+                auto &modelComponent = vessels[i].value();
 
                 UnloadModel(modelComponent.model);
 
