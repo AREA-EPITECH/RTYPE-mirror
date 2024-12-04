@@ -145,13 +145,15 @@ namespace ecs {
         auto &particles_systems = ecs.get_components<ParticleSystemComponent>();
         for (size_t i = 0; i < particles_systems.size(); ++i) {
             if (particles_systems[i].has_value()) {
+                TraceLog(LOG_WARNING, TextFormat("Unloaded particles system for entity %zu.", i));
                 ecs.kill_entity(i);
             }
         }
 
         auto &lights = ecs.get_components<LightComponent>();
         for (size_t i = 0; i < lights.size(); ++i) {
-            if (particles_systems[i].has_value()) {
+            if (lights[i].has_value()) {
+                TraceLog(LOG_WARNING, TextFormat("Unloaded light for entity %zu.", i));
                 ecs.kill_entity(i);
             }
         }
