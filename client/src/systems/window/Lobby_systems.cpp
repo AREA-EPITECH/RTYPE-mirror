@@ -27,10 +27,10 @@ namespace ecs {
 
                 BeginMode3D(camera);
 
-                auto &models = ecs.get_components<ModelComponent>();
+                auto &models = ecs.get_components<VesselsComponent>();
                 for (auto & model : models) {
                     if (model.has_value()) {
-                        ModelComponent &modelComponent = model.value();
+                        VesselsComponent &modelComponent = model.value();
                         if (modelComponent.drawable) {
                             Matrix rotation = MatrixRotate((Vector3){0.0f, 1.0f, 0.0f}, rotationAngle);
                             modelComponent.model.transform = MatrixMultiply(modelComponent.model.transform, rotation);
@@ -58,7 +58,10 @@ namespace ecs {
  * @param ecs
  */
     void open_lobby_system(Registry &ecs, const WindowOpenEvent &) {
-        ecs.run_event(InitCameraEvent{{0.0f, 20.0f, 20.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, 45.0f,
+        ecs.run_event(InitCameraEvent{{10.0f, 10.0f, 30.0f},
+                                      {-10.0f, 0.0f, 0.0f},
+                                      {0.0f, 30.0f, 0.0f},
+                                      45.0f,
                                       CAMERA_PERSPECTIVE});
         ecs.run_event(InitModelEvent{});
     }
@@ -68,7 +71,7 @@ namespace ecs {
  * @param ecs
  */
     void close_lobby_system(Registry &ecs, const WindowCloseEvent &) {
-        auto &models = ecs.get_components<ModelComponent>();
+        auto &models = ecs.get_components<VesselsComponent>();
         auto &camera = ecs.get_components<CameraComponent>();
 
         for (std::size_t i = 0; i < models.size(); ++i) {

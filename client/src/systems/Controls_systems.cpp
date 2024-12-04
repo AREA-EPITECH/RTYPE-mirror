@@ -57,7 +57,7 @@ namespace ecs {
      * @param ecs
      */
     void lobby_controls_system(Registry &ecs, const ControlsEvent &) {
-        auto &models = ecs.get_components<ModelComponent>();
+        auto &models = ecs.get_components<VesselsComponent>();
         if (IsKeyPressed(KEY_ENTER)) {
             change_window(ecs, GAME);
         }

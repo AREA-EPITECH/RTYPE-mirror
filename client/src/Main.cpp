@@ -15,7 +15,7 @@ Registry init_ecs () {
     Registry ecs;
 
     ecs.register_component<ecs::Window>();
-    ecs.register_component<ecs::ModelComponent>();
+    ecs.register_component<ecs::VesselsComponent>();
     ecs.register_component<ecs::ShaderComponent>();
     ecs.register_component<ecs::CameraComponent>();
     ecs.register_component<ecs::ParticleSystemComponent>();

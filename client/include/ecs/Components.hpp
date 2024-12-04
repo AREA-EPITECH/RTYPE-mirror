@@ -16,7 +16,7 @@ namespace ecs {
         Camera camera;
     };
 
-    struct ModelComponent {
+    struct VesselsComponent {
         Model model;
         bool drawable;
         std::string path;

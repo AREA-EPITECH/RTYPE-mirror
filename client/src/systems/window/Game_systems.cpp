@@ -64,10 +64,10 @@ namespace ecs {
 
                 BeginMode3D(camera);
 
-                auto &models = ecs.get_components<ModelComponent>();
+                auto &models = ecs.get_components<VesselsComponent>();
                 for (auto & model : models) {
                     if (model.has_value()) {
-                        ModelComponent &modelComponent = model.value();
+                        VesselsComponent &modelComponent = model.value();
                         if (modelComponent.drawable) {
                             DrawModel(modelComponent.model, {0, 0, 0}, 1.0f, WHITE);
                         }
@@ -135,7 +135,7 @@ namespace ecs {
 * @param ecs
 */
     void close_game_system(Registry &ecs, const WindowCloseEvent &) {
-        auto &models = ecs.get_components<ModelComponent>();
+        auto &models = ecs.get_components<VesselsComponent>();
         auto &camera = ecs.get_components<CameraComponent>();
 
         for (std::size_t i = 0; i < models.size(); ++i) {
