@@ -3,6 +3,11 @@
 //
 #include "ecs/Systems.hpp"
 namespace ecs {
+
+    /**
+     * Create window
+     * @param ecs
+     */
     void init_window_system(Registry &ecs, const WindowOpenEvent &) {
         auto &windows = ecs.get_components<Window>();
         for (size_t i = 0; i < windows.size(); ++i) {
@@ -21,6 +26,10 @@ namespace ecs {
         }
     }
 
+    /**
+     * Close the window
+     * @param ecs
+     */
     void close_window_system(Registry &ecs, const WindowCloseEvent &) {
         auto &windows = ecs.get_components<Window>();
         for (size_t i = 0; i < windows.size(); ++i) {

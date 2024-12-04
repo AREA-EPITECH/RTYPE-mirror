@@ -8,6 +8,11 @@
 #include "ecs/Systems.hpp"
 
 namespace ecs {
+
+    /**
+* Load all vessels in lobby
+* @param ecs
+*/
     void load_models_system(Registry &ecs, const InitModelEvent &) {
         std::vector<std::string> vox_files;
 
@@ -40,6 +45,10 @@ namespace ecs {
     }
 
 
+    /**
+* Load vessels by filepath
+* @param ecs
+*/
     void load_model_from_file_system(Registry &ecs, const InitModelEvent &) {
         auto &models = ecs.get_components<ModelComponent>();
         for (std::size_t i = 0; i < models.size(); ++i) {
@@ -75,6 +84,10 @@ namespace ecs {
         }
     }
 
+    /**
+* Create the camera
+* @param ecs
+*/
     void create_camera_system(Registry &ecs, const InitCameraEvent &event) {
         auto entity = ecs.spawn_entity();
 
@@ -96,6 +109,10 @@ namespace ecs {
         ));
     }
 
+    /**
+* Apply shader on vessels
+* @param ecs
+*/
     void apply_shader_system(Registry &ecs, const InitModelEvent &) {
         auto &models = ecs.get_components<ModelComponent>();
 

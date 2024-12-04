@@ -8,6 +8,12 @@
 #include "ecs/Systems.hpp"
 
 namespace ecs {
+
+    /**
+     * Change the window
+     * @param ecs
+     * @param type
+     */
     void change_window(Registry &ecs, WindowType type) {
         ecs.run_event(WindowCloseEvent{});
 
@@ -33,6 +39,10 @@ namespace ecs {
         ecs.run_event(WindowOpenEvent{});
     }
 
+    /**
+     * Get controls in the menu
+     * @param ecs
+     */
     void menu_controls_system(Registry &ecs, const ControlsEvent &) {
         if (IsKeyPressed(KEY_ENTER)) {
             change_window(ecs, LOBBY);
@@ -42,6 +52,10 @@ namespace ecs {
         }
     }
 
+    /**
+     * Get controls in the lobby
+     * @param ecs
+     */
     void lobby_controls_system(Registry &ecs, const ControlsEvent &) {
         auto &models = ecs.get_components<ModelComponent>();
         if (IsKeyPressed(KEY_ENTER)) {
@@ -100,6 +114,10 @@ namespace ecs {
         }
     }
 
+    /**
+     * Get controls in the game
+     * @param ecs
+     */
     void game_controls_system(Registry &ecs, const ControlsEvent &) {
         if (IsKeyPressed(KEY_ENTER)) {
             change_window(ecs, MENU);

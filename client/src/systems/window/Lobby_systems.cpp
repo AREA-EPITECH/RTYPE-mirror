@@ -8,6 +8,11 @@
 #include "ecs/Systems.hpp"
 
 namespace ecs {
+
+/**
+ * Draw the lobby window
+ * @param ecs
+ */
     void draw_lobby_system(Registry &ecs, const WindowDrawEvent &) {
         ecs.run_event(ControlsEvent{});
         BeginDrawing();
@@ -48,12 +53,20 @@ namespace ecs {
         }
     }
 
+    /**
+ * Open the lobby window
+ * @param ecs
+ */
     void open_lobby_system(Registry &ecs, const WindowOpenEvent &) {
         ecs.run_event(InitCameraEvent{{0.0f, 20.0f, 20.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, 45.0f,
                                       CAMERA_PERSPECTIVE});
         ecs.run_event(InitModelEvent{});
     }
 
+    /**
+ * Close the lobby window
+ * @param ecs
+ */
     void close_lobby_system(Registry &ecs, const WindowCloseEvent &) {
         auto &models = ecs.get_components<ModelComponent>();
         auto &camera = ecs.get_components<CameraComponent>();

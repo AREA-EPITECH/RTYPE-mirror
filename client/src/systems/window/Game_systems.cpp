@@ -9,6 +9,10 @@
 
 namespace ecs {
 
+    /**
+ * Draw the game window
+ * @param ecs
+ */
     void draw_game_system(Registry &ecs, const WindowDrawEvent &) {
         ecs.run_event(ControlsEvent{});
         auto &shaders = ecs.get_components<ShaderComponent>();
@@ -98,6 +102,11 @@ namespace ecs {
         }
     }
 
+
+    /**
+* Open the game window
+* @param ecs
+*/
     void open_game_system(Registry &ecs, const WindowOpenEvent &) {
         ecs.run_event(InitCameraEvent{{0.0f, 20.0f, 20.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, 45.0f,
                                       CAMERA_PERSPECTIVE});
@@ -121,6 +130,10 @@ namespace ecs {
             WHITE, shader, 3});
     }
 
+    /**
+* Close the game window
+* @param ecs
+*/
     void close_game_system(Registry &ecs, const WindowCloseEvent &) {
         auto &models = ecs.get_components<ModelComponent>();
         auto &camera = ecs.get_components<CameraComponent>();

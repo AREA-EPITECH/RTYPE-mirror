@@ -5,6 +5,10 @@
 #include "ecs/Systems.hpp"
 
 namespace ecs {
+    /**
+ * Draw the menu window
+ * @param ecs
+ */
     void draw_menu_system(Registry &ecs, const WindowDrawEvent &) {
         ecs.run_event(ControlsEvent{});
         BeginDrawing();

@@ -9,6 +9,10 @@
 #include "Registry.hpp"
 #include "ecs/Systems.hpp"
 
+/**
+ * Init the menu window
+ * @param ecs
+ */
 void init_menu_window (Registry& ecs) {
     ecs.subscribe<ecs::ControlsEvent>(ecs::menu_controls_system);
     ecs.subscribe<ecs::WindowOpenEvent>(ecs::init_window_system);
@@ -16,6 +20,10 @@ void init_menu_window (Registry& ecs) {
     ecs.subscribe<ecs::WindowDrawEvent>(ecs::draw_menu_system);
 }
 
+/**
+ * Init the lobby window
+ * @param ecs
+ */
 void init_lobby_window (Registry& ecs) {
 
     ecs.unsubscribe_all<ecs::InitCameraEvent>();
@@ -39,6 +47,10 @@ void init_lobby_window (Registry& ecs) {
     ecs.subscribe<ecs::WindowDrawEvent>(ecs::draw_lobby_system);
 }
 
+/**
+ * Init the game window
+ * @param ecs
+ */
 void init_game_window (Registry& ecs) {
     ecs.unsubscribe_all<ecs::InitModelEvent>();
 

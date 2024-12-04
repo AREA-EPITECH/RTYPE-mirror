@@ -7,6 +7,10 @@
 
 #include "Main.hpp"
 
+/**
+ * Init the ecs
+ * @return
+ */
 Registry init_ecs () {
     Registry ecs;
 
