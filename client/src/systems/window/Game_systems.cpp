@@ -145,6 +145,9 @@ namespace ecs {
 
                 ecs.kill_entity(i);
             }
+        }
+
+        for (std::size_t i = 0; i < camera.size(); ++i) {
             if (camera[i].has_value()) {
                 ecs.kill_entity(i);
             }

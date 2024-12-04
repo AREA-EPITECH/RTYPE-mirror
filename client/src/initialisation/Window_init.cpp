@@ -52,11 +52,13 @@ void init_lobby_window (Registry& ecs) {
  * @param ecs
  */
 void init_game_window (Registry& ecs) {
+    ecs.unsubscribe_all<ecs::InitCameraEvent>();
     ecs.unsubscribe_all<ecs::InitModelEvent>();
 
     ecs.subscribe<ecs::InitLightEvent>(ecs::create_light_system);
     ecs.subscribe<ecs::ParticleSystemEvent>(ecs::particles_system);
     ecs.subscribe<ecs::ControlsEvent>(ecs::game_controls_system);
+    ecs.subscribe<ecs::InitCameraEvent>(ecs::create_camera_system);
     ecs.subscribe<ecs::WindowOpenEvent>([](Registry &ecs, const ecs::WindowOpenEvent &event) {
         ecs::init_window_system(ecs, event);
         ecs::open_game_system(ecs, event);

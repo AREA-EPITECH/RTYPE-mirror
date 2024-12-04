@@ -63,6 +63,13 @@ namespace ecs {
                                       {0.0f, 30.0f, 0.0f},
                                       45.0f,
                                       CAMERA_PERSPECTIVE});
+
+        auto &cam = ecs.get_components<CameraComponent>();
+        for (int i = 0; i < cam.size(); i++) {
+            if (cam[i].has_value()) {
+                std::cout << "CAM POS : " << i << " " << cam[i].value().camera.position.x << std::endl;
+            }
+        }
         ecs.run_event(InitModelEvent{});
     }
 
@@ -75,7 +82,6 @@ namespace ecs {
         auto &camera = ecs.get_components<CameraComponent>();
 
         for (std::size_t i = 0; i < models.size(); ++i) {
-            std::cout << i << std::endl;
             if (models[i].has_value()) {
                 if (!models[i].value().drawable) {
                     UnloadModel(models[i]->model);
