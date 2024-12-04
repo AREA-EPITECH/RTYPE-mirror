@@ -48,5 +48,5 @@ namespace ecs {
 
 // Lights
     void create_light_system(Registry &ecs, const InitLightEvent &);
-    void load_lights(Registry &ecs, const InitModelEvent &);
+    void load_game_lights(Registry &ecs, const InitModelEvent &);
 }

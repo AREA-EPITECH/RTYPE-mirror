@@ -17,15 +17,15 @@ namespace ecs {
         ecs.unsubscribe_all<ControlsEvent>();
 
         switch (type) {
-            case WindowType::MENU:
+            case MENU:
                 init_menu_window(ecs);
                 break;
 
-            case WindowType::LOBBY:
+            case LOBBY:
                 init_lobby_window(ecs);
                 break;
 
-            case WindowType::GAME:
+            case GAME:
                 init_game_window(ecs);
                 break;
         }
@@ -35,7 +35,7 @@ namespace ecs {
 
     void menu_controls_system(Registry &ecs, const ControlsEvent &) {
         if (IsKeyPressed(KEY_ENTER)) {
-            change_window(ecs, WindowType::LOBBY);
+            change_window(ecs, LOBBY);
         }
 
         if (IsKeyPressed(KEY_LEFT)) {
@@ -45,7 +45,7 @@ namespace ecs {
     void lobby_controls_system(Registry &ecs, const ControlsEvent &) {
         auto &models = ecs.get_components<ModelComponent>();
         if (IsKeyPressed(KEY_ENTER)) {
-            change_window(ecs, WindowType::GAME);
+            change_window(ecs, GAME);
         }
 
         if (IsKeyPressed(KEY_LEFT)) {
@@ -102,7 +102,7 @@ namespace ecs {
 
     void game_controls_system(Registry &ecs, const ControlsEvent &) {
         if (IsKeyPressed(KEY_ENTER)) {
-            change_window(ecs, WindowType::MENU);
+            change_window(ecs, MENU);
         }
 
         if (IsKeyPressed(KEY_LEFT)) {

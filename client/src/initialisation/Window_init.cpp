@@ -25,7 +25,6 @@ void init_lobby_window (Registry& ecs) {
     ecs.subscribe<ecs::InitModelEvent>([](Registry& e, const ecs::InitModelEvent& event) {
         load_models_system(e, event);
         apply_shader_system(e, event);
-        load_lights(e, event);
     });
 
     ecs.subscribe<ecs::ControlsEvent>(ecs::lobby_controls_system);
@@ -42,6 +41,9 @@ void init_lobby_window (Registry& ecs) {
 
 void init_game_window (Registry& ecs) {
     ecs.subscribe<ecs::InitLightEvent>(ecs::create_light_system);
+    ecs.subscribe<ecs::InitModelEvent>([](Registry &ecs, const ecs::InitModelEvent &event) {
+        load_game_lights(ecs, event);
+    });
     ecs.subscribe<ecs::ParticleSystemEvent>(ecs::particles_system);
     ecs.subscribe<ecs::ControlsEvent>(ecs::game_controls_system);
     ecs.subscribe<ecs::WindowOpenEvent>([](Registry &ecs, const ecs::WindowOpenEvent &event) {

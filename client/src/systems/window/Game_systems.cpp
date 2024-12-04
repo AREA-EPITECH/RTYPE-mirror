@@ -10,6 +10,7 @@
 namespace ecs {
 
     void draw_game_system(Registry &ecs, const WindowDrawEvent &) {
+        ecs.run_event(ControlsEvent{});
         auto &shaders = ecs.get_components<ShaderComponent>();
 
         Shader shader = {};
@@ -101,6 +102,28 @@ namespace ecs {
         }
     }
 
+    void load_game_lights(Registry &ecs, const InitModelEvent &) {
+        // Load lights for game window, this will be killed after.
+        auto &shaders = ecs.get_components<ShaderComponent>();
+
+        Shader shader = {};
+        for (auto & shader_i : shaders) {
+            if (shader_i.has_value()) {
+                shader = shader_i->shader;
+                break;
+            }
+        }
+        ecs.run_event(ControlsEvent{});
+        ecs.run_event(InitLightEvent{client::LIGHT_POINT, {-20, 20, -20}, Vector3Zero(),
+            WHITE, shader, 0});
+        ecs.run_event(InitLightEvent{client::LIGHT_POINT, {20, -20, 20}, Vector3Zero(),
+            WHITE, shader, 1});
+        ecs.run_event(InitLightEvent{client::LIGHT_POINT, {-20, 20, 20}, Vector3Zero(),
+            WHITE, shader, 2});
+        ecs.run_event(InitLightEvent{client::LIGHT_POINT, {20, -20, -20}, Vector3Zero(),
+            WHITE, shader, 3});
+    }
+
     void open_game_system(Registry &ecs, const WindowOpenEvent &) {
         ecs.run_event(InitCameraEvent{{0.0f, 20.0f, 20.0f}, {0.0f, 0.0f, 0.0f},
             {0.0f, 1.0f, 0.0f}, 45.0f, CAMERA_PERSPECTIVE});
@@ -121,6 +144,13 @@ namespace ecs {
 
         auto &particles_systems = ecs.get_components<ParticleSystemComponent>();
         for (size_t i = 0; i < particles_systems.size(); ++i) {
+            if (particles_systems[i].has_value()) {
+                ecs.kill_entity(i);
+            }
+        }
+
+        auto &lights = ecs.get_components<LightComponent>();
+        for (size_t i = 0; i < lights.size(); ++i) {
             if (particles_systems[i].has_value()) {
                 ecs.kill_entity(i);
             }

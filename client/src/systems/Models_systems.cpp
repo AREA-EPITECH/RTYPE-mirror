@@ -90,25 +90,4 @@ namespace ecs {
         auto entity = ecs.spawn_entity();
         ecs.add_component<LightComponent>(entity, {std::make_shared<client::Light>(light)});
     }
-
-    void load_lights(Registry &ecs, const InitModelEvent &) {
-        auto &shaders = ecs.get_components<ShaderComponent>();
-
-        Shader shader = {};
-        for (auto & shader_i : shaders) {
-            if (shader_i.has_value()) {
-                shader = shader_i->shader;
-                break;
-            }
-        }
-        ecs.run_event(ControlsEvent{});
-        ecs.run_event(InitLightEvent{client::LIGHT_POINT, {-20, 20, -20}, Vector3Zero(),
-            WHITE, shader, 0});
-        ecs.run_event(InitLightEvent{client::LIGHT_POINT, {20, -20, 20}, Vector3Zero(),
-            WHITE, shader, 1});
-        ecs.run_event(InitLightEvent{client::LIGHT_POINT, {-20, 20, 20}, Vector3Zero(),
-            WHITE, shader, 2});
-        ecs.run_event(InitLightEvent{client::LIGHT_POINT, {20, -20, -20}, Vector3Zero(),
-            WHITE, shader, 3});
-    }
 }
