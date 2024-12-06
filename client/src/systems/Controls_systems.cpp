@@ -112,6 +112,16 @@ namespace ecs {
                 models[to_change].value().drawable = false;
             }
         }
+        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+            Vector2 mousePosition = GetMousePosition();
+            auto &buttons = ecs.get_components<ButtonComponent>();
+
+            for (auto &button : buttons) {
+                if (button.has_value()) {
+                    button->isButtonPressed(mousePosition);
+                }
+            }
+        }
     }
 
     /**

@@ -18,17 +18,24 @@ namespace ecs {
         BeginDrawing();
         ClearBackground(RAYWHITE);
 
+        const int screenWidth = GetScreenWidth();
+        const int screenHeight = GetScreenHeight();
+
+        update_board_component(ecs, screenWidth, screenHeight);
+
         auto &cameras = ecs.get_components<CameraComponent>();
         static float rotationAngle = 0.01f;
 
-        for (auto & i : cameras) {
+        display_board(ecs, screenWidth, screenHeight);
+
+        for (auto &i : cameras) {
             if (i.has_value()) {
                 Camera &camera = i->camera;
 
                 BeginMode3D(camera);
 
                 auto &models = ecs.get_components<VesselsComponent>();
-                for (auto & model : models) {
+                for (auto &model : models) {
                     if (model.has_value()) {
                         VesselsComponent &modelComponent = model.value();
                         if (modelComponent.drawable) {
@@ -43,8 +50,6 @@ namespace ecs {
                 break;
             }
         }
-
-        DrawText("Hello ECS with Raylib!", 10, 10, 20, DARKGRAY);
 
         EndDrawing();
 
@@ -64,12 +69,6 @@ namespace ecs {
                                       45.0f,
                                       CAMERA_PERSPECTIVE});
 
-        auto &cam = ecs.get_components<CameraComponent>();
-        for (int i = 0; i < cam.size(); i++) {
-            if (cam[i].has_value()) {
-                std::cout << "CAM POS : " << i << " " << cam[i].value().camera.position.x << std::endl;
-            }
-        }
         ecs.run_event(InitModelEvent{});
     }
 
@@ -80,6 +79,8 @@ namespace ecs {
     void close_lobby_system(Registry &ecs, const WindowCloseEvent &) {
         auto &models = ecs.get_components<VesselsComponent>();
         auto &camera = ecs.get_components<CameraComponent>();
+        auto &texts = ecs.get_components<TextComponent>();
+        auto &buttons = ecs.get_components<ButtonComponent>();
 
         for (std::size_t i = 0; i < models.size(); ++i) {
             if (models[i].has_value()) {
@@ -92,8 +93,17 @@ namespace ecs {
             }
         }
         for (std::size_t i = 0; i < camera.size(); ++i) {
-
             if (camera[i].has_value()) {
+                ecs.kill_entity(i);
+            }
+        }
+        for (std::size_t i = 0; i < texts.size(); ++i) {
+            if (texts[i].has_value()) {
+                ecs.kill_entity(i);
+            }
+        }
+        for (std::size_t i = 0; i < buttons.size(); ++i) {
+            if (buttons[i].has_value()) {
                 ecs.kill_entity(i);
             }
         }

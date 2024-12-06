@@ -9,6 +9,7 @@
 #include "raymath.h"
 #include "core/ParticleSystem.hpp"
 #include "core/Lights.hpp"
+#include <functional>
 
 namespace ecs {
 // Window

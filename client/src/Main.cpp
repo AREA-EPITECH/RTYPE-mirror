@@ -20,6 +20,8 @@ Registry init_ecs () {
     ecs.register_component<ecs::CameraComponent>();
     ecs.register_component<ecs::ParticleSystemComponent>();
     ecs.register_component<ecs::LightComponent>();
+    ecs.register_component<ecs::TextComponent>();
+    ecs.register_component<ecs::ButtonComponent>();
 
     ecs.register_event<ecs::WindowOpenEvent>();
     ecs.register_event<ecs::WindowCloseEvent>();

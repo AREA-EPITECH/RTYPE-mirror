@@ -45,6 +45,8 @@ void init_lobby_window (Registry& ecs) {
         ecs::close_window_system(e, event);
     });
     ecs.subscribe<ecs::WindowDrawEvent>(ecs::draw_lobby_system);
+
+    init_lobby_entity(ecs);
 }
 
 /**

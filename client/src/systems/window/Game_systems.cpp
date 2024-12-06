@@ -112,22 +112,6 @@ namespace ecs {
                                       CAMERA_PERSPECTIVE});
         ecs.run_event(InitModelEvent{});
         auto &shaders = ecs.get_components<ShaderComponent>();
-
-        Shader shader = {};
-        for (auto & shader_i : shaders) {
-            if (shader_i.has_value()) {
-                shader = shader_i->shader;
-                break;
-            }
-        }
-        ecs.run_event(InitLightEvent{client::LIGHT_POINT, {-20, 20, -20}, Vector3Zero(),
-            WHITE, shader, 0});
-        ecs.run_event(InitLightEvent{client::LIGHT_POINT, {20, -20, 20}, Vector3Zero(),
-            WHITE, shader, 1});
-        ecs.run_event(InitLightEvent{client::LIGHT_POINT, {-20, 20, 20}, Vector3Zero(),
-            WHITE, shader, 2});
-        ecs.run_event(InitLightEvent{client::LIGHT_POINT, {20, -20, -20}, Vector3Zero(),
-            WHITE, shader, 3});
     }
 
     /**

@@ -15,6 +15,7 @@ namespace ecs {
 */
     void load_models_system(Registry &ecs, const InitModelEvent &) {
         std::vector<std::string> vox_files;
+        const int screenWidth = GetScreenWidth();
 
         for (const auto &entry: std::filesystem::directory_iterator("client/assets/voxels/player/spaceship")) {
             if (std::string file = entry.path().c_str(); file.find(".vox") != std::string::npos)
@@ -40,10 +41,16 @@ namespace ecs {
 
             auto ModelEntity = ecs.spawn_entity();
             std::cout << "MODEL ID : " << ModelEntity << std::endl;
-            ecs.add_component<VesselsComponent>(ModelEntity, {models, (i == 0), vox_files[i]});
+
+            std::string name_str = "player_vessel";
+            int fontSize = 54;
+            int textWidth = MeasureText(name_str.c_str(), fontSize);
+            int posX = screenWidth * 0.66 - (textWidth / 2) + 20;
+
+            TextComponent vessel_name(name_str, fontSize, posX, 100, 0, {120, 0, 0, 255});
+            ecs.add_component<VesselsComponent>(ModelEntity, {models, (i == 0), vox_files[i], vessel_name});
         }
     }
-
 
     /**
 * Load vessels by filepath
