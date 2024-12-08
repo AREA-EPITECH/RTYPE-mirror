@@ -37,8 +37,13 @@ namespace ecs {
 
 // Models
     void load_models_system(Registry &ecs, const InitModelEvent &);
-    void apply_shader_system(Registry &ecs, const InitModelEvent &);
     void load_model_from_file_system(Registry &ecs, const InitModelEvent &event);
+
+// Shaders
+    void load_shaders(Registry &ecs, const InitShaderEvent &event);
+    void load_shader_from_file_system(Registry &ecs, const InitShaderEvent &);
+    void set_shader_values(Registry &ecs, const InitShaderEvent &);
+    void apply_shader_system(Registry &ecs, const InitShaderEvent &);
 
 // Controls
     void lobby_controls_system(Registry &ecs, const ControlsEvent &);

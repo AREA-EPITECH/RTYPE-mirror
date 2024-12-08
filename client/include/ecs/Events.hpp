@@ -45,6 +45,13 @@ namespace ecs {
 // Models
     struct InitModelEvent {};
 
+// Shaders
+    struct InitShaderEvent
+    {
+        std::string vs_file;
+        std::string fs_file;
+    };
+
 // Controls
     struct ControlsEvent {};
 

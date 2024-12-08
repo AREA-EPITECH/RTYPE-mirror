@@ -20,6 +20,8 @@ namespace ecs {
 
     struct ShaderComponent {
         Shader shader;
+        std::string vs_file;
+        std::string fs_file;
     };
 
     struct LightComponent {

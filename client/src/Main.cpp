@@ -31,6 +31,7 @@ Registry init_ecs () {
     ecs.register_event<ecs::ControlsEvent>();
     ecs.register_event<ecs::ParticleSystemEvent>();
     ecs.register_event<ecs::InitLightEvent>();
+    ecs.register_event<ecs::InitShaderEvent>();
 
     init_menu_window(ecs);
 

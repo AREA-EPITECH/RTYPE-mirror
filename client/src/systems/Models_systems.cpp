@@ -10,9 +10,9 @@
 namespace ecs {
 
     /**
-* Load all vessels in lobby
-* @param ecs
-*/
+    * Load all vessels in lobby
+    * @param ecs
+    */
     void load_models_system(Registry &ecs, const InitModelEvent &) {
         std::vector<std::string> vox_files;
         const int screenWidth = GetScreenWidth();
@@ -53,9 +53,9 @@ namespace ecs {
     }
 
     /**
-* Load vessels by filepath
-* @param ecs
-*/
+    * Load vessels by filepath
+    * @param ecs
+    */
     void load_model_from_file_system(Registry &ecs, const InitModelEvent &) {
         auto &vessels = ecs.get_components<VesselsComponent>();
         for (std::size_t i = 0; i < vessels.size(); ++i) {
@@ -89,9 +89,47 @@ namespace ecs {
     }
 
     /**
-* Create the camera
-* @param ecs
-*/
+    * Load shaders by filepath
+    * @param ecs
+    */
+    void load_shader_from_file_system(Registry &ecs, const InitShaderEvent &) {
+        auto &shaders = ecs.get_components<ShaderComponent>();
+        for (std::size_t i = 0; i < shaders.size(); ++i) {
+            if (shaders[i].has_value()) {
+                auto &shader_component = shaders[i].value();
+                std::string vs_file = shader_component.vs_file;
+                std::string fs_file = shader_component.fs_file;
+
+                UnloadShader(shader_component.shader);
+
+                TraceLog(LOG_WARNING, TextFormat("Trying to load shader from files %s and %s.",
+                    shader_component.vs_file.c_str(), shader_component.fs_file.c_str()));
+                if (!std::filesystem::exists(vs_file) ||
+                    !std::filesystem::exists(fs_file)) {
+                    TraceLog(LOG_ERROR, TextFormat("\n\nFile %s nor %s do not exist!", shader_component.vs_file.c_str(),
+                        shader_component.fs_file.c_str()));
+                    continue;
+                }
+
+                const double t0 = GetTime() * 1000.0;
+                shader_component.shader = LoadShader(vs_file.c_str(),
+                    fs_file.c_str());
+                const double t1 = GetTime() * 1000.0;
+                TraceLog(LOG_WARNING, TextFormat("Reloaded shader in %f ms.", t1 - t0));
+                shader_component.shader.locs[SHADER_LOC_VECTOR_VIEW] = GetShaderLocation(shader_component.shader,
+                "viewPos");
+                int ambientLoc = GetShaderLocation(shader_component.shader, "ambient");
+                SetShaderValue(shader_component.shader, ambientLoc, (float[4]) {0.1f, 0.1f, 0.1f, 1.0f},
+                SHADER_UNIFORM_VEC4);
+            }
+        }
+    }
+
+    /**
+    * Create the camera
+    * @param ecs
+    * @param event
+    */
     void create_camera_system(Registry &ecs, const InitCameraEvent &event) {
         auto entity = ecs.spawn_entity();
 
@@ -114,34 +152,82 @@ namespace ecs {
     }
 
     /**
-* Apply shader on vessels
-* @param ecs
-*/
-    void apply_shader_system(Registry &ecs, const InitModelEvent &) {
-        auto &models = ecs.get_components<VesselsComponent>();
-
-        Shader shader = LoadShader("client/assets/voxels/shaders/voxel_lighting.vs",
-                                   "client/assets/voxels/shaders/voxel_lighting.fs");
+     * @brief load shaders
+     * @param ecs
+     * @param event
+     */
+    void load_shaders(Registry &ecs, const InitShaderEvent &event)
+    {
+        Shader shader = LoadShader(event.vs_file.c_str(), event.fs_file.c_str());
         shader.locs[SHADER_LOC_VECTOR_VIEW] = GetShaderLocation(shader, "viewPos");
         int ambientLoc = GetShaderLocation(shader, "ambient");
         SetShaderValue(shader, ambientLoc, (float[4]) {0.1f, 0.1f, 0.1f, 1.0f}, SHADER_UNIFORM_VEC4);
 
         auto entity = ecs.spawn_entity();
-        ecs.add_component<ShaderComponent>(entity, {shader});
+        ecs.add_component<ShaderComponent>(entity, {shader, event.vs_file, event.fs_file});
+    }
+
+    /**
+     * @brief Set shader values
+     * @param ecs
+     */
+    void set_shader_values(Registry &ecs, const InitShaderEvent &)
+    {
+        auto &shaders = ecs.get_components<ShaderComponent>();
+        Shader shader = {};
+        for (std::size_t i = 0; i < shaders.size(); ++i) {
+            if (shaders[i].has_value()) {
+                shader = shaders[i]->shader;
+                break;
+            }
+        }
+
+        auto &cameras = ecs.get_components<CameraComponent>();
+        Camera camera = {};
+        for (std::size_t i = 0; i < cameras.size(); ++i) {
+            if (cameras[i].has_value()) {
+                camera = cameras[i]->camera;
+                break;
+            }
+        }
+
+        float camera_pos[3] = {camera.position.x, camera.position.y, camera.position.z};
+        SetShaderValue(shader, shader.locs[SHADER_LOC_VECTOR_VIEW], camera_pos, SHADER_UNIFORM_VEC3);
+        SetShaderValue(shader, shader.locs[SHADER_LOC_VECTOR_VIEW], camera_pos, SHADER_UNIFORM_VEC3);
+        SetShaderValue(shader, shader.locs[SHADER_LOC_VECTOR_VIEW], camera_pos, SHADER_UNIFORM_VEC3);
+    }
+
+    /**
+     * @brief Apply shaders on vessels
+     * @param ecs
+     */
+    void apply_shader_system(Registry &ecs, const InitShaderEvent &) {
+        auto &models = ecs.get_components<VesselsComponent>();
+        auto &shaders = ecs.get_components<ShaderComponent>();
+        Shader shader = {};
+        for (std::size_t i = 0; i < shaders.size(); ++i) {
+            if (shaders[i].has_value()) {
+                shader = shaders[i]->shader;
+                break;
+            }
+        }
 
         for (std::size_t i = 0; i < models.size(); ++i) {
             if (models[i].has_value()) {
                 Model &model = models[i]->model;
-
                 for (int j = 0; j < model.materialCount; ++j) {
                     model.materials[j].shader = shader;
                 }
-
                 TraceLog(LOG_INFO, TextFormat("Applied shader to model of entity %zu.", i));
             }
         }
     }
 
+    /**
+     * @brief Create light system
+     * @param ecs
+     * @param event
+     */
     void create_light_system(Registry &ecs, const InitLightEvent &event)
     {
         const client::Light light{event.type, event.position, event.target, event.color, event.shader, event.nb};
