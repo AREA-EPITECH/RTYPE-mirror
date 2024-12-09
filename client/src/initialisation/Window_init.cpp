@@ -63,7 +63,11 @@ void init_game_window (Registry& ecs) {
     ecs.unsubscribe_all<ecs::InitModelEvent>();
     ecs.unsubscribe_all<ecs::InitLightEvent>();
     ecs.unsubscribe_all<ecs::InitShaderEvent>();
+    ecs.unsubscribe_all<ecs::InitBackgroundEvent>();
+    ecs.unsubscribe_all<ecs::InitDecorElementEvent>();
 
+    ecs.subscribe<ecs::InitBackgroundEvent>(ecs::load_background);
+    ecs.subscribe<ecs::InitDecorElementEvent>(ecs::load_decor_element);
     ecs.subscribe<ecs::InitLightEvent>(ecs::create_light_system);
     ecs.subscribe<ecs::ParticleSystemEvent>(ecs::particles_system);
     ecs.subscribe<ecs::ControlsEvent>(ecs::game_controls_system);
