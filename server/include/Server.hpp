@@ -6,7 +6,6 @@
 */
 
 #pragma once
-#include <NetworkWrapper.hpp>
 #include <cstdint>
 #include <enet/enet.h>
 #include <exception>
@@ -16,6 +15,9 @@
 #include <sys/types.h>
 #include <Room.hpp>
 #include <ThreadPool.hpp>
+#include <network/PeerWrapper.hpp>
+#include <network/Server.hpp>
+#include <network/packet/PacketHeader.hpp>
 
 namespace server {
     class Server {
@@ -25,7 +27,7 @@ namespace server {
         std::vector<Room> _playing_rooms;
         ThreadPool _thread_pool;
     public:
-        explicit Server(u_int port);
+        explicit Server(char *argv[]);
         Server(const Server &other) = delete;
         auto operator=(const Server &other) -> auto & = delete;
         ~Server() = default;
@@ -47,5 +49,5 @@ namespace server {
             auto what() const noexcept -> const char* override;
         };
     };
-    void handleClientData(ENetPeer* peer, const std::vector<uint8_t>& data);
+    void handleClientData(std::shared_ptr<network::PeerWrapper> peer, std::any std::data, network::PacketType type);
 } // namespace server

@@ -7,7 +7,6 @@
 
 #include "Server.hpp"
 #include <algorithm>
-#include "Packet.hpp"
 #include "Room.hpp"
 #include "spdlog/spdlog.h"
 #include <chrono>
@@ -16,7 +15,7 @@
 #include <memory>
 #include <sys/types.h>
 #include <thread>
-#include <NetworkWrapper.hpp>
+#include <network/Server.hpp>
 #include <string>
 #include <utility>
 #include <vector>
@@ -26,9 +25,15 @@
 namespace server {
     /**
      * Server constructor
-     * @param port : default port on which the server listens
+     * @param argv: commannd line argument corresponding to port number
      */
-    Server::Server(u_int port) : _port(port), _thread_pool(std::thread::hardware_concurrency()) {}
+    Server::Server(char *argv[]) : _thread_pool(std::thread::hardware_concurrency()) {
+        try {
+            this->_port = std::stoi(argv[1]);
+        } catch ([[maybe_unused]] std::invalid_argument const& ex) {
+            throw ServerException("Wrong port argument");
+        }
+    }
 
     /**
      * Init server with network ENet library
@@ -38,7 +43,7 @@ namespace server {
         if (!this->_server.start(this->_port)) {
             throw ServerException("Failed to start server");
         }
-        spdlog::info("Server running on port 12345...");
+        spdlog::info("Server running on port {}...", this->_port);
     }
 
     /**
@@ -52,19 +57,19 @@ namespace server {
         while (this->_server.pollEvent(event)) {
             switch (event.type) {
                 case network::ServerEventType::ClientConnect:
-                    spdlog::info("Client connected: {}", static_cast<void *>(event.peer));
+                    spdlog::info("Client connected: {}", static_cast<void *>(event.peer->getPeer().get()));
                 break;
 
                 case network::ServerEventType::ClientDisconnect:
-                    spdlog::info("Client disconnected: {}", static_cast<void *>(event.peer));
+                    spdlog::info("Client disconnected: {}", static_cast<void *>(event.peer->getPeer().get()));
                 break;
 
                 case network::ServerEventType::DataReceive:
                     // Delegate data processing to the thread pool
-                        this->_thread_pool.enqueueTask([peer = event.peer, data = std::move(event.data)] {
-                            // Data managment + Send snapshotPaquet to client
-                            handleClientData(peer, data);
-                        });
+                    this->_thread_pool.enqueueTask([peer = event.peer, data = std::move(event.data), dataType = event.packetType] {
+                        // Data managment + Send snapshotPaquet to client
+                        handleClientData(peer, data, dataType);
+                    });
                 break;
             }
         }
@@ -143,14 +148,14 @@ namespace server {
     }
 
     /**
-     * Deserialize InputPaquet to access data sent from a client
+     * Deserialize if RawPaquet is sent from a client
      * Called when DataReceive Paquet type is received
      * @param peer
      * @param data
      */
-    void handleClientData(ENetPeer* peer, const std::vector<uint8_t>& data) {
-        network::InputPacket input = network::Packet::deserializeInputPacket(data);
-        spdlog::info("Processing data from client: {}, data: {}", static_cast<void *>(peer), input.data);
-        // Process the data (game logic, etc.)
+    void handleClientData(std::shared_ptr<network::PeerWrapper> peer, std::any data, network::PacketType type) {
+        if (type == network::PacketType::InputPacket) {
+            auto packet = std::any_cast<network::InputPacket>(data);
+        }
     }
 } // namespace server

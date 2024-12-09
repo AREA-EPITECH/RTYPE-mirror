@@ -27,12 +27,12 @@ static void runGameLoop(server::Server &server) {
     }
 }
 
-int main() {
+int main(int argc, char *argv[]) {
     // Register signal handler
     std::signal(SIGINT, signalHandler);
 
     try {
-        server::Server server(12345);
+        server::Server server(argv);
         server.initServer();
         runGameLoop(server);
         server.stopServer();
