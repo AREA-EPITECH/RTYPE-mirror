@@ -22,6 +22,8 @@ Registry init_ecs () {
     ecs.register_component<ecs::LightComponent>();
     ecs.register_component<ecs::TextComponent>();
     ecs.register_component<ecs::ButtonComponent>();
+    ecs.register_component<ecs::BackgroundComponent>();
+    ecs.register_component<ecs::DecorElementComponent>();
 
     ecs.register_event<ecs::WindowOpenEvent>();
     ecs.register_event<ecs::WindowCloseEvent>();
@@ -32,6 +34,8 @@ Registry init_ecs () {
     ecs.register_event<ecs::ParticleSystemEvent>();
     ecs.register_event<ecs::InitLightEvent>();
     ecs.register_event<ecs::InitShaderEvent>();
+    ecs.register_event<ecs::InitBackgroundEvent>();
+    ecs.register_event<ecs::InitDecorElementEvent>();
 
     init_menu_window(ecs);
 

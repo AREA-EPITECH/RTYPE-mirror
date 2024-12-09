@@ -133,4 +133,78 @@ namespace ecs {
             name = std::move(_name);
         }
     };
+
+    class BackgroundComponent
+    {
+    public:
+        Texture2D texture{};
+        size_t depth;
+        float speed;
+        float offset;
+
+        explicit BackgroundComponent(const std::string &path, const size_t depth, const float speed,
+            const float offset) {
+            texture = LoadTexture(path.c_str());
+            this->depth = depth;
+            this->speed = speed;
+            this->offset = offset;
+        }
+
+        void DrawLayer(const int screen_width, const int screen_height) const {
+            const float texture_width = static_cast<float>(this->texture.width) *
+                (static_cast<float>(screen_height) / static_cast<float>(this->texture.height));
+            const int repeatCount = static_cast<int>(screen_width / texture_width) + 2;
+
+            for (int i = 0; i < repeatCount; i++) {
+                DrawTexturePro(
+                    this->texture,
+                    {0, 0, static_cast<float>(texture.width), static_cast<float>(texture.height)},
+                    {i * texture_width + offset, 0, texture_width, static_cast<float>(screen_height)},
+                    {0, 0}, 0.0f, WHITE);
+            }
+        }
+    };
+
+    class DecorElementComponent
+    {
+    public:
+        Texture2D texture{};
+        int x{};
+        int y{};
+        int speed;
+
+        explicit DecorElementComponent(const std::string &path)
+        {
+            texture = LoadTexture(path.c_str());
+            speed = GetRandomValue(100, 300);
+            ResetPosition(GetScreenWidth(), GetScreenHeight());
+        }
+
+        void ResetPosition(const int screen_width, const int screen_height)
+        {
+            x = screen_width;
+            y = GetRandomValue(0, screen_height - 50);
+        }
+
+        void Update(const float deltaTime, const int screen_width, const int screen_height)
+        {
+            x -= static_cast<int>(static_cast<float>(speed) * deltaTime);
+
+            if (static_cast<float>(x) + static_cast<float>(texture.width) * (static_cast<float>(screen_height) /
+                static_cast<float>(texture.height)) < 0) {
+                ResetPosition(screen_width, screen_height);
+            }
+        }
+
+        void DrawDecorElement(const int screen_width, const int screen_height) const
+        {
+            const float scale_factor = static_cast<float>(screen_height) / static_cast<float>(texture.height);
+            const float scaled_width = static_cast<float>(texture.width) * scale_factor;
+
+            DrawTexturePro(texture, {0, 0, static_cast<float>(texture.width),
+                static_cast<float>(texture.height)}, {static_cast<float>(x), 0, scaled_width,
+                static_cast<float>(screen_height)}, {0, 0}, 0.0f, WHITE
+            );
+        }
+    };
 }

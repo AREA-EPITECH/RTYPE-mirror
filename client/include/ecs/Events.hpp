@@ -63,4 +63,18 @@ namespace ecs {
         float lifetime;
         size_t max_particles;
     };
+
+// Background
+    struct InitBackgroundEvent {
+        std::string path;
+        size_t depth;
+        float speed;
+        float offset;
+    };
+
+// Decor element
+    struct InitDecorElementEvent
+    {
+        std::string path;
+    };
 }

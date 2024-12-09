@@ -56,4 +56,10 @@ namespace ecs {
 
 // Lights
     void create_light_system(Registry &ecs, const InitLightEvent &);
+
+// Background
+    void load_background(Registry &ecs, const InitBackgroundEvent &event);
+
+// DecorElement
+    void load_decor_element(Registry &ecs, const InitDecorElementEvent &event);
 }

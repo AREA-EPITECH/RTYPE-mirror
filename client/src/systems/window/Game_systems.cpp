@@ -16,7 +16,8 @@ namespace ecs {
     void draw_game_system(Registry &ecs, const WindowDrawEvent &) {
         ecs.run_event(ControlsEvent{});
         auto &shaders = ecs.get_components<ShaderComponent>();
-
+        auto &backgrounds = ecs.get_components<BackgroundComponent>();
+        auto &decors = ecs.get_components<DecorElementComponent>();
         Shader shader = {};
         for (auto & shader_i : shaders) {
             if (shader_i.has_value()) {
@@ -25,8 +26,35 @@ namespace ecs {
             }
         }
 
+        for (auto & background : backgrounds) {
+            if (background.has_value()) {
+                background->offset -= background->speed * GetFrameTime();
+                float textureWidthOnScreen = static_cast<float>(background->texture.width) *
+                    (static_cast<float>(GetScreenHeight()) / static_cast<float>(background->texture.height));
+                if (background->offset <= -textureWidthOnScreen) {
+                    background->offset = 0;
+                }
+            }
+        }
+        float deltaTime = GetFrameTime();
+        for (auto &decor : decors) {
+            if (decor.has_value()) {
+                decor->Update(deltaTime, GetScreenWidth(), GetScreenHeight());
+            }
+        }
         BeginDrawing();
         ClearBackground(RAYWHITE);
+
+        for (auto & background : backgrounds) {
+            if (background.has_value()) {
+                background->DrawLayer(GetScreenWidth(), GetScreenHeight());
+            }
+        }
+        for (auto &decor : decors) {
+            if (decor.has_value()) {
+                decor->DrawDecorElement(GetScreenWidth(), GetScreenHeight());
+            }
+        }
 
         auto &cameras = ecs.get_components<CameraComponent>();
 
@@ -129,6 +157,12 @@ namespace ecs {
         ecs.run_event(InitLightEvent{client::LIGHT_POINT, {20, -20, -20}, Vector3Zero(),
             WHITE, shader, 3});
 
+        ecs.run_event(InitBackgroundEvent{"client/assets/backgrounds/game/space_background.png", 2,
+                    500, 0});
+        ecs.run_event(InitDecorElementEvent{"client/assets/backgrounds/game/space_midground.png"});
+        ecs.run_event(InitDecorElementEvent{"client/assets/backgrounds/game/space_midground_2.png"});
+        ecs.run_event(InitDecorElementEvent{"client/assets/backgrounds/game/space_foreground.png"});
+
     }
 
     /**
@@ -141,6 +175,8 @@ namespace ecs {
         auto &particles_systems = ecs.get_components<ParticleSystemComponent>();
         auto &lights = ecs.get_components<LightComponent>();
         auto &shaders = ecs.get_components<ShaderComponent>();
+        auto &backgrounds = ecs.get_components<BackgroundComponent>();
+        auto &decors = ecs.get_components<DecorElementComponent>();
 
         for (std::size_t i = 0; i < models.size(); ++i) {
             if (models[i].has_value()) {
@@ -169,6 +205,18 @@ namespace ecs {
         for (std::size_t i = 0; i < shaders.size(); ++i) {
             if (shaders[i].has_value()) {
                 UnloadShader(shaders[i]->shader);
+                ecs.kill_entity(i);
+            }
+        }
+        for (std::size_t i = 0; i < backgrounds.size(); ++i) {
+            if (backgrounds[i].has_value()) {
+                UnloadTexture(backgrounds[i]->texture);
+                ecs.kill_entity(i);
+            }
+        }
+        for (std::size_t i = 0; i < decors.size(); ++i) {
+            if (decors[i].has_value()) {
+                UnloadTexture(decors[i]->texture);
                 ecs.kill_entity(i);
             }
         }

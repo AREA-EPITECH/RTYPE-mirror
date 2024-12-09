@@ -45,7 +45,7 @@ namespace ecs {
             std::string name_str = "player_vessel";
             int fontSize = 54;
             int textWidth = MeasureText(name_str.c_str(), fontSize);
-            int posX = screenWidth * 0.66 - (textWidth / 2) + 20;
+            int posX = static_cast<int>(screenWidth * 0.66) - textWidth / 2 + 20;
 
             TextComponent vessel_name(name_str, fontSize, posX, 100, 0, {120, 0, 0, 255});
             ecs.add_component<VesselsComponent>(ModelEntity, {models, (i == 0), vox_files[i], vessel_name});
@@ -233,5 +233,30 @@ namespace ecs {
         const client::Light light{event.type, event.position, event.target, event.color, event.shader, event.nb};
         auto entity = ecs.spawn_entity();
         ecs.add_component<LightComponent>(entity, {std::make_shared<client::Light>(light)});
+    }
+
+    /**
+     * @brief Load background
+     * @param ecs
+     * @param event
+     */
+    void load_background(Registry &ecs, const InitBackgroundEvent &event)
+    {
+        BackgroundComponent background{event.path, event.depth, event.speed, event.offset};
+        auto entity = ecs.spawn_entity();
+        ecs.add_component<BackgroundComponent>(entity, {(std::move(background))});
+    }
+
+
+    /**
+     * @brief Load decor element
+     * @param ecs
+     * @param event
+     */
+    void load_decor_element(Registry &ecs, const InitDecorElementEvent &event)
+    {
+        DecorElementComponent decor_element{event.path};
+        auto entity = ecs.spawn_entity();
+        ecs.add_component<DecorElementComponent>(entity, {(std::move(decor_element))});
     }
 }
