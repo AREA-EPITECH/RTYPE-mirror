@@ -6,9 +6,6 @@
 
 void init_lobby_entity (Registry &ecs) {
 
-    const int screenWidth = GetScreenWidth();
-    const int screenHeight = GetScreenHeight();
-
     auto idText = ecs.spawn_entity();
     int id = 468682618;
     std::string idStr = "ID : " + std::to_string(id);
@@ -26,9 +23,6 @@ void init_lobby_entity (Registry &ecs) {
     int buttonWidth = 500;
     int buttonHeight = 100;
 
-    int buttonX = screenWidth * 0.66 - (buttonWidth / 2) + 20;
-    int buttonY = screenHeight - 150;
-
     ecs::TextComponent readyText("Ready", 54, 0, 0);
     ecs.add_component<ecs::ButtonComponent>(readyButton,ecs::ButtonComponent(
                                                buttonWidth,
@@ -37,8 +31,8 @@ void init_lobby_entity (Registry &ecs) {
                                                [&ecs]() {
                                                    ecs::change_window(ecs, ecs::WindowType::GAME);
                                                },
-                                               buttonX,
-                                               buttonY
+                                               [buttonWidth](int screenWidth, int screenHeight) { return screenWidth * 0.66 - (buttonWidth / 2) + 20; },
+                                               [](int screenWidth, int screenHeight) { return screenHeight - 150; }
                                            )
     );
 
