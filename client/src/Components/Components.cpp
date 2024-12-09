@@ -5,7 +5,7 @@
 #include "ecs/Components.hpp"
 
 #define RAYGUI_IMPLEMENTATION
-#include "raygui.h"
+#include "raylib/raygui.h"
 
 ecs::ButtonComponent::ButtonComponent(int _buttonWidth, int _buttonHeight, ecs::TextComponent _text,
                                       std::function<void()> _onClick, std::function<int(int, int)> _dynamicX,
