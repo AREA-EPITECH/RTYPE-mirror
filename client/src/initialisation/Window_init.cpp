@@ -5,7 +5,6 @@
 ** Window_init
 */
 
-
 #include "Registry.hpp"
 #include "ecs/Systems.hpp"
 
@@ -14,10 +13,24 @@
  * @param ecs
  */
 void init_menu_window (Registry& ecs) {
+    ecs.unsubscribe_all<ecs::InitCameraEvent>();
+    ecs.unsubscribe_all<ecs::InitModelEvent>();
+    ecs.unsubscribe_all<ecs::InitShaderEvent>();
+
     ecs.subscribe<ecs::ControlsEvent>(ecs::menu_controls_system);
-    ecs.subscribe<ecs::WindowOpenEvent>(ecs::init_window_system);
-    ecs.subscribe<ecs::WindowCloseEvent>(ecs::close_window_system);
+    ecs.subscribe<ecs::WindowOpenEvent>([](Registry &ecs, const ecs::WindowOpenEvent &event) {
+        init_window_system(ecs, event);
+        open_menu_system(ecs, event);
+    });
+    ecs.subscribe<ecs::WindowCloseEvent>([](Registry &e, const ecs::WindowCloseEvent &event) {
+        close_menu_system(e, event);
+        close_window_system(e, event);
+    });
     ecs.subscribe<ecs::WindowDrawEvent>(ecs::draw_menu_system);
+    ecs.subscribe<ecs::InitModelEvent>(ecs::load_title_menu);
+    ecs.subscribe<ecs::InitCameraEvent>(ecs::create_camera_system);
+
+    init_menu_entity(ecs);
 }
 
 /**

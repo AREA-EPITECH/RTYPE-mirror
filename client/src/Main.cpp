@@ -22,6 +22,7 @@ Registry init_ecs () {
     ecs.register_component<ecs::LightComponent>();
     ecs.register_component<ecs::TextComponent>();
     ecs.register_component<ecs::ButtonComponent>();
+    ecs.register_component<ecs::MenuText>();
     ecs.register_component<ecs::BackgroundComponent>();
     ecs.register_component<ecs::DecorElementComponent>();
 

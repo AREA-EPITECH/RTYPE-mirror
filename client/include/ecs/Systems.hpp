@@ -27,6 +27,8 @@ namespace ecs {
 
 // Menu
     void draw_menu_system(Registry &ecs, const WindowDrawEvent &);
+    void open_menu_system(Registry &ecs, const WindowOpenEvent &);
+    void close_menu_system(Registry &ecs, const WindowCloseEvent &);
 
 // Game
     void draw_game_system(Registry &ecs, const WindowDrawEvent &);
@@ -39,6 +41,7 @@ namespace ecs {
 // Models
     void load_models_system(Registry &ecs, const InitModelEvent &);
     void load_model_from_file_system(Registry &ecs, const InitModelEvent &event);
+    void load_title_menu(Registry &ecs, const InitModelEvent &);
 
 // Shaders
     void load_shaders(Registry &ecs, const InitShaderEvent &event);

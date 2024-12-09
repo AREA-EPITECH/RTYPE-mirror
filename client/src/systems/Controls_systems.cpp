@@ -44,11 +44,16 @@ namespace ecs {
      * @param ecs
      */
     void menu_controls_system(Registry &ecs, const ControlsEvent &) {
-        if (IsKeyPressed(KEY_ENTER)) {
-            change_window(ecs, LOBBY);
-        }
 
-        if (IsKeyPressed(KEY_LEFT)) {
+        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+            Vector2 mousePosition = GetMousePosition();
+            auto &buttons = ecs.get_components<ButtonComponent>();
+
+            for (auto &button : buttons) {
+                if (button.has_value()) {
+                    //button->isButtonPressed(mousePosition);
+                }
+            }
         }
     }
 
@@ -115,7 +120,7 @@ namespace ecs {
 
             for (auto &button : buttons) {
                 if (button.has_value()) {
-                    button->isButtonPressed(mousePosition);
+                    //button->isButtonPressed(mousePosition);
                 }
             }
         }

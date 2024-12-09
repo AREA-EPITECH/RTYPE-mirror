@@ -74,49 +74,27 @@ namespace ecs {
     public:
         int buttonWidth;
         int buttonHeight;
-        int buttonX;
-        int buttonY;
         Color color{};
         TextComponent text;
+        std::function<int(int screenWidth, int screenHeight)> dynamicX;
+        std::function<int(int screenWidth, int screenHeight)> dynamicY;
         std::function<void()> onClick;
 
-        void drawButton() const {
-            DrawRectangle(buttonX, buttonY, buttonWidth, buttonHeight, color);
-            DrawText(text.text.c_str(), text.posX, text.posY, text.fontSize, text.color);
-        }
+        int buttonX{};
+        int buttonY{};
 
-        void updateButton (int screenWidth, int screenHeight) {
-            buttonX = static_cast<int>(static_cast<float>(screenWidth) * 0.66 - (buttonWidth / 2) + 20);
-            buttonY = screenHeight - 150;
+        ButtonComponent(int _buttonWidth,
+                        int _buttonHeight,
+                        TextComponent _text,
+                        std::function<void()> _onClick = nullptr,
+                        std::function<int(int screenWidth, int screenHeight)> _dynamicX = nullptr,
+                        std::function<int(int screenWidth, int screenHeight)> _dynamicY = nullptr,
+                        Color _color = {120, 0, 0, 255});
 
-            int textWidth = MeasureText(text.text.c_str(), text.fontSize);
-            text.posX = buttonX + (buttonWidth - textWidth) / 2;
-            text.posY = buttonY + (buttonHeight - text.fontSize) / 2;
-        }
 
-        bool isButtonPressed (Vector2 mousePosition) {
-            if (mousePosition.x >= buttonX && mousePosition.x <= (buttonX + buttonWidth) &&
-                mousePosition.y >= buttonY && mousePosition.y <= (buttonY + buttonHeight)) {
-                onClick();
-                return true;
-            }
-            return false;
-        }
+        void drawButton() const;
 
-        ButtonComponent(int _buttonWidth, int _buttonHeight, TextComponent _text, std::function<void()> _onClick = nullptr, int _buttonX = 0, int _buttonY = 0, Color _color = {120, 0, 0, 255}) {
-            buttonWidth = _buttonWidth;
-            buttonHeight = _buttonHeight;
-            buttonX = _buttonX;
-            buttonY = _buttonY;
-            color = _color;
-            onClick = std::move(_onClick);
-
-            text = std::move(_text);
-
-            int textWidth = MeasureText(text.text.c_str(), text.fontSize);
-            text.posX = buttonX + (buttonWidth - textWidth) / 2;
-            text.posY = buttonY + (buttonHeight - text.fontSize) / 2;
-        }
+        void updateButton(int screenWidth, int screenHeight);
     };
 
     class VesselsComponent {
@@ -131,6 +109,15 @@ namespace ecs {
             drawable = _drawable;
             path = std::move(_path);
             name = std::move(_name);
+        }
+    };
+
+    class MenuText {
+    public:
+        Model model{};
+
+        MenuText(Model _model) {
+            model = _model;
         }
     };
 

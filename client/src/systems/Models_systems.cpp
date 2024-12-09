@@ -125,6 +125,31 @@ namespace ecs {
         }
     }
 
+    void load_title_menu(Registry &ecs, const InitModelEvent &) {
+
+        std::string title_file = "client/assets/voxels/title_blue.vox";
+        Model models;
+        const double t0 = GetTime() * 1000.0;
+
+        TraceLog(LOG_WARNING, TextFormat("Trying to load file %s...", title_file.c_str()));
+        models = LoadModel(title_file.c_str());
+        const double t1 = GetTime() * 1000.0;
+        TraceLog(LOG_WARNING, TextFormat("Loaded file %s in %f ms.", title_file.c_str(), t1 - t0));
+
+        auto [min, max] = GetModelBoundingBox(models);
+        Vector3 center = {};
+        center.x = min.x + (max.x - min.x) / 2;
+        center.z = min.z + (max.z - min.z) / 2;
+
+        const Matrix matTranslate = MatrixTranslate(-center.x, 0, -center.z);
+        models.transform = matTranslate;
+
+        auto ModelEntity = ecs.spawn_entity();
+        std::cout << "MODEL ID : " << ModelEntity << std::endl;
+
+        ecs.add_component<MenuText>(ModelEntity, {models});
+    }
+
     /**
     * Create the camera
     * @param ecs
