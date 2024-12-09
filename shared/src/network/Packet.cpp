@@ -17,6 +17,11 @@ inline void ensureValidOffset(size_t offset, size_t size, size_t dataSize)
     }
 }
 
+/**
+ * @brief Serializes a `SnapshotPacket` to a binary format.
+ * @param packet The `SnapshotPacket` to serialize.
+ * @return A binary representation of the `SnapshotPacket`.
+ */
 std::vector<uint8_t> network::Packet::serializeSnapshotPacket(const network::SnapshotPacket &packet)
 {
     std::vector<uint8_t> buffer;
@@ -41,6 +46,11 @@ std::vector<uint8_t> network::Packet::serializeSnapshotPacket(const network::Sna
     return buffer;
 }
 
+/**
+ * @brief Deserializes a binary format into a `SnapshotPacket`.
+ * @param data The binary data to deserialize.
+ * @return The deserialized `SnapshotPacket`.
+ */
 network::SnapshotPacket network::Packet::deserializeSnapshotPacket(const std::vector<uint8_t> &data)
 {
     network::SnapshotPacket packet;
@@ -70,6 +80,11 @@ network::SnapshotPacket network::Packet::deserializeSnapshotPacket(const std::ve
     return packet;
 }
 
+/**
+ * @brief Serializes an `InputPacket` to a binary format.
+ * @param packet The `InputPacket` to serialize.
+ * @return A binary representation of the `InputPacket`.
+ */
 std::vector<uint8_t> network::Packet::serializeInputPacket(const network::InputPacket &packet)
 {
     std::vector<uint8_t> buffer;
@@ -93,6 +108,11 @@ std::vector<uint8_t> network::Packet::serializeInputPacket(const network::InputP
     return buffer;
 }
 
+/**
+ * @brief Deserializes a binary format into an `InputPacket`.
+ * @param data The binary data to deserialize.
+ * @return The deserialized `InputPacket`.
+ */
 network::InputPacket network::Packet::deserializeInputPacket(const std::vector<uint8_t> &data)
 {
     InputPacket packet;
@@ -117,6 +137,11 @@ network::InputPacket network::Packet::deserializeInputPacket(const std::vector<u
     return packet;
 }
 
+/**
+ * @brief Serializes a `LobbyActionPacket` to a binary format.
+ * @param packet The `LobbyActionPacket` to serialize.
+ * @return A binary representation of the `LobbyActionPacket`.
+ */
 std::vector<uint8_t> network::Packet::serializeLobbyActionPacket(const network::LobbyActionPacket &packet)
 {
     std::vector<uint8_t> buffer;
@@ -170,6 +195,11 @@ std::vector<uint8_t> network::Packet::serializeLobbyActionPacket(const network::
     return buffer;
 }
 
+/**
+ * @brief Deserializes a binary format into a `LobbyActionPacket`.
+ * @param data The binary data to deserialize.
+ * @return The deserialized `LobbyActionPacket`.
+ */
 network::LobbyActionPacket network::Packet::deserializeLobbyActionPacket(const std::vector<uint8_t> &data)
 {
     LobbyActionPacket packet;
@@ -227,6 +257,11 @@ network::LobbyActionPacket network::Packet::deserializeLobbyActionPacket(const s
     return packet;
 }
 
+/**
+ * @brief Serializes a `LobbySnapshotPacket` to a binary format.
+ * @param packet The `LobbySnapshotPacket` to serialize.
+ * @return A binary representation of the `LobbySnapshotPacket`.
+ */
 std::vector<uint8_t> network::Packet::serializeLobbySnapshotPacket(const network::LobbySnapshotPacket &packet)
 {
     std::vector<uint8_t> buffer;
@@ -278,6 +313,11 @@ std::vector<uint8_t> network::Packet::serializeLobbySnapshotPacket(const network
     return buffer;
 }
 
+/**
+ * @brief Deserializes a binary format into a `LobbySnapshotPacket`.
+ * @param data The binary data to deserialize.
+ * @return The deserialized `LobbySnapshotPacket`.
+ */
 network::LobbySnapshotPacket network::Packet::deserializeLobbySnapshotPacket(const std::vector<uint8_t> &data)
 {
     LobbySnapshotPacket packet;
@@ -337,8 +377,26 @@ network::LobbySnapshotPacket network::Packet::deserializeLobbySnapshotPacket(con
     return packet;
 }
 
-std::pair<network::PacketType, std::any> network::Packet::deserializePacket(const std::vector<uint8_t>& data) {
-    if (data.size() < sizeof(PacketHeader)) {
+/**
+ * @brief Deserializes a binary format into a recognized packet type.
+ *
+ * The function inspects the binary data to determine the packet type based on its
+ * header, then uses the appropriate deserialization method to convert the binary
+ * data into a structured packet. If the type is unrecognized or the data is incomplete,
+ * the function returns the data as a `RawPacket`.
+ *
+ * @param data The binary buffer containing the packet data.
+ * @return A pair consisting of:
+ *   - The detected `PacketType` (or `RawPacket` if unrecognized).
+ *   - The deserialized packet as an `std::any` (type depends on the packet).
+ *
+ * @note If the binary data does not contain a valid `PacketHeader`, it will be treated
+ * as a `RawPacket`.
+ */
+std::pair<network::PacketType, std::any> network::Packet::deserializePacket(const std::vector<uint8_t> &data)
+{
+    if (data.size() < sizeof(PacketHeader))
+    {
         return {PacketType::RawPacket, data};
     }
 
@@ -347,23 +405,24 @@ std::pair<network::PacketType, std::any> network::Packet::deserializePacket(cons
     std::memcpy(&header, data.data(), sizeof(PacketHeader));
 
     // Dispatch based on the packet type
-    switch (header.type) {
-        case PacketType::RawPacket:
-            return {header.type, data};  // Return raw data
+    switch (header.type)
+    {
+    case PacketType::RawPacket:
+        return {header.type, data}; // Return raw data
 
-        case PacketType::SnapshotPacket:
-            return {header.type, deserializeSnapshotPacket(data)};
+    case PacketType::SnapshotPacket:
+        return {header.type, deserializeSnapshotPacket(data)};
 
-        case PacketType::InputPacket:
-            return {header.type, deserializeInputPacket(data)};
+    case PacketType::InputPacket:
+        return {header.type, deserializeInputPacket(data)};
 
-        case PacketType::LobbyActionPacket:
-            return {header.type, deserializeLobbyActionPacket(data)};
+    case PacketType::LobbyActionPacket:
+        return {header.type, deserializeLobbyActionPacket(data)};
 
-        case PacketType::LobbySnapshotPacket:
-            return {header.type, deserializeLobbySnapshotPacket(data)};
+    case PacketType::LobbySnapshotPacket:
+        return {header.type, deserializeLobbySnapshotPacket(data)};
 
-        default:
-            return {PacketType::RawPacket, data};
+    default:
+        return {PacketType::RawPacket, data};
     }
 }

@@ -10,16 +10,30 @@
 #include "network/NetworkWrapper.hpp"
 #include "network/Server.hpp"
 
-// Server Constructor
+/**
+ * @brief Constructs a new NetworkServer instance.
+ *
+ * Initializes the internal ENet host and other required resources.
+ */
 network::NetworkServer::NetworkServer() : host(nullptr, enet_host_destroy) { NetworkWrapper::initialize(); }
 
+/**
+ * @brief Destroys the NetworkServer instance.
+ *
+ * Cleans up the ENet host and other allocated resources.
+ */
 network::NetworkServer::~NetworkServer()
 {
     stop();
     NetworkWrapper::shutdown();
 }
 
-// Start the server
+/**
+ * @brief Starts the server and binds it to a specific port.
+ *
+ * @param port The port number to bind the server to.
+ * @return True if the server starts successfully, false otherwise.
+ */
 bool network::NetworkServer::start(uint16_t port)
 {
     ENetAddress address;
@@ -35,20 +49,35 @@ bool network::NetworkServer::start(uint16_t port)
     return true;
 }
 
-// Stop the server
+/**
+ * @brief Stops the server and closes all active connections.
+ */
 void network::NetworkServer::stop()
 {
     host.reset();
     peerMap.clear();
 }
 
-// Send a packet to a specific peer
+/**
+ * @brief Sends a raw packet of data to a specific peer.
+ *
+ * @param data The data to send.
+ * @param peer A shared pointer to the target PeerWrapper.
+ * @return True if the packet is sent successfully, false otherwise.
+ */
 bool network::NetworkServer::sendPacket(const std::vector<uint8_t> &data, std::shared_ptr<PeerWrapper> peer)
 {
     ENetPacket *packet = enet_packet_create(data.data(), data.size(), ENET_PACKET_FLAG_RELIABLE);
     return enet_peer_send(peer->getPeer().get(), 0, packet) >= 0;
 }
 
+/**
+ * @brief Sends a snapshot packet to a specific peer.
+ *
+ * @param packet The snapshot packet to send.
+ * @param peer A shared pointer to the target PeerWrapper.
+ * @return True if the packet is sent successfully, false otherwise.
+ */
 bool network::NetworkServer::sendSnapshotPacket(const SnapshotPacket &packet, std::shared_ptr<PeerWrapper> peer)
 {
     SnapshotPacket newPacket;
@@ -68,6 +97,13 @@ bool network::NetworkServer::sendSnapshotPacket(const SnapshotPacket &packet, st
     return sendPacket(binary, peer);
 }
 
+/**
+ * @brief Sends a lobby snapshot packet to a specific peer.
+ *
+ * @param packet The lobby snapshot packet to send.
+ * @param peer A shared pointer to the target PeerWrapper.
+ * @return True if the packet is sent successfully, false otherwise.
+ */
 bool network::NetworkServer::sendLobbyPacket(const LobbySnapshotPacket &packet, std::shared_ptr<PeerWrapper> peer)
 {
     LobbySnapshotPacket newPacket;
@@ -88,6 +124,15 @@ bool network::NetworkServer::sendLobbyPacket(const LobbySnapshotPacket &packet, 
     return sendPacket(binary, peer);
 }
 
+/**
+ * @brief Polls the server for new network events.
+ *
+ * Processes connection, disconnection, and data reception events,
+ * populating the ServerEvent object with the event details.
+ *
+ * @param event A reference to a ServerEvent object to store the next event.
+ * @return True if an event is successfully polled, false otherwise.
+ */
 bool network::NetworkServer::pollEvent(network::ServerEvent &event)
 {
     if (!host)

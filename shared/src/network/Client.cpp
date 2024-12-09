@@ -10,19 +10,36 @@
 #include "network/Client.hpp"
 #include "network/NetworkWrapper.hpp"
 
-// Client Constructor
+/**
+ * @brief Constructs a NetworkClient instance.
+ *
+ * Initializes the ENet library and prepares the client for use.
+ */
 network::NetworkClient::NetworkClient() : client(nullptr, enet_host_destroy), serverPeer(nullptr)
 {
     NetworkWrapper::initialize();
 }
 
+/**
+ * @brief Destroys the NetworkClient instance.
+ *
+ * Disconnects from the server if connected and shuts down the ENet library.
+ */
 network::NetworkClient::~NetworkClient()
 {
     disconnect();
     NetworkWrapper::shutdown();
 }
 
-// Connect to the server
+/**
+ * @brief Connects to a server.
+ *
+ * Attempts to establish a connection to the specified server address and port.
+ *
+ * @param host The server's hostname or IP address.
+ * @param port The server's port number.
+ * @return True if the connection is successful, false otherwise.
+ */
 bool network::NetworkClient::connectToServer(const std::string &host, uint16_t port)
 {
     ENetAddress address;
@@ -52,7 +69,11 @@ bool network::NetworkClient::connectToServer(const std::string &host, uint16_t p
     return false;
 }
 
-// Disconnect from the server
+/**
+ * @brief Disconnects from the server.
+ *
+ * Closes the connection to the server and releases associated resources.
+ */
 void network::NetworkClient::disconnect()
 {
     if (client)
@@ -62,7 +83,12 @@ void network::NetworkClient::disconnect()
     }
 }
 
-// Send a packet to the server
+/**
+ * @brief Sends a raw packet to the server.
+ *
+ * @param data The binary data to send.
+ * @return True if the packet is sent successfully, false otherwise.
+ */
 bool network::NetworkClient::sendPacket(const std::vector<uint8_t> &data)
 {
     if (serverPeer)
@@ -73,6 +99,12 @@ bool network::NetworkClient::sendPacket(const std::vector<uint8_t> &data)
     return false;
 }
 
+/**
+ * @brief Sends an input packet to the server.
+ *
+ * @param packet The InputPacket containing user input data.
+ * @return True if the packet is sent successfully, false otherwise.
+ */
 bool network::NetworkClient::sendInputPacket(const InputPacket &packet)
 {
     InputPacket newPacket;
@@ -92,6 +124,12 @@ bool network::NetworkClient::sendInputPacket(const InputPacket &packet)
     return sendPacket(binary);
 }
 
+/**
+ * @brief Sends a lobby action packet to the server.
+ *
+ * @param packet The LobbyActionPacket containing lobby action details.
+ * @return True if the packet is sent successfully, false otherwise.
+ */
 bool network::NetworkClient::sendLobbyPacket(const LobbyActionPacket &packet)
 {
     LobbyActionPacket newPacket;
@@ -114,6 +152,15 @@ bool network::NetworkClient::sendLobbyPacket(const LobbyActionPacket &packet)
     return sendPacket(binary);
 }
 
+/**
+ * @brief Polls for incoming events from the server.
+ *
+ * Checks for incoming events such as data reception or server disconnection.
+ * Populates the provided ClientEvent with event details if an event is received.
+ *
+ * @param event The ClientEvent structure to populate with event details.
+ * @return True if an event is successfully polled, false otherwise.
+ */
 bool network::NetworkClient::pollEvent(ClientEvent &event)
 {
     if (!client)
@@ -137,8 +184,6 @@ bool network::NetworkClient::pollEvent(ClientEvent &event)
                 }
                 catch (const std::exception &e)
                 {
-                    event.packetType = PacketType::RawPacket;
-                    event.data = rawPacket;
                     spdlog::error("Failed to deserialize packet: {}", e.what());
                 }
                 enet_packet_destroy(enetEvent.packet);
