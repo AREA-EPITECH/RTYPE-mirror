@@ -49,5 +49,5 @@ namespace server {
             auto what() const noexcept -> const char* override;
         };
     };
-    void handleClientData(std::shared_ptr<network::PeerWrapper> peer, std::any std::data, network::PacketType type);
+    void handleClientData(std::shared_ptr<network::PeerWrapper> peer, std::any data, network::PacketType type);
 } // namespace server

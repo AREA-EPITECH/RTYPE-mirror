@@ -28,8 +28,12 @@ namespace server {
      * @param argv: commannd line argument corresponding to port number
      */
     Server::Server(char *argv[]) : _thread_pool(std::thread::hardware_concurrency()) {
+        if (argv[1] == nullptr) {
+            throw ServerException("Port argument is missing");
+        }
         try {
-            this->_port = std::stoi(argv[1]);
+            std::string port_string(argv[1]);
+            this->_port = std::stoi(port_string);
         } catch ([[maybe_unused]] std::invalid_argument const& ex) {
             throw ServerException("Wrong port argument");
         }

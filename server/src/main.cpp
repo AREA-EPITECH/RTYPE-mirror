@@ -36,8 +36,7 @@ int main(int argc, char *argv[]) {
         server.initServer();
         runGameLoop(server);
         server.stopServer();
-    }
-    catch (server::Server::ServerException& e) {
+    } catch (server::Server::ServerException& e) {
         spdlog::error(e.what());
     }
     spdlog::info("Application exited cleanly.");
