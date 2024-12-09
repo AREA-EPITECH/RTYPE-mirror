@@ -18,6 +18,7 @@ namespace ecs {
 // Window
     void init_window_system(Registry &ecs, const WindowOpenEvent &);
     void close_window_system(Registry &ecs, const WindowCloseEvent &);
+    void change_window(Registry &ecs, WindowType type);
 
 // Lobby
     void draw_lobby_system(Registry &ecs, const WindowDrawEvent &);

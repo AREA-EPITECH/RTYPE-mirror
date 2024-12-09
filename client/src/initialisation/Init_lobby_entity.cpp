@@ -34,8 +34,8 @@ void init_lobby_entity (Registry &ecs) {
                                                buttonWidth,
                                                buttonHeight,
                                                readyText,
-                                               []() {
-                                                   std::cout << "Player ready" << std::endl;
+                                               [&ecs]() {
+                                                   ecs::change_window(ecs, ecs::WindowType::GAME);
                                                },
                                                buttonX,
                                                buttonY

@@ -8,6 +8,7 @@
 #include <unordered_map>
 #include <vector>
 #include "Sparse_array.hpp"
+#include "iostream"
 
 using entity_t = std::size_t;
 
@@ -130,13 +131,18 @@ public:
         }
     }
 
-    void remove_all_components() {
-        for (auto& [type_idx, component_array] : _components_arrays) {
-            auto& sparse_array = std::any_cast<Sparse_array<std::any>&>(component_array);
-            sparse_array.clear();
-        }
-        _components_arrays.clear();
-        _erase_functions.clear();
+    template <typename Component>
+    void unregister_component() {
+        auto type_idx = std::type_index(typeid(Component));
+        auto it = _components_arrays.find(type_idx);
+
+        if (it == _components_arrays.end())
+            throw std::runtime_error("Component type not registered.");
+
+        std::cout << "here\n";
+
+        _components_arrays.erase(type_idx);
+        _erase_functions.erase(type_idx);
     }
 
 private:

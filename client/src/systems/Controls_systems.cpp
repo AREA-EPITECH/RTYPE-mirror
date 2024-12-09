@@ -58,9 +58,6 @@ namespace ecs {
      */
     void lobby_controls_system(Registry &ecs, const ControlsEvent &) {
         auto &models = ecs.get_components<VesselsComponent>();
-        if (IsKeyPressed(KEY_ENTER)) {
-            change_window(ecs, GAME);
-        }
 
         if (IsKeyPressed(KEY_LEFT)) {
             size_t current = -1;
