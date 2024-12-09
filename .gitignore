@@ -1,3 +1,11 @@
+# IDE
+.idea
+.vscode
+
+# Cmake
+cmake-build-debug
+build-dir
+
 # Prerequisites
 *.d
 
@@ -9,6 +17,7 @@
 build/
 cmake-build-debug/
 cmake-build-default/
+cmake-build-default
 
 # Precompiled Headers
 *.gch
@@ -44,3 +53,10 @@ cmake-build-debug
 .vscode/
 .clangd
 .idea/
+
+# VCPKG
+CMakeUserPresets.json
+build
+
+# Debug
+vgcore.*
