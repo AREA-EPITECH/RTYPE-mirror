@@ -51,6 +51,17 @@ public:
     }
 
     template <typename Component>
+    void unregister_component() {
+        auto type_idx = std::type_index(typeid(Component));
+        auto it = _components_arrays.find(type_idx);
+        if (it == _components_arrays.end())
+            throw std::runtime_error("Component type not registered.");
+
+        _components_arrays.erase(type_idx);
+        _erase_functions.erase(type_idx);
+    }
+
+    template <typename Component>
     typename Sparse_array<Component>::reference_type add_component(entity_t const& to, Component&& c) {
         return get_components<Component>().insert_at(to, std::forward<Component>(c));
     }
@@ -129,20 +140,6 @@ public:
         if (it != _event_systems.end()) {
             it->second = std::vector<system_type<Event>>{};
         }
-    }
-
-    template <typename Component>
-    void unregister_component() {
-        auto type_idx = std::type_index(typeid(Component));
-        auto it = _components_arrays.find(type_idx);
-
-        if (it == _components_arrays.end())
-            throw std::runtime_error("Component type not registered.");
-
-        std::cout << "here\n";
-
-        _components_arrays.erase(type_idx);
-        _erase_functions.erase(type_idx);
     }
 
 private:
