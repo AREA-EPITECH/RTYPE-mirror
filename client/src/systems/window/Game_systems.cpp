@@ -121,7 +121,7 @@ namespace ecs {
             }
         }
 
-        DrawText("In Game !", 10, 10, 20, DARKGRAY);
+        DrawText(TextFormat("FPS: %d", GetFPS()), 10, 10, 20, DARKGRAY);
 
         EndDrawing();
 
