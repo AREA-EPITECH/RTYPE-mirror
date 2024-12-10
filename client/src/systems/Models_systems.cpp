@@ -81,7 +81,8 @@ namespace ecs {
                 center.z = min.z + (max.z - min.z) / 2;
 
                 const Matrix matTranslate = MatrixTranslate(-center.x, 0, -center.z);
-                modelComponent.model.transform = matTranslate;
+                const Matrix matRotate = MatrixRotateY(DEG2RAD * 90.0f);
+                modelComponent.model.transform = MatrixMultiply(matTranslate, matRotate);
 
                 TraceLog(LOG_INFO, TextFormat("Model reloaded and centered from %s", modelComponent.path.c_str()));
             }
@@ -255,7 +256,7 @@ namespace ecs {
      */
     void create_light_system(Registry &ecs, const InitLightEvent &event)
     {
-        const client::Light light{event.type, event.position, event.target, event.color, event.shader, event.nb};
+        const client::Light light{event.type, event.position, event.target, event.color, event.nb};
         auto entity = ecs.spawn_entity();
         ecs.add_component<LightComponent>(entity, {std::make_shared<client::Light>(light)});
     }
@@ -280,7 +281,7 @@ namespace ecs {
      */
     void load_decor_element(Registry &ecs, const InitDecorElementEvent &event)
     {
-        DecorElementComponent decor_element{event.path};
+        DecorElementComponent decor_element{event.path, event.speed};
         auto entity = ecs.spawn_entity();
         ecs.add_component<DecorElementComponent>(entity, {(std::move(decor_element))});
     }

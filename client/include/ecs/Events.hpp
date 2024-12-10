@@ -38,7 +38,6 @@ namespace ecs {
         Vector3 position;
         Vector3 target;
         Color color;
-        Shader shader;
         int nb;
     };
 
@@ -76,5 +75,6 @@ namespace ecs {
     struct InitDecorElementEvent
     {
         std::string path;
+        int speed;
     };
 }

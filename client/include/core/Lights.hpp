@@ -27,13 +27,14 @@ namespace client
         Vector3 _target{};
         float _attenuation{};
         std::string _name;
+        int _nb;
 
         // Shader location
-        int _enabledLoc;
-        int _typeLoc;
-        int _positionLoc;
-        int _targetLoc;
-        int _colorLoc;
+        int _enabledLoc{};
+        int _typeLoc{};
+        int _positionLoc{};
+        int _targetLoc{};
+        int _colorLoc{};
         int _attenuationLoc{};
 
     public:
@@ -41,8 +42,8 @@ namespace client
         Vector3 _position{};
         Color _color{};
 
-        Light(LightType type, Vector3 position, Vector3 target, Color color, Shader shader, int nb);
-        void UpdateLightValues(Shader shader) const;
+        Light(LightType type, Vector3 position, Vector3 target, Color color, int nb);
+        void UpdateLightValues(Shader shader);
     };
 }
 

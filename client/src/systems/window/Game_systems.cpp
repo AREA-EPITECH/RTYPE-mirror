@@ -97,7 +97,7 @@ namespace ecs {
                     if (model.has_value()) {
                         VesselsComponent &modelComponent = model.value();
                         if (modelComponent.drawable) {
-                            DrawModel(modelComponent.model, {0, 0, 0}, 1.0f, WHITE);
+                            DrawModel(modelComponent.model, modelComponent.position, 1.0f, WHITE);
                         }
                     }
                 }
@@ -136,10 +136,23 @@ namespace ecs {
     * @param ecs
     */
     void open_game_system(Registry &ecs, const WindowOpenEvent &) {
-        ecs.run_event(InitCameraEvent{{0.0f, 20.0f, 20.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, 45.0f,
+        // Init camera
+        ecs.run_event(InitCameraEvent{{0.0f, 0.0f, 50.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, 45.0f,
                                       CAMERA_PERSPECTIVE});
+        // Init lights
+        ecs.run_event(InitLightEvent{client::LIGHT_POINT, {-20, 20, -20}, Vector3Zero(),
+            WHITE, 0});
+        ecs.run_event(InitLightEvent{client::LIGHT_POINT, {20, -20, 20}, Vector3Zero(),
+            WHITE, 1});
+        ecs.run_event(InitLightEvent{client::LIGHT_POINT, {-20, 20, 20}, Vector3Zero(),
+            WHITE, 2});
+        ecs.run_event(InitLightEvent{client::LIGHT_POINT, {20, -20, -20}, Vector3Zero(),
+            WHITE, 3});
+
+        // Init models & shaders
         ecs.run_event(InitModelEvent{});
         ecs.run_event(InitShaderEvent{});
+
         auto &shaders = ecs.get_components<ShaderComponent>();
         Shader shader = {};
         for (auto & shader_i : shaders) {
@@ -148,21 +161,19 @@ namespace ecs {
                 break;
             }
         }
-        ecs.run_event(InitLightEvent{client::LIGHT_POINT, {-20, 20, -20}, Vector3Zero(),
-            WHITE, shader, 0});
-        ecs.run_event(InitLightEvent{client::LIGHT_POINT, {20, -20, 20}, Vector3Zero(),
-            WHITE, shader, 1});
-        ecs.run_event(InitLightEvent{client::LIGHT_POINT, {-20, 20, 20}, Vector3Zero(),
-            WHITE, shader, 2});
-        ecs.run_event(InitLightEvent{client::LIGHT_POINT, {20, -20, -20}, Vector3Zero(),
-            WHITE, shader, 3});
+        auto &lights = ecs.get_components<LightComponent>();
+        for (auto & light : lights) {
+            if (light.has_value()) {
+                light->light->UpdateLightValues(shader);
+            }
+        }
 
+        // Init 
         ecs.run_event(InitBackgroundEvent{"client/assets/backgrounds/game/space_background.png", 2,
-                    500, 0});
-        ecs.run_event(InitDecorElementEvent{"client/assets/backgrounds/game/space_midground.png"});
-        ecs.run_event(InitDecorElementEvent{"client/assets/backgrounds/game/space_midground_2.png"});
-        ecs.run_event(InitDecorElementEvent{"client/assets/backgrounds/game/space_foreground.png"});
-
+                    200, 0});
+        ecs.run_event(InitDecorElementEvent{"client/assets/backgrounds/game/space_midground.png", 300});
+        ecs.run_event(InitDecorElementEvent{"client/assets/backgrounds/game/space_midground_2.png", 300});
+        ecs.run_event(InitDecorElementEvent{"client/assets/backgrounds/game/space_foreground.png", 400});
     }
 
     /**

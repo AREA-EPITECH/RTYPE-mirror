@@ -131,11 +131,31 @@ namespace ecs {
      * @param ecs
      */
     void game_controls_system(Registry &ecs, const ControlsEvent &) {
+        auto &models = ecs.get_components<VesselsComponent>();
+        VesselsComponent *modelComponent = nullptr;
+        for (auto & model : models) {
+            if (model.has_value()) {
+                modelComponent = &model.value();
+                break;
+            }
+        }
+        if (modelComponent == nullptr)
+            return;
         if (IsKeyPressed(KEY_ENTER)) {
             change_window(ecs, MENU);
         }
-
-        if (IsKeyPressed(KEY_LEFT)) {
+        if (IsKeyPressed(KEY_LEFT) || IsKeyDown(KEY_LEFT)) {
+            modelComponent->position.x -= 0.1f;
         }
+        if (IsKeyPressed(KEY_RIGHT) || IsKeyDown(KEY_RIGHT)) {
+            modelComponent->position.x += 0.1f;
+        }
+        if (IsKeyPressed(KEY_UP) || IsKeyDown(KEY_UP)) {
+            modelComponent->position.y += 0.1f;
+        }
+        if (IsKeyPressed(KEY_DOWN) || IsKeyDown(KEY_DOWN)) {
+            modelComponent->position.y -= 0.1f;
+        }
+
     }
 }

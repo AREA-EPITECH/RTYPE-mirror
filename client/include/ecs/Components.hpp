@@ -108,6 +108,7 @@ namespace ecs {
         bool drawable;
         std::string path;
         TextComponent name;
+        Vector3 position = {0, 0, 0};
 
         VesselsComponent(Model _model, bool _drawable, std::string _path, TextComponent _name) {
             model = _model;
@@ -165,11 +166,10 @@ namespace ecs {
         int y{};
         int speed;
 
-        explicit DecorElementComponent(const std::string &path)
+        explicit DecorElementComponent(const std::string &path, const int speed)
         {
             texture = LoadTexture(path.c_str());
-            speed = GetRandomValue(100, 300);
-            ResetPosition(GetScreenWidth(), GetScreenHeight());
+            this->speed = speed;
         }
 
         void ResetPosition(const int screen_width, const int screen_height)
