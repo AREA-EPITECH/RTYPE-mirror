@@ -83,18 +83,23 @@ namespace ecs {
         int buttonX{};
         int buttonY{};
 
-        ButtonComponent(int _buttonWidth,
-                        int _buttonHeight,
-                        TextComponent _text,
-                        std::function<void()> _onClick = nullptr,
-                        std::function<int(int screenWidth, int screenHeight)> _dynamicX = nullptr,
-                        std::function<int(int screenWidth, int screenHeight)> _dynamicY = nullptr,
-                        Color _color = {120, 0, 0, 255});
-
-
         void drawButton() const;
 
         void updateButton(int screenWidth, int screenHeight);
+
+        bool isButtonPressed(Vector2 mousePosition);
+
+        [[nodiscard]] bool isHover(Vector2 mousePosition) const;
+
+        ButtonComponent(
+                int _buttonWidth,
+                int _buttonHeight,
+                TextComponent _text,
+                std::function<void()> _onClick = nullptr,
+                std::function<int(int screenWidth, int screenHeight)> _dynamicX = nullptr,
+                std::function<int(int screenWidth, int screenHeight)> _dynamicY = nullptr,
+                Color _color = {120, 0, 0, 255});
+
     };
 
     class VesselsComponent {
@@ -195,3 +200,4 @@ namespace ecs {
         }
     };
 }
+

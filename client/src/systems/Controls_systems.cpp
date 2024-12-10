@@ -51,7 +51,7 @@ namespace ecs {
 
             for (auto &button : buttons) {
                 if (button.has_value()) {
-                    //button->isButtonPressed(mousePosition);
+                    button->isButtonPressed(mousePosition);
                 }
             }
         }
@@ -120,7 +120,7 @@ namespace ecs {
 
             for (auto &button : buttons) {
                 if (button.has_value()) {
-                    //button->isButtonPressed(mousePosition);
+                    button->isButtonPressed(mousePosition);
                 }
             }
         }

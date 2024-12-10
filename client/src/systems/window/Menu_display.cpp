@@ -7,9 +7,9 @@
 void update_menu_selectors(Registry &ecs, int screenWidth, int screenHeight) {
     auto &buttons = ecs.get_components<ecs::ButtonComponent>();
 
-    for (int i = 0; i < buttons.size(); ++i) {
-        if (buttons[i].has_value()) {
-            buttons[i].value().updateButton(screenWidth, screenHeight);
+    for (auto & button : buttons) {
+        if (button.has_value()) {
+            button.value().updateButton(screenWidth, screenHeight);
         }
     }
 }
@@ -17,9 +17,9 @@ void update_menu_selectors(Registry &ecs, int screenWidth, int screenHeight) {
 void display_menu_selectors(Registry &ecs) {
     auto &buttons = ecs.get_components<ecs::ButtonComponent>();
 
-    for (int i = 0; i < buttons.size(); i++) {
-        if (buttons[i].has_value()) {
-            auto &button = buttons[i].value();
+    for (auto & i : buttons) {
+        if (i.has_value()) {
+            auto &button = i.value();
             button.drawButton();
         }
     }
