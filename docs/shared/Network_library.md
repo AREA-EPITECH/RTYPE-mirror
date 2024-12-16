@@ -1,17 +1,17 @@
 # Network Library
-
+___
 ## Overview
-
+___
 This library provides a high-level interface for handling networking in your application using ENet. It includes components for both client and server-side communication, along with support for serialization, events, and packet handling.
 
 It include the protocol to use for the R-Type game.
 
 ## Server Usage
-
+___
 The `NetworkServer` class facilitates server-side networking.
 
 ### Setting up the server
-
+___
 ```cpp
 #include "network/Server.hpp"
 
@@ -26,7 +26,7 @@ if (!server.start(12345)) {
 ```
 
 ### Handling server events
-
+___
 Use `pollEvent` to process incoming events like client connections or data reception.
 
 ```cpp
@@ -50,7 +50,7 @@ while (server.pollEvent(event)) {
 ```
 
 ### Sending packets to clients
-
+___
 ```cpp
 #include "network/packet/ServerPacket.hpp"
 
@@ -71,11 +71,11 @@ server.sendPacket(packet, event.peer);
 ```
 
 ## Client Usage
-
+___
 The `NetworkClient` class provides a client-side interface.
 
 ### Connecting to a server
-
+___
 ```cpp
 #include "network/Client.hpp"
 
@@ -88,7 +88,7 @@ if (!client.connectToServer("127.0.0.1", 12345)) {
 ```
 
 ### Handling client events
-
+___
 Use `pollEvent` to process incoming events like data reception or server disconnection.
 
 ```cpp
@@ -109,7 +109,7 @@ while (client.pollEvent(event)) {
 ```
 
 ### Sending packets to the server
-
+___
 ```cpp
 #include "network/packet/ClientPacket.hpp"
 
@@ -130,9 +130,9 @@ client.sendPacket(packet);
 ```
 
 ## Packet Serialization and Deserialization
-
+___
 ### Serialization
-
+___
 Use the `Packet` class to serialize packets before sending them.
 
 ```cpp
@@ -152,7 +152,7 @@ std::vector<uint8_t> serializedData = network::Packet::serializeLobbySnapshotPac
 ```
 
 ### Deserialization
-
+___
 Deserialize packets when receiving raw data.
 
 ```cpp
@@ -162,11 +162,11 @@ auto [packetType, packetData] = network::Packet::deserializePacket(rawData);
 ```
 
 ## Events
-
+___
 The library uses `ServerEvent` and `ClientEvent` structs to handle events in a flexible way. Both support storing packet data as `std::any`.
 
 ### Accessing event data
-
+___
 ```cpp
 if (event.packetType == network::PacketType::SnapshotPacket) {
     auto snapshotPacket = std::any_cast<network::SnapshotPacket>(event.data);
@@ -175,9 +175,9 @@ if (event.packetType == network::PacketType::SnapshotPacket) {
 ```
 
 ## Advanced Usage
-
+___
 ### Custom Data with PeerWrapper
-
+___
 You can associate custom data with peers using `PeerWrapper`.
 
 ```cpp
@@ -186,7 +186,7 @@ std::string playerName = event.peer->getData<std::string>();
 ```
 
 ## Error Handling
-
+___
 - Check return values of key methods like `start`, `connectToServer`, and `sendPacket`.
 - Use `spdlog` for logging errors and debugging information.
 

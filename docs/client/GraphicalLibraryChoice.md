@@ -1,14 +1,14 @@
 # Client
-
+___
 ## Targeted objectives
-
+___
 - Build Linux, Windows, and Switch
 - 3D game using voxels, shaders and lights
 - Lightweight and fast
 - Audio support
 
 ## Graphical Library Choice Comparison
-
+___
 |                                                  | **Raylib**                                                                             | **SDL2**                                                                  |
 |--------------------------------------------------|----------------------------------------------------------------------------------------|---------------------------------------------------------------------------|
 | **Ease of Use**                                  | ✅ Excellent (Simple API, ideal for beginners)                                          | ❓ Moderate (Requires more setup and control)                              |
@@ -26,7 +26,7 @@
 *Raylib vs SDL2 benchmark based on the expectations and requirements for this client.*
 
 ## Conclusion
-
+___
 After evaluating both libraries against our project goals, Raylib is the best fit. Its simplicity and beginner-friendly 
 API make it ideal for quickly prototyping and developing a 3D game with voxels, shaders, and lights. Raylib's built-in 
 3D support, console homebrew compatibility (including Switch), and lightweight performance are key advantages for our 
