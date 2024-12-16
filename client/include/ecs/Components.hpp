@@ -159,13 +159,13 @@ namespace ecs {
                 }
                 break;
             case client::Direction::LEFT:
-                if ((screen_pos.x -= 0.1f) > max_width)
+                if ((screen_pos.x -= 0.1f) > min_width)
                 {
                     position.x -= 0.1f;
                 }
                 break;
             case client::Direction::RIGHT:
-                if ((screen_pos.x += 0.1f) < min_width)
+                if ((screen_pos.x += 0.1f) < max_width)
                 {
                     position.x += 0.1f;
                 }
@@ -177,6 +177,8 @@ namespace ecs {
     };
 
     struct ControllableComponent{};
+
+    struct EnemyComponent{};
 
     class MenuText {
     public:
