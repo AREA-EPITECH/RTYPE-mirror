@@ -7,13 +7,16 @@
 
 #include "Main.hpp"
 
+#include "queue/MessageQueue.hpp"
+
 std::atomic<bool> shutdown_requested(false);
 
 /**
  * Init the ecs
  * @return
  */
-Registry init_ecs () {
+Registry init_ecs()
+{
     Registry ecs;
 
     ecs.register_component<ecs::Window>();
@@ -45,6 +48,32 @@ Registry init_ecs () {
     ecs.register_event<ecs::InitBackgroundEvent>();
     ecs.register_event<ecs::InitDecorElementEvent>();
 
+    ecs.register_event<network::ClientEvent>();
+
+    ecs.subscribe<network::ClientEvent>(
+        [](Registry &ecs, const network::ClientEvent &event)
+        {
+            switch (event.type)
+            {
+            case network::ClientEventType::DataReceive:
+                {
+                    if (event.packetType == network::PacketType::LobbySnapshotPacket)
+                    {
+                        auto received_packet = std::any_cast<struct network::LobbySnapshotPacket>(event.data);
+                        spdlog::info("Received lobby snapshot packet: {}", received_packet.header.packetId);
+                    }
+                    else
+                    {
+                        spdlog::info("Data received");
+                    }
+                    break;
+                }
+            case network::ClientEventType::ServerDisconnect:
+                std::cout << "Disconnected from server!" << std::endl;
+                break;
+            }
+        });
+
     init_menu_window(ecs);
 
     return ecs;
@@ -56,10 +85,12 @@ Registry init_ecs () {
  * @param host
  * @param port
  */
-void handle_network_event(const std::string &host, int port) {
+void handle_network_event(const std::string &host, int port, client::MessageQueue<network::ClientEvent> &messageQueue)
+{
     network::NetworkClient network_client;
 
-    if (!network_client.connectToServer(host, port)) {
+    if (!network_client.connectToServer(host, port))
+    {
         std::cerr << "Failed to connect to server!" << std::endl;
         exit(84);
     }
@@ -67,24 +98,9 @@ void handle_network_event(const std::string &host, int port) {
     network::ClientEvent event;
     while (!shutdown_requested.load())
     {
-        while (network_client.pollEvent(event)) {
-            switch (event.type) {
-            case network::ClientEventType::DataReceive:
-            {
-                if (event.packetType == network::PacketType::LobbySnapshotPacket)
-                {
-                    auto received_packet = std::any_cast<struct network::LobbySnapshotPacket>(event.data);
-                    spdlog::info("Received lobby snapshot packet: {}", received_packet.header.packetId);
-                } else
-                {
-                    spdlog::info("Data received");
-                }
-                break;
-            }
-            case network::ClientEventType::ServerDisconnect:
-                std::cout << "Disconnected from server!" << std::endl;
-                break;
-            }
+        while (network_client.pollEvent(event))
+        {
+            messageQueue.push(event);
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
@@ -97,7 +113,8 @@ void handle_network_event(const std::string &host, int port) {
  * @param argv
  * @return
  */
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
     if (argc != 3)
     {
         std::cout << "USAGE: ./r-type_client <HOST> <PORT>" << std::endl;
@@ -106,15 +123,16 @@ int main(int argc, char *argv[]) {
     std::string host = argv[1];
     int port = static_cast<int>(strtol(argv[2], nullptr, 10));
 
+    client::MessageQueue<network::ClientEvent> messageQueue;
+
     std::cout << "Game will run on " << host << " using port " << port << std::endl;
 
     Registry ecs = init_ecs();
-    auto network_func = [&host, port] { handle_network_event(host, port); };
-    std::thread thread_network(network_func);
+    // auto network_func = [&host, port, std::ref(messageQueue)] { handle_network_event(host, port); };
+    std::thread thread_network(handle_network_event, std::ref(host), port, std::ref(messageQueue));
 
     auto windowEntity = ecs.spawn_entity();
-    ecs.add_component<ecs::Window>(windowEntity, {1920, 1080, "ECS Raylib - Multi Events",
-        false});
+    ecs.add_component<ecs::Window>(windowEntity, {1920, 1080, "ECS Raylib - Multi Events", false});
 
     ecs.subscribe<ecs::CreateWindowEvent>(ecs::init_window_system);
 
@@ -123,7 +141,13 @@ int main(int argc, char *argv[]) {
     ecs.run_event(ecs::CreateWindowEvent{});
     ecs.run_event(ecs::WindowOpenEvent{});
 
-    while (!WindowShouldClose()) {
+    while (!WindowShouldClose())
+    {
+        while (!messageQueue.empty())
+        {
+            ecs.run_event(messageQueue.pop());
+        }
+
         ecs.run_event(ecs::WindowDrawEvent{});
     }
     shutdown_requested.store(true);
