@@ -65,6 +65,7 @@ namespace ecs {
     void ShowBoxComponent::draw() {
         if (!isVisible) return;
 
+        DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), Fade(BLACK, 0.5f));
         textInput.handleInput();
 
         DrawRectangleRec(boxRect, boxColor);

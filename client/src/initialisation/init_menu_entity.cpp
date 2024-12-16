@@ -17,7 +17,7 @@ void init_menu_entity (Registry &ecs) {
     auto boxColor = DARKGRAY;
     auto textColor = WHITE;
 
-    ecs::TextInputComponent textBoxInput({500, 100, 500, 100},
+    ecs::TextInputComponent textBoxInput({500, 100, 500, 50},
                                          "",
                                          20,
                                          Color{120, 0, 0, 255},
@@ -49,7 +49,7 @@ void init_menu_entity (Registry &ecs) {
                                      });
 
     auto showBoxEntity = ecs.spawn_entity();
-    Rectangle boxRect = {100, 100, 600, 400};
+    Rectangle boxRect = {100, 100, 600, 300};
     ecs.add_component<ecs::ShowBoxComponent>(showBoxEntity, ecs::ShowBoxComponent(
             boxRect,
             message, boxColor, textColor, textBoxInput, closeButton, continueButton,
