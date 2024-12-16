@@ -65,3 +65,6 @@ build
 # Debug
 vgcore.*
 
+# Doxygen
+html
+latex
