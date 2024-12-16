@@ -1,3 +1,10 @@
+/*
+** EPITECH PROJECT, 2024
+** r-type
+** File description:
+** Components.hpp
+*/
+
 #pragma once
 
 #include <utility>

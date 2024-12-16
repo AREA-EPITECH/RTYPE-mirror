@@ -1,6 +1,9 @@
-//
-// Created by lferraro on 12/4/24.
-//
+/*
+** EPITECH PROJECT, 2024
+** r-type
+** File description:
+** Lobby_display
+*/
 
 #include "ecs/Systems.hpp"
 

@@ -1,6 +1,9 @@
-//
-// Created by lferraro on 12/9/24.
-//
+/*
+** EPITECH PROJECT, 2024
+** r-type
+** File description:
+** init_menu_entity
+*/
 
 #include "ecs/Systems.hpp"
 

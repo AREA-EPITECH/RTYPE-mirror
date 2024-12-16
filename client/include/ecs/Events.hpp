@@ -1,3 +1,10 @@
+/*
+** EPITECH PROJECT, 2024
+** r-type
+** File description:
+** Events.hpp
+*/
+
 #pragma once
 
 #include "iostream"

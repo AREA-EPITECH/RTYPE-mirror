@@ -1,6 +1,9 @@
-//
-// Created by lferraro on 12/5/24.
-//
+/*
+** EPITECH PROJECT, 2024
+** r-type
+** File description:
+** init_lobby_entity
+*/
 
 #include "ecs/Systems.hpp"
 

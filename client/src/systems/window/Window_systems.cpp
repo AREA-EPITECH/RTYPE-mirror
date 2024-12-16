@@ -1,6 +1,10 @@
-//
-// Created by lferraro on 12/2/24.
-//
+/*
+** EPITECH PROJECT, 2024
+** r-type
+** File description:
+** Window_systems
+*/
+
 #include "ecs/Systems.hpp"
 namespace ecs {
 

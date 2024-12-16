@@ -1,6 +1,9 @@
-//
-// Created by lferraro on 12/10/24.
-//
+/*
+** EPITECH PROJECT, 2024
+** r-type
+** File description:
+** ButtonComponent
+*/
 
 #include "ecs/Components.hpp"
 
