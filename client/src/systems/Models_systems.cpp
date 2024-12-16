@@ -129,7 +129,7 @@ namespace ecs {
 
     void load_title_menu(Registry &ecs, const InitModelEvent &) {
 
-        std::string title_file = "client/assets/voxels/title_blue.vox";
+        std::string title_file = "client/assets/voxels/title/title_blue.vox";
         Model models;
         const double t0 = GetTime() * 1000.0;
 
