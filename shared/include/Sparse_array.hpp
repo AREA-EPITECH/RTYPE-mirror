@@ -79,6 +79,10 @@ public:
         throw std::runtime_error("Value not found");
     }
 
+    void clear() {
+        _data.clear();
+    }
+
 private:
     container_t _data;
 

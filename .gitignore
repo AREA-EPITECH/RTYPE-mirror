@@ -1,3 +1,11 @@
+# IDE
+.idea
+.vscode
+
+# Cmake
+cmake-build-debug
+build-dir
+
 # Prerequisites
 *.d
 
@@ -9,6 +17,7 @@
 build/
 cmake-build-debug/
 cmake-build-default/
+
 
 # Precompiled Headers
 *.gch
@@ -29,6 +38,10 @@ cmake-build-default/
 *.a
 *.lib
 
+# Microsoft build file
+*.ilk
+*.pdb
+
 # Executables
 *.exe
 *.out
@@ -38,9 +51,17 @@ r-type_server
 
 # Cmake user presets
 CMakeUserPresets.json
-cmake-build-debug
+cmake-build-default
 
 # ide preset
 .vscode/
 .clangd
 .idea/
+.vs/
+
+# VCPKG
+build
+
+# Debug
+vgcore.*
+

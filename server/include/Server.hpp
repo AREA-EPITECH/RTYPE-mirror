@@ -6,6 +6,7 @@
 */
 
 #pragma once
+
 #include <cstdint>
 #include <enet/enet.h>
 #include <exception>
@@ -17,6 +18,10 @@
 #include <network/PeerWrapper.hpp>
 #include <network/Server.hpp>
 #include <network/packet/PacketHeader.hpp>
+#include <sys/types.h>
+#if defined(_WIN32) || defined(WIN32)
+#include <WinSock2.h>
+#endif
 
 namespace server {
     class Room;
