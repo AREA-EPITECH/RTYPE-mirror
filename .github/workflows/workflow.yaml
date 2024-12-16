@@ -34,6 +34,7 @@ jobs:
     if: github.repository == 'AREA-EPITECH/RTYPE-mirror'
     name: Run Clang-Format
     runs-on: ubuntu-latest
+    needs: linter
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -49,26 +50,21 @@ jobs:
     if: github.repository == 'AREA-EPITECH/RTYPE-mirror'
     name: Build with CMake and vcpkg
     runs-on: ubuntu-latest
+    needs: formatter
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up vcpkg
-        uses: microsoft/vcpkg-action@v2
-        with:
-          vcpkgDirectory: '${{ github.workspace }}/vcpkg'
-          runVcpkgInstall: true
-
-      - name: Configure CMake
-        run: |
-          mkdir -p build
-          cd build
-          cmake -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake ..
+#      - name: Configure CMake
+#        run: |
+#          mkdir -p build
+#          cd build
+#          cmake -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake ..
 
       - name: Build project
         run: |
-          cd build
-          cmake --build .
+          cmake --preset=default
+          cmake --build build
 
   deploy_docs:
     if: github.repository == 'AREA-EPITECH/RTYPE-mirror'
