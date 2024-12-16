@@ -13,7 +13,6 @@
 #include <cstdint>
 #include <enet/enet.h>
 #include <memory>
-#include <sys/types.h>
 #include <thread>
 #include <network/Server.hpp>
 #include <string>
@@ -21,18 +20,20 @@
 #include <vector>
 #include <ThreadPool.hpp>
 #include "ClientData.hpp"
+#include "Lobby.hpp"
+#include "Utils.hpp"
 
 namespace server {
     /**
      * Server constructor
-     * @param argv: commannd line argument corresponding to port number
+     * @param argv - command line argument corresponding to port number
      */
     Server::Server(char *argv[]) : _thread_pool(std::thread::hardware_concurrency()) {
         if (argv[1] == nullptr) {
             throw ServerException("Port argument is missing");
         }
         try {
-            std::string port_string(argv[1]);
+            const std::string port_string(argv[1]);
             this->_port = std::stoi(port_string);
         } catch ([[maybe_unused]] std::invalid_argument const& ex) {
             throw ServerException("Wrong port argument");
@@ -61,36 +62,90 @@ namespace server {
         while (this->_server.pollEvent(event)) {
             switch (event.type) {
                 case network::ServerEventType::ClientConnect:
-                    spdlog::info("Client connected: {}", static_cast<void *>(event.peer->getPeer().get()));
-                break;
-
+                    {
+                        const uint32_t unique_id = utils::Utils::hash_pointer(event.peer);
+                        ClientData data(unique_id);
+                        event.peer->setData<ClientData>(std::move(data));
+                        spdlog::info("Client connected: {}", static_cast<void *>(event.peer->getPeer().get()));
+                        break;
+                    }
                 case network::ServerEventType::ClientDisconnect:
-                    spdlog::info("Client disconnected: {}", static_cast<void *>(event.peer->getPeer().get()));
-                break;
-
+                    {
+                        spdlog::info("Client disconnected: {}", event.peer->getData<ClientData>().getId());
+                        if (event.peer->getData<ClientData>().getRoom() == nullptr)
+                            break;
+                        this->clientDisconnect(event.peer);
+                    }
                 case network::ServerEventType::DataReceive:
-                    // Delegate data processing to the thread pool
-                    this->_thread_pool.enqueueTask([peer = event.peer, data = std::move(event.data), dataType = event.packetType] {
-                        // Data managment + Send snapshotPaquet to client
-                        handleClientData(peer, data, dataType);
+                    this->_thread_pool.enqueueTask([server = this, peer = event.peer, data = std::move(event.data), dataType = event.packetType] {
+                        handleClientData(*server, peer, data, dataType);
                     });
-                break;
+                    break;
             }
         }
-        // Small delay to avoid busy-waiting
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    }
+
+    void Server::clientDisconnect(std::shared_ptr<network::PeerWrapper> &peer) {
+        const auto data = peer->getData<ClientData>();
+        const uint16_t room_id = data.getRoom()->getId();
+        this->leaveClientRoom(peer, room_id);
+        if (data.getRoom()->getState() == network::Starting) {
+            data.getRoom()->setState(network::Waiting);
+        }
+        data.getRoom()->sendUpdateRoom(*this);
+    }
+
+    /**
+     * Check room state in order to update server room's vectors
+     * If all clients in _waiting_rooms room are ready, move the room to _playing_rooms vector
+     * If the current playing level has reached its end, move the room back to _waiting_rooms vector
+     */
+    void Server::checkRoomState() {
+        this->_waiting_rooms.erase(
+            std::remove_if(
+                this->_waiting_rooms.begin(),
+                this->_waiting_rooms.end(),
+                [this](const std::shared_ptr<Room> &room) {
+                    if (room.get()->getClientsReadiness()) {
+                        this->_playing_rooms.push_back(room);
+                        return true;
+                    }
+                    return false;
+                }
+            ),
+            this->_waiting_rooms.end()
+        );
+        // TODO: Add _playing_rooms that finished a level back to _waiting_rooms
+        // this->_playing_rooms.erase(
+        //     std::remove_if(
+        //         this->_playing_rooms.begin(),
+        //         this->_playing_rooms.end(),
+        //         [this](const std::shared_ptr<Room> &room) {
+        //             if (room.get()->getClientsReadiness()) {
+        //                 this->_waiting_rooms.push_back(room);
+        //                 return true;
+        //             }
+        //             return false;
+        //         }
+        //     ),
+        // this->_playing_rooms.end()
+        // );
     }
 
     /**
      * Client creates a room
      * @param client
      */
-    void Server::createClientRoom(const std::shared_ptr<ENetPeer> &client) {
-        // generate unique id
-        Room room(this->_waiting_rooms.size());
+    void Server::createClientRoom(const std::shared_ptr<network::PeerWrapper> &client) {
+        Room room(this->_waiting_rooms.size() + 1);
+        auto room_ptr = std::make_shared<Room>(room);
+        auto data = client->getData<ClientData>();
+        data.setRoom(room_ptr);
+        client->setData<ClientData>(std::move(data));
         room._clients.push_back(client);
-        this->_waiting_rooms.push_back(room);
-        spdlog::info("Client {} created room {}", static_cast<ClientData*>(client->data)->getId(), room.getId());
+        this->_waiting_rooms.push_back(room_ptr);
+        spdlog::info("Client {} created room {}", client->getData<ClientData>().getId(), room.getId());
     }
 
     /**
@@ -98,11 +153,15 @@ namespace server {
      * @param client
      * @param room_id
      */
-    void Server::assignClientToRoom(const std::shared_ptr<ENetPeer> &client, const uint8_t room_id) {
-        Room room_iterator(room_id);
-        if (std::find(this->_waiting_rooms.begin(), this->_waiting_rooms.end(), room_iterator) != this->_waiting_rooms.end()) {
-            room_iterator._clients.push_back(client);
-            spdlog::info("Client {} joined room {}", static_cast<ClientData*>(client->data)->getId(), room_id);
+    void Server::assignClientToRoom(const std::shared_ptr<network::PeerWrapper> &client, const uint8_t room_id) {
+        Room room(room_id);
+        auto room_ptr = std::make_shared<Room>(room);
+        if (std::find(this->_waiting_rooms.begin(), this->_waiting_rooms.end(), room_ptr) != this->_waiting_rooms.end()) {
+            auto data = client->getData<ClientData>();
+            data.setRoom(room_ptr);
+            client->setData<ClientData>(std::move(data));
+            room_ptr.get()->_clients.push_back(client);
+            spdlog::info("Client {} joined room {}", client->getData<ClientData>().getId(), room_id);
         } else {
             throw ServerException("Room doesn't exist");
         }
@@ -114,14 +173,18 @@ namespace server {
      * @param client
      * @param room_id
      */
-    void Server::leaveClientRoom(std::shared_ptr<ENetPeer> &client, uint16_t room_id) {
-        Room room_iterator(room_id);
-        if (std::find(this->_waiting_rooms.begin(), this->_waiting_rooms.end(), room_iterator) != this->_waiting_rooms.end()) {
-            if (std::find(room_iterator._clients.begin(), room_iterator._clients.end(), client) != room_iterator._clients.end()) {
-                room_iterator._clients.erase(std::remove(room_iterator._clients.begin(), room_iterator._clients.end(), client), room_iterator._clients.end());
-                spdlog::info("Client {} left room {}", static_cast<ClientData*>(client->data)->getId(), room_iterator.getId());
+    void Server::leaveClientRoom(const std::shared_ptr<network::PeerWrapper> &client, uint16_t room_id) {
+        Room room(room_id);
+        auto room_ptr = std::make_shared<Room>(room);
+        if (std::find(this->_waiting_rooms.begin(), this->_waiting_rooms.end(), room_ptr) != this->_waiting_rooms.end()) {
+            if (std::find(room_ptr.get()->_clients.begin(), room_ptr.get()->_clients.end(), client) != room_ptr.get()->_clients.end()) {
+                auto data = client->getData<ClientData>();
+                data.unsetRoom();
+                client->setData<ClientData>(std::move(data));
+                room_ptr.get()->_clients.erase(std::remove(room_ptr.get()->_clients.begin(), room_ptr.get()->_clients.end(), client), room_ptr.get()->_clients.end());
+                spdlog::info("Client {} left room {}", client->getData<ClientData>().getId(), room_ptr.get()->getId());
             } else {
-                const std::string error = fmt::format("Client {} doesn't belong to room {}", static_cast<ClientData*>(client->data)->getId(), room_iterator.getId());
+                const std::string error = fmt::format("Client {} doesn't belong to room {}", client->getData<ClientData>().getId(), room_ptr.get()->getId());
                 throw ServerException(error.c_str());
             }
         } else {
@@ -138,6 +201,38 @@ namespace server {
     }
 
     /**
+     * Getter for _playing_rooms
+     * @return {std::vector<Room>}
+     */
+    std::vector<std::shared_ptr<Room>> Server::getPlayingRooms() {
+        return this->_playing_rooms;
+    }
+
+    /**
+     * Getter for _waiting_rooms
+     * @return {std::vector<Room>}
+     */
+    std::vector<std::shared_ptr<Room>> Server::getWaitingRooms() {
+        return this->_waiting_rooms;
+    }
+
+    /**
+     * Getter for _waiting_rooms + _playing_rooms
+     * @return {std::vector<Room>}
+     */
+    std::vector<std::shared_ptr<Room>> Server::getAllRooms() {
+        std::vector<std::shared_ptr<Room>> all_rooms = this->_waiting_rooms;
+        all_rooms.insert(all_rooms.end(), this->_playing_rooms.begin(), this->_playing_rooms.end());
+        return all_rooms;
+    }
+
+    network::NetworkServer &Server::getServer() {
+        return this->_server;
+    }
+
+    /*_________________________________________________________________*/
+
+    /**
      * ServerException custom exception constructor
      * @param msg : exception message to log
      */
@@ -151,15 +246,33 @@ namespace server {
         return _message.c_str();
     }
 
+    /*_________________________________________________________________*/
+
     /**
-     * Deserialize if RawPaquet is sent from a client
      * Called when DataReceive Paquet type is received
+     * Switch on PacketType to process Packet independently
+     * Deserialize if RawPaquet is sent from a client
+     * @param server
      * @param peer
      * @param data
      */
-    void handleClientData(std::shared_ptr<network::PeerWrapper> peer, std::any data, network::PacketType type) {
-        if (type == network::PacketType::InputPacket) {
-            auto packet = std::any_cast<network::InputPacket>(data);
+    void handleClientData(Server &server, const std::shared_ptr<network::PeerWrapper> &peer, const std::any &data, network::PacketType type) {
+        if (!peer->hasData())
+            return;
+        switch (type) {
+            case network::PacketType::InputPacket: {
+                auto input_packet = std::any_cast<network::InputPacket>(data);
+                break;
+            }
+            case network::PacketType::LobbyActionPacket: {
+                auto lobby_action_packet = std::any_cast<network::LobbyActionPacket>(data);
+                lobbyAction(server, peer, lobby_action_packet);
+                break;
+            }
+            case network::PacketType::NoPacket:
+            default:
+                spdlog::warn("No packet received");
+                break;
         }
     }
 } // namespace server

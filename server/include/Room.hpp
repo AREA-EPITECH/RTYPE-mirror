@@ -8,17 +8,32 @@
 #pragma once
 #include <cstdint>
 #include <memory>
+#include <Server.hpp>
 #include <enet/enet.h>
 #include <vector>
+#include <network/PeerWrapper.hpp>
+#include <network/packet/ServerPacket.hpp>
+#include <Registry.hpp>
 
 namespace server {
+    class Server;
     class Room {
         uint8_t _id;
-        bool _is_playing;
+        network::LobbyGameState _state;
+        Registry _registry;
     public:
-        std::vector<std::shared_ptr<ENetPeer>> _clients;
+        std::vector<std::shared_ptr<network::PeerWrapper>> _clients;
+
         explicit Room(uint8_t id);
         bool operator==(const Room& other) const;
+
+        std::vector<network::LobbyPlayer> toLobbyPlayers() const;
+        void sendUpdateRoom(Server &server);
+
+        bool getClientsReadiness() const;
         uint32_t getId() const;
+        u_int8_t getSize() const;
+        network::LobbyGameState getState() const;
+        void setState(network::LobbyGameState state);
     };
 } // namespace server

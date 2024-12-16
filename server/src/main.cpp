@@ -7,11 +7,16 @@
 
 #include <atomic>
 #include <csignal>
+#include <chrono>
 #include "spdlog/spdlog.h"
 #include "Server.hpp"
 
 std::atomic<bool> shutdown_requested(false);
 
+/**
+ * Handle signal
+ * @param signal: SIGINT for CTRL+C
+ */
 static void signalHandler(int signal)
 {
     if (signal == SIGINT)
@@ -22,13 +27,21 @@ static void signalHandler(int signal)
 }
 
 static void runGameLoop(server::Server &server) {
+    auto last_update_time = std::chrono::steady_clock::now();
     while (!shutdown_requested.load()) {
         server.pollEvent();
+        auto current_time = std::chrono::steady_clock::now();
+        auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(current_time - last_update_time).count();
+        if (elapsed_time >= 20) {
+            for (auto room: server.getAllRooms()) {
+                room->sendUpdateRoom(server);
+            }
+            last_update_time = current_time;
+        }
     }
 }
 
 int main(int argc, char *argv[]) {
-    // Register signal handler
     std::signal(SIGINT, signalHandler);
 
     try {

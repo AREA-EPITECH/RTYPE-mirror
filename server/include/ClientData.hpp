@@ -7,9 +7,6 @@
 
 #pragma once
 #include <string>
-#include <enet/enet.h>
-#include <sys/types.h>
-#include <vector>
 #include "Room.hpp"
 
 namespace server {
@@ -19,12 +16,22 @@ namespace server {
         uint16_t _health = 100;
         std::string _name;
         uint16_t _ship_id = 0;
+        bool _is_ready = false;
         // release room
         std::shared_ptr<Room> _room;
     public:
-        ClientData(const std::shared_ptr<Room> &room, uint32_t id);
-        void setName(const std::string &name);
-        void setShip(uint16_t ship_id);
+        ClientData(u_int32_t id);
+        ~ClientData();
+
         uint32_t getId() const;
+        void setName(const std::string &name);
+        std::string getName() const;
+        void setShip(uint16_t ship_id);
+        uint16_t getShipId() const;
+        void setReadyState();
+        bool getReadyState() const;
+        std::shared_ptr<Room> getRoom() const;
+        void setRoom(std::shared_ptr<Room> &room);
+        void unsetRoom();
     };
 } // namespace server
