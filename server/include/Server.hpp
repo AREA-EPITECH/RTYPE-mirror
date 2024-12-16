@@ -7,6 +7,9 @@
 
 #pragma once
 #include <sys/types.h>
+#if defined(_WIN32) || defined(WIN32)
+#include <WinSock2.h>
+#endif
 
 namespace server {
     class Server {

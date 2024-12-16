@@ -38,6 +38,10 @@ cmake-build-default
 *.a
 *.lib
 
+# Microsoft build file
+*.ilk
+*.pdb
+
 # Executables
 *.exe
 *.out
@@ -53,6 +57,7 @@ cmake-build-debug
 .vscode/
 .clangd
 .idea/
+.vs/
 
 # VCPKG
 CMakeUserPresets.json
