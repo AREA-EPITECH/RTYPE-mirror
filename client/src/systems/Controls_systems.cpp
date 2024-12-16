@@ -133,9 +133,10 @@ namespace ecs {
         }
     }
 
-    void create_projectile(Registry &ecs, Model model, Vector3 position, bool player, std::string &path) {
+    void create_projectile(Registry &ecs, Model model, Vector3 position, Vector3 velocity, bool player,
+        std::string &path) {
         auto entity = ecs.spawn_entity();
-        ecs.add_component<ProjectilesComponent>(entity, {model, true, path, position, player});
+        ecs.add_component<ProjectilesComponent>(entity, {model, true, path, position, player, velocity});
     }
 
     /**
@@ -163,7 +164,7 @@ namespace ecs {
                     if (projectile->player && !projectile->drawable) {
                         create_projectile(ecs, projectile->model,
                             {modelComponent->position.x + 10, modelComponent->position.y + 2, 0},
-                            true, projectile->path);
+                            {0.5, 0, 0}, true, projectile->path);
                     }
                 }
             }

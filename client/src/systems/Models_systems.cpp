@@ -336,7 +336,7 @@ namespace ecs {
             std::cout << "MODEL ID : " << ModelEntity << std::endl;
 
             ecs.add_component<ProjectilesComponent>(ModelEntity, {models, false, vox_files_enemy[i],
-                {0, 0, 0}, false});
+                {}, false, {}});
         }
 
         for (int i = 0; i < vox_files_player.size(); i++) {
@@ -360,7 +360,7 @@ namespace ecs {
             std::cout << "MODEL ID : " << ModelEntity << std::endl;
 
             ecs.add_component<ProjectilesComponent>(ModelEntity, {models, false, vox_files_player[i],
-                {0, 0, 0}, true});
+                {}, true, {}});
         }
     }
 }

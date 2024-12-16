@@ -207,13 +207,28 @@ namespace ecs {
         std::string path;
         Vector3 position{};
         bool player;
+        Vector3 velocity{};
 
-        ProjectilesComponent(Model _model, bool _drawable, std::string _path, Vector3 _position, bool _player) {
+        ProjectilesComponent(Model _model, bool _drawable, std::string _path, Vector3 _position, bool _player,
+            Vector3 _velocity) {
             model = _model;
             drawable = _drawable;
             path = std::move(_path);
             position = _position;
             player = _player;
+            velocity = _velocity;
+        }
+
+        void ApplyVelocity() {
+            position.x += velocity.x;
+            position.y += velocity.y;
+        }
+
+        [[nodiscard]] bool IsAlive(const Camera &camera) const {
+            const Vector2 screenPos = GetWorldToScreen(position, camera);
+
+            return screenPos.x >= 0 && screenPos.x <= static_cast<float>(GetScreenWidth()) &&
+                       screenPos.y >= 0 && screenPos.y <= static_cast<float>(GetScreenHeight());
         }
     };
 

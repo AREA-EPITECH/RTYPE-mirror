@@ -69,23 +69,6 @@ namespace ecs {
                     }
                 }
 
-                VesselsComponent* vessel_c = nullptr;
-                auto &vessels = ecs.get_components<VesselsComponent>();
-                for (auto & vessel : vessels) {
-                    if (vessel.has_value())
-                    {
-                        if (vessel->drawable) {
-                            vessel_c = &vessel.value();
-                            BoundingBox bbox = GetModelBoundingBox(vessel->model);
-                            float x = bbox.max.x - bbox.min.x;
-                            float y = bbox.max.y - bbox.min.y;
-                            // ecs.run_event(ParticleSystemEvent{{GetWorldToScreen(vessel->position, camera).x - x,
-                                // GetWorldToScreen(vessel->position, camera).y - y, 0}, client::LEFT, false,
-                                // 5, 1000, RED});
-                        }
-                    }
-                }
-
                 auto &particles_systems = ecs.get_components<ParticleSystemComponent>();
                 for (size_t i = 0; i < particles_systems.size(); ++i) {
                     if (particles_systems[i].has_value()) {
@@ -105,10 +88,19 @@ namespace ecs {
 
 
                 auto &projectiles = ecs.get_components<ProjectilesComponent>();
-                for (auto & projectile : projectiles) {
-                    if (projectile.has_value()) {
+                for (size_t i = 0; i < projectiles.size(); ++i) {
+                    if (projectiles[i].has_value()) {
+                        ProjectilesComponent *projectile = &projectiles[i].value();
                         if (projectile->drawable) {
-                            DrawModel(projectile->model, projectile->position, 1.0f, WHITE);
+                            projectile->ApplyVelocity();
+                            if (projectile->IsAlive(camera))
+                            {
+                                DrawModel(projectile->model, projectile->position, 1.0f, WHITE);
+                            }
+                            else
+                            {
+                                ecs.kill_entity(i);
+                            }
                         }
                     }
                 }
@@ -204,9 +196,6 @@ namespace ecs {
     void close_game_system(Registry &ecs, const WindowCloseEvent &) {
         auto &vessels_models = ecs.get_components<VesselsComponent>();
         auto &projectiles_models = ecs.get_components<ProjectilesComponent>();
-        auto &camera = ecs.get_components<CameraComponent>();
-        auto &particles_systems = ecs.get_components<ParticleSystemComponent>();
-        auto &lights = ecs.get_components<LightComponent>();
         auto &shaders = ecs.get_components<ShaderComponent>();
         auto &backgrounds = ecs.get_components<BackgroundComponent>();
         auto &decors = ecs.get_components<DecorElementComponent>();
@@ -219,29 +208,16 @@ namespace ecs {
             }
         }
         for (std::size_t i = 0; i < projectiles_models.size(); ++i) {
-            if (projectiles_models[i].has_value() && !projectiles_models[i]->drawable) {
-                UnloadModel(projectiles_models[i]->model);
+            if (projectiles_models[i].has_value()) {
+                if (!projectiles_models[i]->drawable)
+                    UnloadModel(projectiles_models[i]->model);
                 TraceLog(LOG_WARNING, TextFormat("Unloaded model for entity %zu.", i));
                 ecs.kill_entity(i);
             }
         }
-        for (std::size_t i = 0; i < camera.size(); ++i) {
-            if (camera[i].has_value()) {
-                ecs.kill_entity(i);
-            }
-        }
-        for (size_t i = 0; i < particles_systems.size(); ++i) {
-            if (particles_systems[i].has_value()) {
-                TraceLog(LOG_WARNING, TextFormat("Unloaded particles system for entity %zu.", i));
-                ecs.kill_entity(i);
-            }
-        }
-        for (size_t i = 0; i < lights.size(); ++i) {
-            if (lights[i].has_value()) {
-                TraceLog(LOG_WARNING, TextFormat("Unloaded light for entity %zu.", i));
-                ecs.kill_entity(i);
-            }
-        }
+        kill_entities_with_component<CameraComponent>(ecs);
+        kill_entities_with_component<ParticleSystemComponent>(ecs);
+        kill_entities_with_component<LightComponent>(ecs);
         for (std::size_t i = 0; i < shaders.size(); ++i) {
             if (shaders[i].has_value()) {
                 UnloadShader(shaders[i]->shader);
