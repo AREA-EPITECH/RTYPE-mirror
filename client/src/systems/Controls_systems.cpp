@@ -45,7 +45,7 @@ namespace ecs {
      */
     void menu_controls_system(Registry &ecs, const ControlsEvent &) {
 
-        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+        /*if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
             Vector2 mousePosition = GetMousePosition();
             auto &buttons = ecs.get_components<ButtonComponent>();
             auto &box = ecs.get_components<ShowBoxComponent>();
@@ -61,7 +61,7 @@ namespace ecs {
                     b.value().handleClick(mousePosition);
                 }
             }
-        }
+        }*/
     }
 
     /**
@@ -121,7 +121,7 @@ namespace ecs {
                 models[to_change].value().drawable = false;
             }
         }
-        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+        /*if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
             Vector2 mousePosition = GetMousePosition();
             auto &buttons = ecs.get_components<ButtonComponent>();
 
@@ -130,7 +130,7 @@ namespace ecs {
                     button->isButtonPressed(mousePosition);
                 }
             }
-        }
+        }*/
     }
 
     /**

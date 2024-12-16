@@ -30,7 +30,7 @@ void init_lobby_entity (Registry &ecs) {
     ecs.add_component<ecs::ButtonComponent>(readyButton,ecs::ButtonComponent(
                                                buttonWidth,
                                                buttonHeight,
-                                               readyText,
+                                               "Ready",
                                                [&ecs]() {
                                                    ecs::change_window(ecs, ecs::WindowType::GAME);
                                                },

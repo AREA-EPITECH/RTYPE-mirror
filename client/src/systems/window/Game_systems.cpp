@@ -15,16 +15,8 @@ namespace ecs {
      */
     void draw_game_system(Registry &ecs, const WindowDrawEvent &) {
         ecs.run_event(ControlsEvent{});
-        auto &shaders = ecs.get_components<ShaderComponent>();
         auto &backgrounds = ecs.get_components<BackgroundComponent>();
         auto &decors = ecs.get_components<DecorElementComponent>();
-        Shader shader = {};
-        for (auto & shader_i : shaders) {
-            if (shader_i.has_value()) {
-                shader = shader_i->shader;
-                break;
-            }
-        }
 
         for (auto & background : backgrounds) {
             if (background.has_value()) {
@@ -61,13 +53,6 @@ namespace ecs {
         for (auto & camera_i : cameras) {
             if (camera_i.has_value()) {
                 Camera &camera = camera_i->camera;
-
-                auto &lights = ecs.get_components<LightComponent>();
-                for (auto & light : lights) {
-                    if (light.has_value()) {
-                        light->light->UpdateLightValues(shader);
-                    }
-                }
 
                 auto &particles_systems = ecs.get_components<ParticleSystemComponent>();
                 for (size_t i = 0; i < particles_systems.size(); ++i) {
@@ -114,21 +99,6 @@ namespace ecs {
                         }
                     }
                 }
-
-                for (auto & light : lights) {
-                    if (light.has_value()) {
-                        if (light->light->_enabled)
-                        {
-                            DrawSphereEx(light->light->_position, 0.2f, 8, 8, light->light->_color);
-                        }
-                        else
-                        {
-                            DrawSphereWires(light->light->_position, 0.2f, 8, 8,
-                            ColorAlpha(light->light->_color, 0.3f));
-                        }
-                    }
-                }
-
                 EndMode3D();
                 break;
             }
@@ -152,15 +122,18 @@ namespace ecs {
         // Init camera
         ecs.run_event(InitCameraEvent{{0.0f, 0.0f, 50.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, 45.0f,
                                       CAMERA_PERSPECTIVE});
+        auto &cameras = ecs.get_components<CameraComponent>();
+        Camera camera = {};
+        for (auto & camera_i : cameras) {
+            if (camera_i.has_value()) {
+                camera = camera_i->camera;
+                break;
+            }
+        }
+
         // Init lights
-        ecs.run_event(InitLightEvent{client::LIGHT_POINT, {-20, 20, -20}, Vector3Zero(),
-            WHITE, 0});
-        ecs.run_event(InitLightEvent{client::LIGHT_POINT, {20, -20, 20}, Vector3Zero(),
-            WHITE, 1});
-        ecs.run_event(InitLightEvent{client::LIGHT_POINT, {-20, 20, 20}, Vector3Zero(),
-            WHITE, 2});
-        ecs.run_event(InitLightEvent{client::LIGHT_POINT, {20, -20, -20}, Vector3Zero(),
-            WHITE, 3});
+        ecs.run_event(InitLightEvent{client::LIGHT_DIRECTIONAL, {0, 0, 0},
+            Vector3Normalize(Vector3Subtract(camera.target, camera.position)), WHITE, 0});
 
         // Init models & shaders
         ecs.run_event(InitModelEvent{});

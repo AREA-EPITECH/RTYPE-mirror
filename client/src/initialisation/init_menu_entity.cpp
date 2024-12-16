@@ -26,33 +26,21 @@ void init_menu_entity (Registry &ecs) {
 
     ecs::ButtonComponent closeButton(buttonWidth,
                                      buttonHeight,
-                                     {"Close", 40, 40, 0},
+                                     "Close",
                                      []() {
-                                         //auto &showbox = ecs.get_components<ecs::ShowBoxComponent>();
-                                         //for (int i = 0; i < showbox.size(); i++) {
-                                         //    if (showbox[i].has_value()) {
-                                         //        showbox[i].value().isVisible = true;
-                                         //    }
-                                         //}
                                      });
 
     ecs::ButtonComponent continueButton(buttonWidth,
                                      buttonHeight,
-                                     {"Continue", 40, 40, 0},
+                                     "Continue",
                                      []() {
-                                         //auto &showbox = ecs.get_components<ecs::ShowBoxComponent>();
-                                         //for (int i = 0; i < showbox.size(); i++) {
-                                         //    if (showbox[i].has_value()) {
-                                         //        showbox[i].value().isVisible = true;
-                                         //    }
-                                         //}
                                      });
 
     auto showBoxEntity = ecs.spawn_entity();
     Rectangle boxRect = {100, 100, 600, 300};
     ecs.add_component<ecs::ShowBoxComponent>(showBoxEntity, ecs::ShowBoxComponent(
             boxRect,
-            message, boxColor, textColor, textBoxInput, closeButton, continueButton,
+            message, boxColor, textColor, "", "Close", "Continue",
             [boxRect](int screenWidth, int screenHeight) { return (float)screenWidth / 2 - (boxRect.width / 2); },
             [boxRect](int screenWidth, int screenHeight) { return (float)screenHeight / 2 - (boxRect.height / 2); }
     ));
@@ -74,7 +62,7 @@ void init_menu_entity (Registry &ecs) {
     ecs.add_component<ecs::ButtonComponent>(JoinRoom,ecs::ButtonComponent(
                                                     buttonWidth,
                                                     buttonHeight,
-                                                    joinText,
+                                                    "Join room",
                                                     [&ecs]() {
                                                         auto &showbox = ecs.get_components<ecs::ShowBoxComponent>();
                                                         for (auto & i : showbox) {
@@ -94,7 +82,7 @@ void init_menu_entity (Registry &ecs) {
     ecs.add_component<ecs::ButtonComponent>(CreateRoom,ecs::ButtonComponent(
                                                     buttonWidth,
                                                     buttonHeight,
-                                                    createText,
+                                                    "Create room",
                                                     [&ecs]() {
                                                         ecs::change_window(ecs, ecs::WindowType::LOBBY);
                                                     },

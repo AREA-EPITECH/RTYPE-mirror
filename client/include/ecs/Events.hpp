@@ -15,8 +15,8 @@
 #include <string>
 #include "raymath.h"
 #include "core/ParticleSystem.hpp"
-#include "core/Lights.hpp"
 #include <functional>
+#include "raylib/raygui.h"
 
 namespace ecs {
 // Window
