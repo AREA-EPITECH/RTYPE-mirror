@@ -3,8 +3,10 @@
   "version-semver": "0.1.0",
   "builtin-baseline": "eba7c6a894fce24146af4fdf161fef8e90dd6be3",
   "dependencies": [
+    "enet",
     "fmt",
     "spdlog",
-    "enet"
+    "raylib",
+    "glfw3"
   ]
 }

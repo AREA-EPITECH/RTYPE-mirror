@@ -24,25 +24,26 @@ namespace client
     private:
         // Light data
         LightType _type;
-        Vector3 _target;
-        float _attenuation;
+        Vector3 _target{};
+        float _attenuation{};
         std::string _name;
+        int _nb;
 
         // Shader location
-        int _enabledLoc;
-        int _typeLoc;
-        int _positionLoc;
-        int _targetLoc;
-        int _colorLoc;
-        int _attenuationLoc;
+        int _enabledLoc{};
+        int _typeLoc{};
+        int _positionLoc{};
+        int _targetLoc{};
+        int _colorLoc{};
+        int _attenuationLoc{};
 
     public:
         bool _enabled;
-        Vector3 _position;
-        Color _color;
+        Vector3 _position{};
+        Color _color{};
 
-        Light(LightType type, Vector3 position, Vector3 target, Color color, Shader shader, int nb);
-        void UpdateLightValues(Shader shader) const;
+        Light(LightType type, Vector3 position, Vector3 target, Color color, int nb);
+        void UpdateLightValues(Shader shader);
     };
 }
 

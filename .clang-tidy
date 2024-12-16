@@ -11,12 +11,16 @@ Checks: "*,\
   -llvm-include-order,\
   -llvmlibc-*,\
   -modernize-use-nodiscard,\
-  -misc-non-private-member-variables-in-classes"
+  -misc-non-private-member-variables-in-classes \
+  --clang-diagnostic-unused-includes \
+  -google-readability-include
+  -cppcoreguidelines-special-member-functions \
+  -hicpp-special-member-functions"
 WarningsAsErrors: ''
 CheckOptions:
   - key: 'bugprone-argument-comment.StrictMode'
     value: 'true'
-# Prefer using enum classes with 2 values for parameters instead of bools
+  # Prefer using enum classes with 2 values for parameters instead of bools
   - key: 'bugprone-argument-comment.CommentBoolLiterals'
     value: 'true'
   - key: 'bugprone-misplaced-widening-cast.CheckImplicitCasts'
@@ -45,7 +49,7 @@ CheckOptions:
     value: 'true'
   - key: 'readability-redundant-access-specifiers.CheckFirstDeclaration'
     value: 'true'
-# These seem to be the most common identifier styles
+  # These seem to be the most common identifier styles
   - key: 'readability-identifier-naming.AbstractClassCase'
     value: 'lower_case'
   - key: 'readability-identifier-naming.ClassCase'

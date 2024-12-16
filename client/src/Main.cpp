@@ -5,47 +5,61 @@
 ** Main
 */
 
-#include "core/Game.hpp"
-#include "core/Lights.hpp"
+#include "Main.hpp"
 
-int main()
-{
-    // Init Raylib window
-    client::Game::createRaylibWindow(600, 600, "Voxels Visualizer");
-    client::Game::disableRaylibCursor();
+/**
+ * Init the ecs
+ * @return
+ */
+Registry init_ecs () {
+    Registry ecs;
 
-    // Init camera
-    Camera camera = client::Game::createAndSetCamera((Vector3){ 0.0f, 10.0f, 10.0f },
-        (Vector3){ 0.0f, 0.0f, 0.0f }, (Vector3){ 0.0f, 1.0f, 0.0f },
-        45.0f, CAMERA_PERSPECTIVE);
+    ecs.register_component<ecs::Window>();
+    ecs.register_component<ecs::VesselsComponent>();
+    ecs.register_component<ecs::ShaderComponent>();
+    ecs.register_component<ecs::CameraComponent>();
+    ecs.register_component<ecs::ParticleSystemComponent>();
+    ecs.register_component<ecs::LightComponent>();
+    ecs.register_component<ecs::TextComponent>();
+    ecs.register_component<ecs::ButtonComponent>();
+    ecs.register_component<ecs::MenuText>();
+    ecs.register_component<ecs::BackgroundComponent>();
+    ecs.register_component<ecs::DecorElementComponent>();
+    ecs.register_component<ecs::TextInputComponent>();
+    ecs.register_component<ecs::ShowBoxComponent>();
+    ecs.register_component<ecs::ProjectilesComponent>();
 
-    // Load models
-    std::vector<Model> models = client::Game::loadModelsFromPath("assets/voxels/");
+    ecs.register_event<ecs::WindowOpenEvent>();
+    ecs.register_event<ecs::WindowCloseEvent>();
+    ecs.register_event<ecs::WindowDrawEvent>();
+    ecs.register_event<ecs::InitCameraEvent>();
+    ecs.register_event<ecs::InitModelEvent>();
+    ecs.register_event<ecs::ControlsEvent>();
+    ecs.register_event<ecs::ParticleSystemEvent>();
+    ecs.register_event<ecs::InitLightEvent>();
+    ecs.register_event<ecs::InitShaderEvent>();
+    ecs.register_event<ecs::InitBackgroundEvent>();
+    ecs.register_event<ecs::InitDecorElementEvent>();
 
-    size_t currentModel = 0;
-    const size_t nb_vox = models.size();
+    init_menu_window(ecs);
 
-    // Load shader
-    Shader shader = LoadShader("assets/voxels/shaders/voxel_lighting.vs",
-        "assets/voxels/shaders/voxel_lighting.fs");
-    shader.locs[SHADER_LOC_VECTOR_VIEW] = GetShaderLocation(shader, "viewPos");
-    int ambientLoc = GetShaderLocation(shader, "ambient");
-    SetShaderValue(shader, ambientLoc, (float[4]) { 0.1f, 0.1f, 0.1f, 1.0f }, SHADER_UNIFORM_VEC4);
+    return ecs;
+}
 
-    // Apply shader
-    client::Game::applyShaderOnModels(shader, models);
+int main() {
+    Registry ecs = init_ecs();
 
-    // Creating lights
-    std::vector<Vector3> positions = { { -20, 20, -20 }, { 20, -20, 20 },
-        { -20, 20, 20 }, { 20, -20, -20 } };
-    std::vector<Color> colors = { WHITE, WHITE, WHITE, WHITE };
-    std::vector<std::shared_ptr<client::Light>> lights = client::Game::createLights(shader, positions, colors);
+    auto windowEntity = ecs.spawn_entity();
+    ecs.add_component<ecs::Window>(windowEntity, {1920, 1080, "ECS Raylib - Multi Events",
+        false});
 
-    // Main loop
-    client::Game::mainLoopVoxelVisualizer(models, lights, camera, shader);
+    ecs.subscribe<ecs::InitLightEvent>(ecs::create_light_system);
 
-    // Close and unload everything
-    CloseWindow();
-    client::Game::unloadModels(models);
+    ecs.run_event(ecs::WindowOpenEvent{});
+
+    while (!WindowShouldClose()) {
+        ecs.run_event(ecs::WindowDrawEvent{});
+    }
+
     return 0;
 }

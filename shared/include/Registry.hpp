@@ -8,6 +8,7 @@
 #include <unordered_map>
 #include <vector>
 #include "Sparse_array.hpp"
+#include "iostream"
 
 using entity_t = std::size_t;
 
@@ -16,7 +17,7 @@ public:
 
     template <typename Component>
     Sparse_array<Component>& get_components() {
-        std::type_index type_idx = std::type_index(typeid(Component));
+        auto type_idx = std::type_index(typeid(Component));
         auto it = _components_arrays.find(type_idx);
         if (it == _components_arrays.end())
             throw std::runtime_error("Component type not registered.");
@@ -26,7 +27,7 @@ public:
 
     template <typename Component>
     const Sparse_array<Component>& get_components() const {
-        std::type_index type_idx = std::type_index(typeid(Component));
+        auto type_idx = std::type_index(typeid(Component));
         auto it = _components_arrays.find(type_idx);
         if (it == _components_arrays.end())
             throw std::runtime_error("Component type not registered.");
@@ -36,7 +37,7 @@ public:
 
     template <typename Component>
     Sparse_array<Component>& register_component() {
-        std::type_index type_idx = std::type_index(typeid(Component));
+        auto type_idx = std::type_index(typeid(Component));
         if (_components_arrays.find(type_idx) != _components_arrays.end())
             throw std::runtime_error("Component type already registered.");
 
@@ -47,6 +48,17 @@ public:
         };
 
         return std::any_cast<Sparse_array<Component>&>(_components_arrays[type_idx]);
+    }
+
+    template <typename Component>
+    void unregister_component() {
+        auto type_idx = std::type_index(typeid(Component));
+        auto it = _components_arrays.find(type_idx);
+        if (it == _components_arrays.end())
+            throw std::runtime_error("Component type not registered.");
+
+        _components_arrays.erase(type_idx);
+        _erase_functions.erase(type_idx);
     }
 
     template <typename Component>
@@ -97,7 +109,7 @@ public:
 
     template <typename Event>
     void register_event() {
-        std::type_index event_idx = std::type_index(typeid(Event));
+        auto event_idx = std::type_index(typeid(Event));
         if (_event_systems.find(event_idx) == _event_systems.end()) {
             _event_systems[event_idx] = std::vector<system_type<Event>>{};
         }
@@ -105,7 +117,7 @@ public:
 
     template <typename Event>
     auto& get_event_systems() {
-        std::type_index event_idx = std::type_index(typeid(Event));
+        auto event_idx = std::type_index(typeid(Event));
         return std::any_cast<std::vector<system_type<Event>>&>(_event_systems[event_idx]);
     }
 
@@ -119,6 +131,15 @@ public:
         auto& systems = get_event_systems<Event>();
         for (auto& system : systems)
             system(*this, event);
+    }
+
+    template <typename Event>
+    void unsubscribe_all() {
+        auto event_idx = std::type_index(typeid(Event));
+        auto it = _event_systems.find(event_idx);
+        if (it != _event_systems.end()) {
+            it->second = std::vector<system_type<Event>>{};
+        }
     }
 
 private:

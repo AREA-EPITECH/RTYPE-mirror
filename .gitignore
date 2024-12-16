@@ -17,7 +17,7 @@ build-dir
 build/
 cmake-build-debug/
 cmake-build-default/
-cmake-build-default
+
 
 # Precompiled Headers
 *.gch
@@ -51,7 +51,7 @@ r-type_server
 
 # Cmake user presets
 CMakeUserPresets.json
-cmake-build-debug
+cmake-build-default
 
 # ide preset
 .vscode/
@@ -60,8 +60,8 @@ cmake-build-debug
 .vs/
 
 # VCPKG
-CMakeUserPresets.json
 build
 
 # Debug
 vgcore.*
+
