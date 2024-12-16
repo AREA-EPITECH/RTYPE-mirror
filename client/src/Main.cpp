@@ -29,6 +29,7 @@ Registry init_ecs () {
     ecs.register_component<ecs::ShowBoxComponent>();
     ecs.register_component<ecs::ProjectilesComponent>();
 
+    ecs.register_event<ecs::CreateWindowEvent>();
     ecs.register_event<ecs::WindowOpenEvent>();
     ecs.register_event<ecs::WindowCloseEvent>();
     ecs.register_event<ecs::WindowDrawEvent>();
@@ -53,8 +54,11 @@ int main() {
     ecs.add_component<ecs::Window>(windowEntity, {1920, 1080, "ECS Raylib - Multi Events",
         false});
 
+    ecs.subscribe<ecs::CreateWindowEvent>(ecs::init_window_system);
+
     ecs.subscribe<ecs::InitLightEvent>(ecs::create_light_system);
 
+    ecs.run_event(ecs::CreateWindowEvent{});
     ecs.run_event(ecs::WindowOpenEvent{});
 
     while (!WindowShouldClose()) {

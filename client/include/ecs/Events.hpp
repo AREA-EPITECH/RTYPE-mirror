@@ -20,6 +20,10 @@
 
 namespace ecs {
 // Window
+    struct CreateWindowEvent {
+
+    };
+
     struct WindowOpenEvent {
     };
 
