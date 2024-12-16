@@ -3,8 +3,8 @@
 #include "iostream"
 #include <utility>
 #include <vector>
+#include "core/Lights.hpp"
 #include <filesystem>
-#include "raylib.h"
 #include <string>
 #include "raymath.h"
 #include "core/ParticleSystem.hpp"

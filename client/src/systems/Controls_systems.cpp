@@ -48,10 +48,17 @@ namespace ecs {
         if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
             Vector2 mousePosition = GetMousePosition();
             auto &buttons = ecs.get_components<ButtonComponent>();
+            auto &box = ecs.get_components<ShowBoxComponent>();
 
             for (auto &button : buttons) {
                 if (button.has_value()) {
                     button->isButtonPressed(mousePosition);
+                }
+            }
+
+            for (auto &b : box) {
+                if (b.has_value()) {
+                    b.value().handleClick(mousePosition);
                 }
             }
         }

@@ -4,7 +4,7 @@
 
 #include "Events.hpp"
 #include "core/ParticleSystem.hpp"
-#include "core/Lights.hpp"
+#include <cstring>
 
 namespace ecs {
     struct Window {
@@ -216,5 +216,49 @@ namespace ecs {
             player = _player;
         }
     };
-}
 
+    class TextInputComponent {
+    public:
+        Rectangle inputBox;
+        std::string text;
+        std::string placeholder;
+        Color boxColor;
+        Color textColor;
+        Color borderColor;
+        bool isFocused;
+        size_t maxLength;
+
+        std::function<int(int screenWidth, int screenHeight)> dynamicX;
+        std::function<int(int screenWidth, int screenHeight)> dynamicY;
+
+        TextInputComponent(Rectangle _inputBox, const std::string& _defaultText = "", size_t _maxLength = 256,
+                           Color _boxColor = LIGHTGRAY, Color _textColor = BLACK, Color _borderColor = DARKGRAY,
+                           std::function<int(int screenWidth, int screenHeight)> _dynamicX = nullptr,
+                           std::function<int(int screenWidth, int screenHeight)> _dynamicY = nullptr);
+
+        void drawTextInput();
+        void handleInput();
+        void updateInput(int screenWidth, int screenHeight);
+    };
+
+    class ShowBoxComponent {
+    public:
+        Rectangle boxRect;
+        TextInputComponent textInput;
+        ButtonComponent closeButton;
+        ButtonComponent continueButton;
+        std::string message;
+        Color boxColor;
+        Color textColor;
+        bool isVisible;
+
+        ShowBoxComponent(Rectangle _boxRect, std::string _message, Color _boxColor, Color _textColor,
+                         TextInputComponent _textInput, ButtonComponent _closeButton,
+                         ButtonComponent _continueButton);
+
+        void draw();
+        void handleInput(char key);
+        void handleClick(Vector2 mousePosition);
+        void updateBox();
+    };
+}

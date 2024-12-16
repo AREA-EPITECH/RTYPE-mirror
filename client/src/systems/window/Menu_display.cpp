@@ -12,10 +12,28 @@ void update_menu_selectors(Registry &ecs, int screenWidth, int screenHeight) {
             button.value().updateButton(screenWidth, screenHeight);
         }
     }
+
+    auto& textInputs = ecs.get_components<ecs::TextInputComponent>();
+
+    for (auto& textInput : textInputs) {
+        if (textInput.has_value()) {
+            textInput.value().updateInput(screenWidth, screenHeight);
+        }
+    }
+
+    auto &boxs = ecs.get_components<ecs::ShowBoxComponent>();
+
+    for (auto& box : boxs) {
+        if (box.has_value()) {
+            box.value().updateBox();
+        }
+    }
 }
 
 void display_menu_selectors(Registry &ecs) {
     auto &buttons = ecs.get_components<ecs::ButtonComponent>();
+    auto &inputs = ecs.get_components<ecs::TextInputComponent>();
+    auto &showbox = ecs.get_components<ecs::ShowBoxComponent>();
 
     for (auto & i : buttons) {
         if (i.has_value()) {
@@ -23,4 +41,17 @@ void display_menu_selectors(Registry &ecs) {
             button.drawButton();
         }
     }
+    for (auto & input : inputs) {
+        if (input.has_value()) {
+            input.value().drawTextInput();
+            input.value().handleInput();
+        }
+    }
+
+    for (auto & box : showbox) {
+        if (box.has_value()) {
+            box.value().draw();
+        }
+    }
+
 }

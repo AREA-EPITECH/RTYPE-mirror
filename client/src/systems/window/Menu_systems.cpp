@@ -53,8 +53,6 @@ void draw_menu_system(Registry &ecs, const WindowDrawEvent &) {
 
     void close_menu_system(Registry &ecs, const WindowCloseEvent &) {
         auto &models = ecs.get_components<MenuText>();
-        auto &camera = ecs.get_components<CameraComponent>();
-        auto &buttons = ecs.get_components<ButtonComponent>();
 
         for (std::size_t i = 0; i < models.size(); ++i) {
             if (models[i].has_value()) {
@@ -63,15 +61,10 @@ void draw_menu_system(Registry &ecs, const WindowDrawEvent &) {
                 ecs.kill_entity(i);
             }
         }
-        for (std::size_t i = 0; i < camera.size(); ++i) {
-            if (camera[i].has_value()) {
-                ecs.kill_entity(i);
-            }
-        }
-        for (std::size_t i = 0; i < buttons.size(); ++i) {
-            if (buttons[i].has_value()) {
-                ecs.kill_entity(i);
-            }
-        }
+
+        kill_entities_with_component<CameraComponent>(ecs);
+        kill_entities_with_component<ButtonComponent>(ecs);
+        kill_entities_with_component<TextInputComponent>(ecs);
+        kill_entities_with_component<ShowBoxComponent>(ecs);
     }
 }
