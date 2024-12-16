@@ -7,6 +7,8 @@
 
 #include "Main.hpp"
 
+std::atomic<bool> shutdown_requested(false);
+
 /**
  * Init the ecs
  * @return
@@ -47,8 +49,67 @@ Registry init_ecs () {
     return ecs;
 }
 
-int main() {
+/**
+ * @brief Handle events sent by server
+ * @param ecs
+ * @param host
+ * @param port
+ */
+void handle_network_event(Registry &ecs, const std::string &host, int port) {
+    network::NetworkClient network_client;
+
+    if (!network_client.connectToServer(host, port)) {
+        std::cerr << "Failed to connect to server!" << std::endl;
+        exit(84);
+    }
+
+    network::ClientEvent event;
+    while (!shutdown_requested.load())
+    {
+        while (network_client.pollEvent(event)) {
+            switch (event.type) {
+            case network::ClientEventType::DataReceive:
+            {
+                if (event.packetType == network::PacketType::LobbySnapshotPacket)
+                {
+                    auto received_packet = std::any_cast<network::LobbySnapshotPacket>(event.data);
+                    spdlog::info("Received lobby snapshot packet: {}", received_packet.header.packetId);
+                } else
+                {
+                    spdlog::info("Data received");
+                }
+                break;
+            }
+            case network::ClientEventType::ServerDisconnect:
+                std::cout << "Disconnected from server!" << std::endl;
+                break;
+            }
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    }
+}
+
+
+/**
+ * @brief Main function, creates network thread and start game loop
+ * @param argc
+ * @param argv
+ * @return
+ */
+int main(int argc, char *argv[]) {
+    if (argc != 3)
+    {
+        std::cout << "USAGE: ./r-type_client <HOST> <PORT>" << std::endl;
+        return 84;
+    }
+    std::string host = argv[1];
+    int port = static_cast<int>(strtol(argv[2], nullptr, 10));
+
+    std::cout << "Game will run on " << host << " using port " << port << std::endl;
+
     Registry ecs = init_ecs();
+    auto network_func = [&ecs, &host, port] { handle_network_event(ecs, host, port); };
+    std::thread thread_network(network_func);
 
     auto windowEntity = ecs.spawn_entity();
     ecs.add_component<ecs::Window>(windowEntity, {1920, 1080, "ECS Raylib - Multi Events",
@@ -64,6 +125,8 @@ int main() {
     while (!WindowShouldClose()) {
         ecs.run_event(ecs::WindowDrawEvent{});
     }
+    shutdown_requested.store(true);
+    thread_network.join();
 
     return 0;
 }
