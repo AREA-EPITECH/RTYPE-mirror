@@ -16,7 +16,7 @@ namespace ecs
     void particles_system(Registry &ecs, const ParticleSystemEvent &event)
     {
         const client::ParticleSystem particle_system_event{event.position, event.direction, event.infinite, event.lifetime,
-            event.max_particles};
+            event.max_particles, event.color};
         auto entity = ecs.spawn_entity();
         ecs.add_component<ParticleSystemComponent>(entity, {particle_system_event});
     }

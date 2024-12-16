@@ -61,6 +61,7 @@ namespace ecs {
         bool infinite;
         float lifetime;
         size_t max_particles;
+        Color color;
     };
 
 // Background

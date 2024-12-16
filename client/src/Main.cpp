@@ -25,6 +25,7 @@ Registry init_ecs () {
     ecs.register_component<ecs::MenuText>();
     ecs.register_component<ecs::BackgroundComponent>();
     ecs.register_component<ecs::DecorElementComponent>();
+    ecs.register_component<ecs::ProjectilesComponent>();
 
     ecs.register_event<ecs::WindowOpenEvent>();
     ecs.register_event<ecs::WindowCloseEvent>();

@@ -228,7 +228,8 @@ namespace ecs {
      * @param ecs
      */
     void apply_shader_system(Registry &ecs, const InitShaderEvent &) {
-        auto &models = ecs.get_components<VesselsComponent>();
+        auto &vessels_models = ecs.get_components<VesselsComponent>();
+        auto &projectiles_models = ecs.get_components<ProjectilesComponent>();
         auto &shaders = ecs.get_components<ShaderComponent>();
         Shader shader = {};
         for (std::size_t i = 0; i < shaders.size(); ++i) {
@@ -238,9 +239,18 @@ namespace ecs {
             }
         }
 
-        for (std::size_t i = 0; i < models.size(); ++i) {
-            if (models[i].has_value()) {
-                Model &model = models[i]->model;
+        for (std::size_t i = 0; i < vessels_models.size(); ++i) {
+            if (vessels_models[i].has_value()) {
+                Model &model = vessels_models[i]->model;
+                for (int j = 0; j < model.materialCount; ++j) {
+                    model.materials[j].shader = shader;
+                }
+                TraceLog(LOG_INFO, TextFormat("Applied shader to model of entity %zu.", i));
+            }
+        }
+        for (std::size_t i = 0; i < projectiles_models.size(); ++i) {
+            if (projectiles_models[i].has_value()) {
+                Model &model = projectiles_models[i]->model;
                 for (int j = 0; j < model.materialCount; ++j) {
                     model.materials[j].shader = shader;
                 }
@@ -284,5 +294,73 @@ namespace ecs {
         DecorElementComponent decor_element{event.path, event.speed};
         auto entity = ecs.spawn_entity();
         ecs.add_component<DecorElementComponent>(entity, {(std::move(decor_element))});
+    }
+
+    /**
+     * @brief Load projectiles models
+     * @param ecs
+     * @param
+     */
+    void load_projectiles_models(Registry &ecs, const InitModelEvent &)
+    {
+        std::vector<std::string> vox_files_enemy;
+        std::vector<std::string> vox_files_player;
+
+        for (const auto &entry: std::filesystem::directory_iterator("client/assets/voxels/player/shot")) {
+            if (std::string file = entry.path().c_str(); file.find(".vox") != std::string::npos)
+                vox_files_player.emplace_back(file);
+        }
+
+        for (const auto &entry: std::filesystem::directory_iterator("client/assets/voxels/enemy/shot")) {
+            if (std::string file = entry.path().c_str(); file.find(".vox") != std::string::npos)
+                vox_files_enemy.emplace_back(file);
+        }
+
+        for (int i = 0; i < vox_files_enemy.size(); i++) {
+            Model models;
+            const double t0 = GetTime() * 1000.0;
+
+            TraceLog(LOG_WARNING, TextFormat("Trying to load file %s...", vox_files_enemy[i].c_str()));
+            models = LoadModel(vox_files_enemy[i].c_str());
+            const double t1 = GetTime() * 1000.0;
+            TraceLog(LOG_WARNING, TextFormat("Loaded file %s in %f ms.", vox_files_enemy[i].c_str(), t1 - t0));
+
+            auto [min, max] = GetModelBoundingBox(models);
+            Vector3 center = {};
+            center.x = min.x + (max.x - min.x) / 2;
+            center.z = min.z + (max.z - min.z) / 2;
+
+            const Matrix matTranslate = MatrixTranslate(-center.x, 0, -center.z);
+            models.transform = matTranslate;
+            auto ModelEntity = ecs.spawn_entity();
+            std::cout << "MODEL ID : " << ModelEntity << std::endl;
+
+            ecs.add_component<ProjectilesComponent>(ModelEntity, {models, false, vox_files_enemy[i],
+                {0, 0, 0}, false});
+        }
+
+        for (int i = 0; i < vox_files_player.size(); i++) {
+            Model models;
+            const double t0 = GetTime() * 1000.0;
+
+            TraceLog(LOG_WARNING, TextFormat("Trying to load file %s...", vox_files_player[i].c_str()));
+            models = LoadModel(vox_files_player[i].c_str());
+            const double t1 = GetTime() * 1000.0;
+            TraceLog(LOG_WARNING, TextFormat("Loaded file %s in %f ms.", vox_files_player[i].c_str(), t1 - t0));
+
+            auto [min, max] = GetModelBoundingBox(models);
+            Vector3 center = {};
+            center.x = min.x + (max.x - min.x) / 2;
+            center.z = min.z + (max.z - min.z) / 2;
+
+            const Matrix matTranslate = MatrixTranslate(-center.x, 0, -center.z);
+            models.transform = matTranslate;
+
+            auto ModelEntity = ecs.spawn_entity();
+            std::cout << "MODEL ID : " << ModelEntity << std::endl;
+
+            ecs.add_component<ProjectilesComponent>(ModelEntity, {models, false, vox_files_player[i],
+                {0, 0, 0}, true});
+        }
     }
 }

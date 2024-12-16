@@ -126,6 +126,11 @@ namespace ecs {
         }
     }
 
+    void create_projectile(Registry &ecs, Model model, Vector3 position, bool player, std::string &path) {
+        auto entity = ecs.spawn_entity();
+        ecs.add_component<ProjectilesComponent>(entity, {model, true, path, position, player});
+    }
+
     /**
      * Get controls in the game
      * @param ecs
@@ -143,6 +148,18 @@ namespace ecs {
             return;
         if (IsKeyPressed(KEY_ENTER)) {
             change_window(ecs, MENU);
+        }
+        if (IsKeyPressed(KEY_SPACE)) {
+            auto &projectiles = ecs.get_components<ProjectilesComponent>();
+            for (auto &projectile : projectiles) {
+                if (projectile.has_value()) {
+                    if (projectile->player && !projectile->drawable) {
+                        create_projectile(ecs, projectile->model,
+                            {modelComponent->position.x + 10, modelComponent->position.y + 2, 0},
+                            true, projectile->path);
+                    }
+                }
+            }
         }
         if (IsKeyPressed(KEY_LEFT) || IsKeyDown(KEY_LEFT)) {
             modelComponent->position.x -= 0.1f;

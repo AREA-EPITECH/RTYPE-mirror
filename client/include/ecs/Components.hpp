@@ -199,5 +199,22 @@ namespace ecs {
             );
         }
     };
+
+    class ProjectilesComponent {
+    public:
+        Model model{};
+        bool drawable;
+        std::string path;
+        Vector3 position{};
+        bool player;
+
+        ProjectilesComponent(Model _model, bool _drawable, std::string _path, Vector3 _position, bool _player) {
+            model = _model;
+            drawable = _drawable;
+            path = std::move(_path);
+            position = _position;
+            player = _player;
+        }
+    };
 }
 

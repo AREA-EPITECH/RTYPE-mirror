@@ -69,10 +69,21 @@ namespace ecs {
                     }
                 }
 
-                if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
-                {
-                    ecs.run_event(ParticleSystemEvent{{GetMousePosition().x, GetMousePosition().y, 0},
-                        client::UP, true, 100, 1000});
+                VesselsComponent* vessel_c = nullptr;
+                auto &vessels = ecs.get_components<VesselsComponent>();
+                for (auto & vessel : vessels) {
+                    if (vessel.has_value())
+                    {
+                        if (vessel->drawable) {
+                            vessel_c = &vessel.value();
+                            BoundingBox bbox = GetModelBoundingBox(vessel->model);
+                            float x = bbox.max.x - bbox.min.x;
+                            float y = bbox.max.y - bbox.min.y;
+                            // ecs.run_event(ParticleSystemEvent{{GetWorldToScreen(vessel->position, camera).x - x,
+                                // GetWorldToScreen(vessel->position, camera).y - y, 0}, client::LEFT, false,
+                                // 5, 1000, RED});
+                        }
+                    }
                 }
 
                 auto &particles_systems = ecs.get_components<ParticleSystemComponent>();
@@ -91,6 +102,16 @@ namespace ecs {
                 }
 
                 BeginMode3D(camera);
+
+
+                auto &projectiles = ecs.get_components<ProjectilesComponent>();
+                for (auto & projectile : projectiles) {
+                    if (projectile.has_value()) {
+                        if (projectile->drawable) {
+                            DrawModel(projectile->model, projectile->position, 1.0f, WHITE);
+                        }
+                    }
+                }
 
                 auto &models = ecs.get_components<VesselsComponent>();
                 for (auto & model : models) {
@@ -168,7 +189,7 @@ namespace ecs {
             }
         }
 
-        // Init 
+        // Init
         ecs.run_event(InitBackgroundEvent{"client/assets/backgrounds/game/space_background.png", 2,
                     200, 0});
         ecs.run_event(InitDecorElementEvent{"client/assets/backgrounds/game/space_midground.png", 300});
@@ -181,7 +202,8 @@ namespace ecs {
     * @param ecs
     */
     void close_game_system(Registry &ecs, const WindowCloseEvent &) {
-        auto &models = ecs.get_components<VesselsComponent>();
+        auto &vessels_models = ecs.get_components<VesselsComponent>();
+        auto &projectiles_models = ecs.get_components<ProjectilesComponent>();
         auto &camera = ecs.get_components<CameraComponent>();
         auto &particles_systems = ecs.get_components<ParticleSystemComponent>();
         auto &lights = ecs.get_components<LightComponent>();
@@ -189,9 +211,16 @@ namespace ecs {
         auto &backgrounds = ecs.get_components<BackgroundComponent>();
         auto &decors = ecs.get_components<DecorElementComponent>();
 
-        for (std::size_t i = 0; i < models.size(); ++i) {
-            if (models[i].has_value()) {
-                UnloadModel(models[i]->model);
+        for (std::size_t i = 0; i < vessels_models.size(); ++i) {
+            if (vessels_models[i].has_value()) {
+                UnloadModel(vessels_models[i]->model);
+                TraceLog(LOG_WARNING, TextFormat("Unloaded model for entity %zu.", i));
+                ecs.kill_entity(i);
+            }
+        }
+        for (std::size_t i = 0; i < projectiles_models.size(); ++i) {
+            if (projectiles_models[i].has_value() && !projectiles_models[i]->drawable) {
+                UnloadModel(projectiles_models[i]->model);
                 TraceLog(LOG_WARNING, TextFormat("Unloaded model for entity %zu.", i));
                 ecs.kill_entity(i);
             }

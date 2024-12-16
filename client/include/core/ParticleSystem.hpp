@@ -20,12 +20,13 @@ namespace client
         bool _infinite;
         float _lifetime;
         size_t _max_particles;
+        Color _color;
 
     public:
         std::vector<Particle> _particleSystem;
 
-        explicit ParticleSystem(const Vector3 &pos, Direction direction, bool infinite, float lifetime, size_t max_particles)
-            noexcept;
+        explicit ParticleSystem(const Vector3 &pos, Direction direction, bool infinite, float lifetime,
+            size_t max_particles, Color color) noexcept;
         void draw();
         void update();
         [[nodiscard]] bool isAlive() const;

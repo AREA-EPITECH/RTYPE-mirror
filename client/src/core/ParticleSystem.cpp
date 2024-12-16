@@ -18,15 +18,15 @@ namespace client
      * @param lifetime
      * @param max_particles
      */
-ParticleSystem::ParticleSystem(const Vector3 &pos, const Direction direction, const bool infinite,
-        const float lifetime, const size_t max_particles) noexcept : _position(pos), _direction(direction),
-        _infinite(infinite), _lifetime(lifetime), _max_particles(max_particles)
+    ParticleSystem::ParticleSystem(const Vector3 &pos, const Direction direction, const bool infinite,
+        const float lifetime, const size_t max_particles, const Color color) noexcept : _position(pos), _direction(direction),
+        _infinite(infinite), _lifetime(lifetime), _max_particles(max_particles), _color(color)
     {
          for (size_t i = _particleSystem.size(); i < _max_particles; i++)
          {
              // Add new particles to the particle system
              _particleSystem.emplace_back(_position, Vector3{0.0f, 0.05f, 0.0f}, 10.0f, REACTOR,
-                 BLUE, _direction);
+                 _color, _direction);
          }
     }
 

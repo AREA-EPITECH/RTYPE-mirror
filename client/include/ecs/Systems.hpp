@@ -42,6 +42,7 @@ namespace ecs {
     void load_models_system(Registry &ecs, const InitModelEvent &);
     void load_model_from_file_system(Registry &ecs, const InitModelEvent &event);
     void load_title_menu(Registry &ecs, const InitModelEvent &);
+    void load_projectiles_models(Registry &ecs, const InitModelEvent &);
 
 // Shaders
     void load_shaders(Registry &ecs, const InitShaderEvent &event);
