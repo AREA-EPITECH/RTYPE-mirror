@@ -11,7 +11,8 @@ namespace ecs {
 
     ShowBoxComponent::ShowBoxComponent(Rectangle _boxRect, std::string _message, Color _boxColor, Color _textColor,
                                        TextInputComponent _textInput, ButtonComponent _closeButton,
-                                       ButtonComponent _continueButton)
+                                       ButtonComponent _continueButton, std::function<int(int screenWidth, int screenHeight)> _dynamicX,
+                                       std::function<int(int screenWidth, int screenHeight)> _dynamicY)
             : boxRect(_boxRect),
               textInput(std::move(_textInput)),
               closeButton(std::move(_closeButton)),
@@ -19,7 +20,9 @@ namespace ecs {
               message(std::move(_message)),
               boxColor(_boxColor),
               textColor(_textColor),
-              isVisible(false) {
+              isVisible(false),
+              dynamicX(_dynamicX),
+              dynamicY(_dynamicY) {
 
         textInput.inputBox.width = _boxRect.width - 40;
         textInput.inputBox.height = 100;
@@ -87,15 +90,27 @@ namespace ecs {
 
     }
 
-    void ShowBoxComponent::handleInput(char key) {
+    void ShowBoxComponent::handleInput(char ) {
         if (!isVisible) return;
 
         textInput.handleInput();
     }
 
-    void ShowBoxComponent::updateBox() {
-        textInput.updateInput(boxRect.width, boxRect.height);
-        closeButton.updateButton(boxRect.width, boxRect.height);
-        continueButton.updateButton(boxRect.width, boxRect.height);
+    void ShowBoxComponent::updateBox(int screenWidth, int screenHeight) {
+        if (dynamicX) {
+            boxRect.x = dynamicX(screenWidth, screenHeight);
+        }
+        if (dynamicY) {
+            boxRect.y = dynamicY(screenWidth, screenHeight);
+        }
+
+        textInput.inputBox.x = boxRect.x + 20;
+        textInput.inputBox.y = boxRect.y + 100;
+
+        closeButton.buttonX = boxRect.x + 20;
+        closeButton.buttonY = boxRect.y + boxRect.height - closeButton.buttonHeight - 20;
+
+        continueButton.buttonX = boxRect.x + boxRect.width - continueButton.buttonWidth - 20;
+        continueButton.buttonY = boxRect.y + boxRect.height - continueButton.buttonHeight - 20;
     }
 }

@@ -25,7 +25,7 @@ void update_menu_selectors(Registry &ecs, int screenWidth, int screenHeight) {
 
     for (auto& box : boxs) {
         if (box.has_value()) {
-            box.value().updateBox();
+            box.value().updateBox(screenWidth, screenHeight);
         }
     }
 }

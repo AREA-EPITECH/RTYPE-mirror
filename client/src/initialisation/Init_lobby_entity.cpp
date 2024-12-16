@@ -12,10 +12,10 @@ void init_lobby_entity (Registry &ecs) {
     ecs.add_component<ecs::TextComponent>(idText, {idStr, 54, 50, 50});
 
     std::vector<std::string> players_name = {"player1", "player2", "player3", "player4", "player5"};
-    for (int i = 0; i < players_name.size(); i++) {
+    for (const auto & i : players_name) {
         auto playerId = ecs.spawn_entity();
 
-        ecs.add_component<ecs::TextComponent>(playerId, {players_name[i], 54, 50, 50, 1});
+        ecs.add_component<ecs::TextComponent>(playerId, {i, 54, 50, 50, 1});
     }
 
     auto readyButton = ecs.spawn_entity();

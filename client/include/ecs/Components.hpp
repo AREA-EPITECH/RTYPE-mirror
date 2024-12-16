@@ -50,7 +50,7 @@ namespace ecs {
             type = _type;
         }
 
-        TextComponent(std::string _text, int _type = 0, Color _color = {253, 240, 213, 255}) {
+        explicit TextComponent(std::string _text, int _type = 0, Color _color = {253, 240, 213, 255}) {
             text = std::move(_text);
             color = _color;
             type = _type;
@@ -266,14 +266,17 @@ namespace ecs {
         Color boxColor;
         Color textColor;
         bool isVisible;
+        std::function<int(int screenWidth, int screenHeight)> dynamicX;
+        std::function<int(int screenWidth, int screenHeight)> dynamicY;
 
         ShowBoxComponent(Rectangle _boxRect, std::string _message, Color _boxColor, Color _textColor,
                          TextInputComponent _textInput, ButtonComponent _closeButton,
-                         ButtonComponent _continueButton);
+                         ButtonComponent _continueButton, std::function<int(int screenWidth, int screenHeight)> _dynamicX = nullptr,
+                         std::function<int(int screenWidth, int screenHeight)> _dynamicY = nullptr);
 
         void draw();
         void handleInput(char key);
         void handleClick(Vector2 mousePosition);
-        void updateBox();
+        void updateBox(int screenWidth, int screenHeight);
     };
 }

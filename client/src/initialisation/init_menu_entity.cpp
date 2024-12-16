@@ -10,7 +10,6 @@ void init_menu_entity (Registry &ecs) {
     int buttonWidth = 500;
     int buttonHeight = 100;
 
-    Rectangle boxRect = {200, 150, 600, 400};
     std::string message = "Enter room ID:";
     auto boxColor = DARKGRAY;
     auto textColor = WHITE;
@@ -25,7 +24,7 @@ void init_menu_entity (Registry &ecs) {
     ecs::ButtonComponent closeButton(buttonWidth,
                                      buttonHeight,
                                      {"Close", 40, 40, 0},
-                                     [&ecs]() {
+                                     []() {
                                          //auto &showbox = ecs.get_components<ecs::ShowBoxComponent>();
                                          //for (int i = 0; i < showbox.size(); i++) {
                                          //    if (showbox[i].has_value()) {
@@ -37,7 +36,7 @@ void init_menu_entity (Registry &ecs) {
     ecs::ButtonComponent continueButton(buttonWidth,
                                      buttonHeight,
                                      {"Continue", 40, 40, 0},
-                                     [&ecs]() {
+                                     []() {
                                          //auto &showbox = ecs.get_components<ecs::ShowBoxComponent>();
                                          //for (int i = 0; i < showbox.size(); i++) {
                                          //    if (showbox[i].has_value()) {
@@ -47,8 +46,12 @@ void init_menu_entity (Registry &ecs) {
                                      });
 
     auto showBoxEntity = ecs.spawn_entity();
+    Rectangle boxRect = {100, 100, 600, 400};
     ecs.add_component<ecs::ShowBoxComponent>(showBoxEntity, ecs::ShowBoxComponent(
-            boxRect, message, boxColor, textColor, textBoxInput, closeButton, continueButton
+            boxRect,
+            message, boxColor, textColor, textBoxInput, closeButton, continueButton,
+            [boxRect](int screenWidth, int screenHeight) { return (float)screenWidth / 2 - (boxRect.width / 2); },
+            [boxRect](int screenWidth, int screenHeight) { return (float)screenHeight / 2 - (boxRect.height / 2); }
     ));
 
     auto textInput = ecs.spawn_entity();
@@ -71,9 +74,9 @@ void init_menu_entity (Registry &ecs) {
                                                     joinText,
                                                     [&ecs]() {
                                                         auto &showbox = ecs.get_components<ecs::ShowBoxComponent>();
-                                                        for (int i = 0; i < showbox.size(); i++) {
-                                                            if (showbox[i].has_value()) {
-                                                                showbox[i].value().isVisible = true;
+                                                        for (auto & i : showbox) {
+                                                            if (i.has_value()) {
+                                                                i.value().isVisible = true;
                                                             }
                                                         }
                                                     },
