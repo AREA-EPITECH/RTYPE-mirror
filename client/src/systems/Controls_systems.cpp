@@ -133,6 +133,15 @@ namespace ecs {
         }
     }
 
+    /**
+     * @brief Create projectile entity in ecs
+     * @param ecs
+     * @param model
+     * @param position
+     * @param velocity
+     * @param player
+     * @param path
+     */
     void create_projectile(Registry &ecs, Model model, Vector3 position, Vector3 velocity, bool player,
         std::string &path) {
         auto entity = ecs.spawn_entity();
@@ -140,7 +149,7 @@ namespace ecs {
     }
 
     /**
-     * Get controls in the game
+     * @brief Get controls in the game
      * @param ecs
      */
     void game_controls_system(Registry &ecs, const ControlsEvent &) {
