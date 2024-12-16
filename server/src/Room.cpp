@@ -36,6 +36,10 @@ namespace server {
         return lobby_players;
     }
 
+    /**
+     * Check if all clients are in ready state
+     * @return {bool}
+     */
     bool Room::getClientsReadiness() const {
         for (const auto& client : this->_clients) {
             if (!client->getData<ClientData>().getReadyState()) {
@@ -78,6 +82,10 @@ namespace server {
         return this->_id;
     }
 
+    /**
+     * Getter for the size of the Room
+     * @return {u_int8_t}
+     */
     u_int8_t Room::getSize() const {
         return this->_clients.size();
     }

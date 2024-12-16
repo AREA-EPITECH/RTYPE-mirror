@@ -86,6 +86,10 @@ namespace server {
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
 
+    /**
+     * Disconnect a client from its Room and call sendUpdateRoom method
+     * @param peer - client
+     */
     void Server::clientDisconnect(std::shared_ptr<network::PeerWrapper> &peer) {
         const auto data = peer->getData<ClientData>();
         const uint16_t room_id = data.getRoom()->getId();
