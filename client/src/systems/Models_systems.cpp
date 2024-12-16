@@ -232,6 +232,7 @@ namespace ecs {
         auto &vessels_models = ecs.get_components<VesselsComponent>();
         auto &projectiles_models = ecs.get_components<ProjectilesComponent>();
         auto &shaders = ecs.get_components<ShaderComponent>();
+        auto &menus = ecs.get_components<MenuText>();
         Shader shader = {};
         for (std::size_t i = 0; i < shaders.size(); ++i) {
             if (shaders[i].has_value()) {
@@ -252,6 +253,15 @@ namespace ecs {
         for (std::size_t i = 0; i < projectiles_models.size(); ++i) {
             if (projectiles_models[i].has_value()) {
                 Model &model = projectiles_models[i]->model;
+                for (int j = 0; j < model.materialCount; ++j) {
+                    model.materials[j].shader = shader;
+                }
+                TraceLog(LOG_INFO, TextFormat("Applied shader to model of entity %zu.", i));
+            }
+        }
+        for (std::size_t i = 0; i < menus.size(); ++i) {
+            if (menus[i].has_value()) {
+                Model &model = menus[i]->model;
                 for (int j = 0; j < model.materialCount; ++j) {
                     model.materials[j].shader = shader;
                 }

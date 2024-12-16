@@ -31,6 +31,7 @@ Registry init_ecs () {
     ecs.register_component<ecs::ShowBoxComponent>();
     ecs.register_component<ecs::ProjectilesComponent>();
     ecs.register_component<ecs::ControllableComponent>();
+    ecs.register_component<ecs::EnemyComponent>();
 
     ecs.register_event<ecs::CreateWindowEvent>();
     ecs.register_event<ecs::WindowOpenEvent>();
