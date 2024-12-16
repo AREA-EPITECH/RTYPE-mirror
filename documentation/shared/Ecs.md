@@ -32,7 +32,7 @@ struct Drawable {
 
 struct Controllable {};
 ```
-*Example using SFML2. Not accurate in out actual project.*
+*Example using SFML2. Not accurate in our actual project.*
 
 #### - Register a component to the registry:
 ```c++

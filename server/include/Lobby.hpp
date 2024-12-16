@@ -11,5 +11,5 @@
 #include <network/packet/ClientPacket.hpp>
 
 namespace server {
-    void lobbyAction(Server &server, const std::shared_ptr<network::PeerWrapper> &peer, const network::LobbyActionPacket &lobby_action_packet);
+    void lobbyAction(Server &server, std::shared_ptr<network::PeerWrapper> &peer, const network::LobbyActionPacket &lobby_action_packet);
 } // namespace server
