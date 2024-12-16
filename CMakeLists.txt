@@ -6,6 +6,18 @@ endif()
 
 cmake_minimum_required(VERSION 3.14)
 
+if(!WIN32)
+    set( CMAKE_CXX_COMPILER "/usr/bin/g++" )
+    set( CMAKE_C_COMPILER "/usr/bin/gcc" )
+endif()
+
+if(WIN32)
+    add_compile_options($<$<CXX_COMPILER_ID:MSVC>:/utf-8>)
+endif()
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 project(r-type)
 
 # Enable C++17 or later

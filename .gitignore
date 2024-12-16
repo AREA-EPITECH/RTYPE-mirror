@@ -38,6 +38,10 @@ cmake-build-default/
 *.a
 *.lib
 
+# Microsoft build file
+*.ilk
+*.pdb
+
 # Executables
 *.exe
 *.out
@@ -47,20 +51,17 @@ r-type_server
 
 # Cmake user presets
 CMakeUserPresets.json
-cmake-build-debug
 cmake-build-default
 
 # ide preset
 .vscode/
-.idea
 .clangd
-
-# Debug
-vgcore.*
+.idea/
+.vs/
 
 # VCPKG
-CMakeUserPresets.json
 build
 
 # Debug
 vgcore.*
+
