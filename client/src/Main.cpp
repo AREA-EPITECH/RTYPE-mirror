@@ -56,7 +56,7 @@ Registry init_ecs () {
  * @param host
  * @param port
  */
-void handle_network_event(Registry &ecs, const std::string &host, int port) {
+void handle_network_event(const std::string &host, int port) {
     network::NetworkClient network_client;
 
     if (!network_client.connectToServer(host, port)) {
@@ -73,7 +73,7 @@ void handle_network_event(Registry &ecs, const std::string &host, int port) {
             {
                 if (event.packetType == network::PacketType::LobbySnapshotPacket)
                 {
-                    auto received_packet = std::any_cast<network::LobbySnapshotPacket>(event.data);
+                    auto received_packet = std::any_cast<struct network::LobbySnapshotPacket>(event.data);
                     spdlog::info("Received lobby snapshot packet: {}", received_packet.header.packetId);
                 } else
                 {
@@ -109,7 +109,7 @@ int main(int argc, char *argv[]) {
     std::cout << "Game will run on " << host << " using port " << port << std::endl;
 
     Registry ecs = init_ecs();
-    auto network_func = [&ecs, &host, port] { handle_network_event(ecs, host, port); };
+    auto network_func = [&host, port] { handle_network_event(host, port); };
     std::thread thread_network(network_func);
 
     auto windowEntity = ecs.spawn_entity();

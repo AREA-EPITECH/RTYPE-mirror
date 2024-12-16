@@ -63,22 +63,26 @@ void runMultithreadedServer() {
 
         // Poll for events
         while (server.pollEvent(event)) {
-            std::vector<uint8_t> receivedPacket;
             switch (event.type) {
-                case network::ServerEventType::ClientConnect:
+                case network::ServerEventType::ClientConnect: {
+                    struct network::LobbySnapshotPacket packet;
+                    packet.gameState = network::LobbyGameState::Waiting;
+                    packet.roomId = 0;
                     spdlog::info("Client connected: {}", (void*)event.peer->getPeer().get());
+                    server.sendLobbyPacket(packet, event.peer);
                     break;
+                }
 
                 case network::ServerEventType::ClientDisconnect:
                     spdlog::info("Client disconnected: {}", (void*)event.peer->getPeer().get());
                     break;
 
                 case network::ServerEventType::DataReceive: {
-                    if (event.packetType == network::PacketType::RawPacket) {
-                        receivedPacket = std::any_cast<std::vector<uint8_t>>(event.data);
-                        spdlog::info("Received data: {} of size: {}", deserializeString(receivedPacket), receivedPacket.size());
+                    if (event.packetType == network::PacketType::LobbyActionPacket) {
+                        auto receivedPacket = std::any_cast<struct network::LobbyActionPacket>(event.data);
+                        spdlog::info("Received Lobby Action Packet id: {}", receivedPacket.header.packetId);
                     } else {
-                        spdlog::info("Received not raw data");
+                        spdlog::info("Received data");
                     }
                     break;
                 }

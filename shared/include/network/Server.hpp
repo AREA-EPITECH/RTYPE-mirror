@@ -81,7 +81,7 @@ namespace network
          * @param peer A shared pointer to the target PeerWrapper.
          * @return True if the packet is sent successfully, false otherwise.
          */
-        bool sendSnapshotPacket(const SnapshotPacket &packet, std::shared_ptr<PeerWrapper> peer);
+        bool sendSnapshotPacket(const struct SnapshotPacket &packet, std::shared_ptr<PeerWrapper> peer);
 
         /**
          * @brief Sends a lobby snapshot packet to a specific peer.
@@ -90,7 +90,7 @@ namespace network
          * @param peer A shared pointer to the target PeerWrapper.
          * @return True if the packet is sent successfully, false otherwise.
          */
-        bool sendLobbyPacket(const LobbySnapshotPacket &packet, std::shared_ptr<PeerWrapper> peer);
+        bool sendLobbyPacket(const struct LobbySnapshotPacket &packet, std::shared_ptr<PeerWrapper> peer);
 
         /**
          * @brief Polls the server for new network events.

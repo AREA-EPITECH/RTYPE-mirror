@@ -79,9 +79,9 @@ bool network::NetworkServer::sendPacket(const std::vector<uint8_t> &data, std::s
  * @param peer A shared pointer to the target PeerWrapper.
  * @return True if the packet is sent successfully, false otherwise.
  */
-bool network::NetworkServer::sendSnapshotPacket(const SnapshotPacket &packet, std::shared_ptr<PeerWrapper> peer)
+bool network::NetworkServer::sendSnapshotPacket(const struct SnapshotPacket &packet, std::shared_ptr<PeerWrapper> peer)
 {
-    SnapshotPacket newPacket;
+    struct SnapshotPacket newPacket;
 
     lastPacketId++;
     newPacket.header.packetId = lastPacketId;
@@ -94,7 +94,7 @@ bool network::NetworkServer::sendSnapshotPacket(const SnapshotPacket &packet, st
     newPacket.numEntities = packet.entities.size();
     newPacket.entities = packet.entities;
 
-    const std::vector<uint8_t> binary = Packet::serializeSnapshotPacket(packet);
+    const std::vector<uint8_t> binary = Packet::serializeSnapshotPacket(newPacket);
     return sendPacket(binary, peer);
 }
 
@@ -105,9 +105,9 @@ bool network::NetworkServer::sendSnapshotPacket(const SnapshotPacket &packet, st
  * @param peer A shared pointer to the target PeerWrapper.
  * @return True if the packet is sent successfully, false otherwise.
  */
-bool network::NetworkServer::sendLobbyPacket(const LobbySnapshotPacket &packet, std::shared_ptr<PeerWrapper> peer)
+bool network::NetworkServer::sendLobbyPacket(const struct LobbySnapshotPacket &packet, std::shared_ptr<PeerWrapper> peer)
 {
-    LobbySnapshotPacket newPacket;
+    struct LobbySnapshotPacket newPacket;
 
     lastPacketId++;
     newPacket.header.packetId = lastPacketId;
@@ -121,7 +121,7 @@ bool network::NetworkServer::sendLobbyPacket(const LobbySnapshotPacket &packet, 
     newPacket.players = packet.players;
     newPacket.gameState = packet.gameState;
 
-    const std::vector<uint8_t> binary = Packet::serializeLobbySnapshotPacket(packet);
+    const std::vector<uint8_t> binary = Packet::serializeLobbySnapshotPacket(newPacket);
     return sendPacket(binary, peer);
 }
 

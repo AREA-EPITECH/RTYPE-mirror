@@ -20,14 +20,14 @@ namespace network
      * Enumerates the different categories of packets used in the RTYPE protocol,
      * helping to identify the packet's purpose and contents during transmission.
      */
-    enum class PacketType : uint8_t
+    enum PacketType
     {
         RawPacket = 0, ///< A raw, unprocessed packet.
-        SnapshotPacket, ///< A snapshot of the game state.
-        InputPacket, ///< A packet containing player input data.
-        LobbyActionPacket, ///< A packet containing actions related to the lobby.
-        LobbySnapshotPacket, ///< A snapshot of the current state of the lobby.
-        NoPacket ///< Represents the absence of a valid packet.
+        SnapshotPacket = 1, ///< A snapshot of the game state.
+        InputPacket = 2, ///< A packet containing player input data.
+        LobbyActionPacket = 3, ///< A packet containing actions related to the lobby.
+        LobbySnapshotPacket = 4, ///< A snapshot of the current state of the lobby.
+        NoPacket = 5 ///< Represents the absence of a valid packet.
     };
 
     /**

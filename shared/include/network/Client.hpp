@@ -83,7 +83,7 @@ namespace network
          * @param packet The InputPacket containing user input data.
          * @return True if the packet is sent successfully, false otherwise.
          */
-        bool sendInputPacket(const InputPacket &packet);
+        bool sendInputPacket(const struct InputPacket &packet);
 
         /**
          * @brief Sends a lobby action packet to the server.
@@ -91,7 +91,7 @@ namespace network
          * @param packet The LobbyActionPacket containing lobby action details.
          * @return True if the packet is sent successfully, false otherwise.
          */
-        bool sendLobbyPacket(const LobbyActionPacket &packet);
+        bool sendLobbyPacket(const struct LobbyActionPacket &packet);
 
         /**
          * @brief Polls for incoming events from the server.
