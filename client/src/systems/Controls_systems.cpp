@@ -153,15 +153,32 @@ namespace ecs {
      * @param ecs
      */
     void game_controls_system(Registry &ecs, const ControlsEvent &) {
+        auto &cameras = ecs.get_components<CameraComponent>();
         auto &models = ecs.get_components<VesselsComponent>();
+        auto &controllables = ecs.get_components<ControllableComponent>();
         VesselsComponent *modelComponent = nullptr;
         for (auto & model : models) {
-            if (model.has_value()) {
-                modelComponent = &model.value();
+            for (auto & controllable: controllables)
+            {
+                if (controllable.has_value())
+                {
+                    if (model.has_value()) {
+                        modelComponent = &model.value();
+                        break;
+                    }
+                }
+            }
+        }
+        CameraComponent *cameraComponent = nullptr;
+        for (auto & camera : cameras) {
+            if (camera.has_value())
+            {
+                cameraComponent = &camera.value();
                 break;
             }
         }
-        if (modelComponent == nullptr)
+
+        if (modelComponent == nullptr || cameraComponent == nullptr)
             return;
         if (IsKeyPressed(KEY_ENTER)) {
             change_window(ecs, MENU);
@@ -179,16 +196,16 @@ namespace ecs {
             }
         }
         if (IsKeyPressed(KEY_LEFT) || IsKeyDown(KEY_LEFT)) {
-            modelComponent->position.x -= 0.1f;
+            modelComponent->Move(client::Direction::LEFT, cameraComponent->camera);
         }
         if (IsKeyPressed(KEY_RIGHT) || IsKeyDown(KEY_RIGHT)) {
-            modelComponent->position.x += 0.1f;
+            modelComponent->Move(client::Direction::RIGHT, cameraComponent->camera);
         }
         if (IsKeyPressed(KEY_UP) || IsKeyDown(KEY_UP)) {
-            modelComponent->position.y += 0.1f;
+            modelComponent->Move(client::Direction::UP, cameraComponent->camera);
         }
         if (IsKeyPressed(KEY_DOWN) || IsKeyDown(KEY_DOWN)) {
-            modelComponent->position.y -= 0.1f;
+            modelComponent->Move(client::Direction::DOWN, cameraComponent->camera);
         }
 
     }

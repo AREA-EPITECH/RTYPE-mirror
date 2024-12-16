@@ -123,7 +123,49 @@ namespace ecs {
             path = std::move(_path);
             name = std::move(_name);
         }
+
+        void Move(const client::Direction direction, Camera &camera)
+        {
+            Vector2 screen_pos = GetWorldToScreen(position, camera);
+            const float max_height = static_cast<float>(GetScreenHeight()) * 0.1f;
+            const float min_height = static_cast<float>(GetScreenHeight()) * 0.9f;
+
+            const float min_width = static_cast<float>(GetScreenWidth()) * 0.15f;
+            const float max_width = static_cast<float>(GetScreenWidth()) * 0.6f;
+
+            switch (direction)
+            {
+            case client::Direction::UP:
+                if ((screen_pos.y += 0.1f) > max_height)
+                {
+                    position.y += 0.1f;
+                }
+                break;
+            case client::Direction::DOWN:
+                if ((screen_pos.y -= 0.1f) < min_height)
+                {
+                    position.y -= 0.1f;
+                }
+                break;
+            case client::Direction::LEFT:
+                if ((screen_pos.x -= 0.1f) > max_width)
+                {
+                    position.x -= 0.1f;
+                }
+                break;
+            case client::Direction::RIGHT:
+                if ((screen_pos.x += 0.1f) < min_width)
+                {
+                    position.x += 0.1f;
+                }
+                break;
+            default:
+                break;
+           }
+        }
     };
+
+    struct ControllableComponent{};
 
     class MenuText {
     public:

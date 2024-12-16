@@ -84,6 +84,7 @@ namespace ecs {
                 const Matrix matRotate = MatrixRotateY(DEG2RAD * 90.0f);
                 modelComponent.model.transform = MatrixMultiply(matTranslate, matRotate);
 
+                ecs.add_component<ControllableComponent>(i, {});
                 TraceLog(LOG_INFO, TextFormat("Model reloaded and centered from %s", modelComponent.path.c_str()));
             }
         }
