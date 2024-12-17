@@ -18,6 +18,7 @@
 #include <utility>
 #include <vector>
 #include "ClientData.hpp"
+#include "Game.hpp"
 #include "Lobby.hpp"
 #include "Room.hpp"
 #include "Utils.hpp"
@@ -158,6 +159,7 @@ namespace server
         auto room_ptr = std::make_shared<Room>(room);
         auto data = client->getData<ClientData>();
         data.setRoom(room_ptr);
+        room_ptr->_clients.push_back(client);
         client->setData<ClientData>(std::move(data));
         this->_waiting_rooms.push_back(room_ptr);
         spdlog::info("Client {} created room {}", client->getData<ClientData>().getId(), room.getId());
@@ -170,55 +172,46 @@ namespace server
      */
     void Server::assignClientToRoom(std::shared_ptr<network::PeerWrapper> &client, const uint8_t room_id)
     {
-        Room room(room_id);
-        auto room_ptr = std::make_shared<Room>(room);
-        if (std::find(this->_waiting_rooms.begin(), this->_waiting_rooms.end(), room_ptr) != this->_waiting_rooms.end())
-        {
-            auto data = client->getData<ClientData>();
-            data.setRoom(room_ptr);
-            client->setData<ClientData>(std::move(data));
-            spdlog::info("Client {} joined room {}", client->getData<ClientData>().getId(), room_id);
+        for (auto &room: this->_waiting_rooms) {
+            if (room->getId() == room_id) {
+                auto data = client->getData<ClientData>();
+                data.setRoom(room);
+                room->_clients.push_back(client);
+                client->setData<ClientData>(std::move(data));
+                spdlog::info("Client {} joined room {}", client->getData<ClientData>().getId(), room_id);
+                return;
+            }
         }
-        else
-        {
-            throw ServerException("Room doesn't exist");
-        }
+        spdlog::error("Room doesn't exist {}", room_id);
     }
 
     /**
-     * A Client leaves a room
-     * Deletes NetworkPeer from a room's clients vector
-     * @param client
-     * @param room_id
+     * @brief Removes a client from its room.
+     *
+     * This function removes the client from the room's clients vector and unsets the room in the client's data.
+     *
+     * @param client The client to be removed from the room.
+     * @param room_id The ID of the room from which the client should be removed.
      */
     void Server::leaveClientRoom(std::shared_ptr<network::PeerWrapper> &client, uint16_t room_id)
     {
-        Room room(room_id);
-        auto room_ptr = std::make_shared<Room>(room);
-        if (std::find(this->_waiting_rooms.begin(), this->_waiting_rooms.end(), room_ptr) != this->_waiting_rooms.end())
-        {
-            if (std::find(room_ptr.get()->_clients.begin(), room_ptr.get()->_clients.end(), client) !=
-                room_ptr.get()->_clients.end())
-            {
+        for (auto &room: this->_waiting_rooms) {
+            if (room->getId() == room_id) {
                 auto data = client->getData<ClientData>();
-                data.unsetRoom();
-                client->setData<ClientData>(std::move(data));
-                room_ptr.get()->_clients.erase(
-                    std::remove(room_ptr.get()->_clients.begin(), room_ptr.get()->_clients.end(), client),
-                    room_ptr.get()->_clients.end());
-                spdlog::info("Client {} left room {}", client->getData<ClientData>().getId(), room_ptr.get()->getId());
-            }
-            else
-            {
-                const std::string error = fmt::format("Client {} doesn't belong to room {}",
-                                                      client->getData<ClientData>().getId(), room_ptr.get()->getId());
-                throw ServerException(error.c_str());
+                room->_clients.erase(std::remove_if(room->_clients.begin(), room->_clients.end(),
+                    [&data, room_id](const std::shared_ptr<network::PeerWrapper> &cli) {
+                        if (cli->getData<ClientData>().getId() == data.getId()) {
+                            data.unsetRoom();
+                            spdlog::info("Client {} left room {}", data.getId(), room_id);
+                            return true;
+                        }
+                        return false;
+                    }), room->_clients.end());
+                client->setData(std::move(data));
+                return;
             }
         }
-        else
-        {
-            throw ServerException("Room doesn't exist");
-        }
+        spdlog::error("Room doesn't exist {}", room_id);
     }
 
     /**
@@ -289,6 +282,7 @@ namespace server
         case network::PacketType::InputPacket:
             {
                 auto input_packet = std::any_cast<network::InputPacket>(data);
+                gameAction(server, peer, input_packet);
                 break;
             }
         case network::PacketType::LobbyActionPacket:

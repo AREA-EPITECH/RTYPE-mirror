@@ -6,10 +6,10 @@
 */
 
 #include <atomic>
-#include <csignal>
 #include <chrono>
-#include "spdlog/spdlog.h"
+#include <csignal>
 #include "Server.hpp"
+#include "spdlog/spdlog.h"
 
 std::atomic<bool> shutdown_requested(false);
 
@@ -26,14 +26,19 @@ static void signalHandler(int signal)
     }
 }
 
-static void runGameLoop(server::Server &server) {
+static void runMainLoop(server::Server &server)
+{
     auto last_update_time = std::chrono::steady_clock::now();
-    while (!shutdown_requested.load()) {
+    while (!shutdown_requested.load())
+    {
         server.pollEvent();
         auto current_time = std::chrono::steady_clock::now();
-        auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(current_time - last_update_time).count();
-        if (elapsed_time >= 20) {
-            for (auto room: server.getAllRooms()) {
+        auto elapsed_time =
+            std::chrono::duration_cast<std::chrono::milliseconds>(current_time - last_update_time).count();
+        if (elapsed_time >= 20)
+        {
+            for (auto room : server.getAllRooms())
+            {
                 room->sendUpdateRoom(server);
             }
             last_update_time = current_time;
@@ -41,15 +46,19 @@ static void runGameLoop(server::Server &server) {
     }
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
     std::signal(SIGINT, signalHandler);
 
-    try {
+    try
+    {
         server::Server server(argv);
         server.initServer();
-        runGameLoop(server);
+        runMainLoop(server);
         server.stopServer();
-    } catch (server::Server::ServerException& e) {
+    }
+    catch (server::Server::ServerException &e)
+    {
         spdlog::error(e.what());
     }
     spdlog::info("Application exited cleanly.");
