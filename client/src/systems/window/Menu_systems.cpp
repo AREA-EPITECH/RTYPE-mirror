@@ -13,8 +13,39 @@ namespace ecs {
  */
 void draw_menu_system(Registry &ecs, const WindowDrawEvent &) {
     ecs.run_event(ControlsEvent{});
+    auto &backgrounds = ecs.get_components<BackgroundComponent>();
+    auto &decors = ecs.get_components<DecorElementComponent>();
+
+    for (auto & background : backgrounds) {
+        if (background.has_value()) {
+            background->offset -= background->speed * GetFrameTime();
+            float textureWidthOnScreen = static_cast<float>(background->texture.width) *
+                (static_cast<float>(GetScreenHeight()) / static_cast<float>(background->texture.height));
+            if (background->offset <= -textureWidthOnScreen) {
+                background->offset = 0;
+            }
+        }
+    }
+    float deltaTime = GetFrameTime();
+    for (auto &decor : decors) {
+        if (decor.has_value()) {
+            decor->Update(deltaTime, GetScreenWidth(), GetScreenHeight());
+        }
+    }
+
     BeginDrawing();
     ClearBackground(RAYWHITE);
+
+    for (auto & background : backgrounds) {
+        if (background.has_value()) {
+            background->DrawLayer(GetScreenWidth(), GetScreenHeight());
+        }
+    }
+    for (auto &decor : decors) {
+        if (decor.has_value()) {
+            decor->DrawDecorElement(GetScreenWidth(), GetScreenHeight());
+        }
+    }
 
     const int screenWidth = GetScreenWidth();
     const int screenHeight = GetScreenHeight();
@@ -78,14 +109,34 @@ void draw_menu_system(Registry &ecs, const WindowDrawEvent &) {
                 light->light->UpdateLightValues(shader);
             }
         }
+        // Init background
+        ecs.run_event(InitBackgroundEvent{"client/assets/backgrounds/game/space_background.png", 2,
+                    200, 0});
+        ecs.run_event(InitDecorElementEvent{"client/assets/backgrounds/game/space_midground.png", 300});
+        ecs.run_event(InitDecorElementEvent{"client/assets/backgrounds/game/space_midground_2.png", 300});
+        ecs.run_event(InitDecorElementEvent{"client/assets/backgrounds/game/space_foreground.png", 400});
     }
 
     void close_menu_system(Registry &ecs, const WindowCloseEvent &) {
         auto &models = ecs.get_components<MenuText>();
+        auto &backgrounds = ecs.get_components<BackgroundComponent>();
+        auto &decors = ecs.get_components<DecorElementComponent>();
 
         for (std::size_t i = 0; i < models.size(); ++i) {
             if (models[i].has_value()) {
                 TraceLog(LOG_INFO, TextFormat("Unloaded model for entity %zu.", i));
+                ecs.kill_entity(i);
+            }
+        }
+        for (std::size_t i = 0; i < backgrounds.size(); ++i) {
+            if (backgrounds[i].has_value()) {
+                UnloadTexture(backgrounds[i]->texture);
+                ecs.kill_entity(i);
+            }
+        }
+        for (std::size_t i = 0; i < decors.size(); ++i) {
+            if (decors[i].has_value()) {
+                UnloadTexture(decors[i]->texture);
                 ecs.kill_entity(i);
             }
         }

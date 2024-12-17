@@ -17,7 +17,11 @@ void init_menu_window (Registry& ecs) {
     ecs.unsubscribe_all<ecs::InitModelEvent>();
     ecs.unsubscribe_all<ecs::InitShaderEvent>();
     ecs.unsubscribe_all<ecs::InitLightEvent>();
+    ecs.unsubscribe_all<ecs::InitBackgroundEvent>();
+    ecs.unsubscribe_all<ecs::InitDecorElementEvent>();
 
+    ecs.subscribe<ecs::InitBackgroundEvent>(ecs::load_background);
+    ecs.subscribe<ecs::InitDecorElementEvent>(ecs::load_decor_element);
     ecs.subscribe<ecs::InitShaderEvent>([](Registry &ecs, const ecs::InitShaderEvent &event) {
         load_shaders(ecs, event);
         set_shader_values(ecs, event);
@@ -47,7 +51,11 @@ void init_lobby_window (Registry& ecs) {
     ecs.unsubscribe_all<ecs::InitModelEvent>();
     ecs.unsubscribe_all<ecs::InitShaderEvent>();
     ecs.unsubscribe_all<ecs::InitLightEvent>();
+    ecs.unsubscribe_all<ecs::InitBackgroundEvent>();
+    ecs.unsubscribe_all<ecs::InitDecorElementEvent>();
 
+    ecs.subscribe<ecs::InitBackgroundEvent>(ecs::load_background);
+    ecs.subscribe<ecs::InitDecorElementEvent>(ecs::load_decor_element);
     ecs.subscribe<ecs::InitLightEvent>(ecs::create_light_system);
     ecs.subscribe<ecs::InitCameraEvent>(ecs::create_camera_system);
     ecs.subscribe<ecs::InitShaderEvent>([](Registry &ecs, const ecs::InitShaderEvent &event) {

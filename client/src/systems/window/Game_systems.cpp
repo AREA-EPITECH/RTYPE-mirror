@@ -154,7 +154,7 @@ namespace ecs {
             }
         }
 
-        // Init
+        // Init background
         ecs.run_event(InitBackgroundEvent{"client/assets/backgrounds/game/space_background.png", 2,
                     200, 0});
         ecs.run_event(InitDecorElementEvent{"client/assets/backgrounds/game/space_midground.png", 300});
