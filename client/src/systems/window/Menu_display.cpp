@@ -38,7 +38,7 @@ void display_menu_selectors(Registry &ecs) {
     }
     for (auto & input : inputs) {
         if (input.has_value()) {
-            input.value().drawTextInput();
+            input.value().drawTextInput(GetScreenWidth(), GetScreenHeight());
             input.value().handleInput();
         }
     }

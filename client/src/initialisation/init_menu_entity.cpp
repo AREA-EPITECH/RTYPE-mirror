@@ -18,23 +18,12 @@ void init_menu_entity(Registry &ecs)
     auto boxColor = DARKGRAY;
     auto textColor = WHITE;
 
-    ecs::TextInputComponent textBoxInput({500, 100, 500, 50},
-                                         "Enter room id",
-                                         20,
-                                         Color{120, 0, 0, 255},
-                                         Color{253, 240, 213, 255},
-                                         BLACK);
-
-    ecs::ButtonComponent closeButton(buttonWidth, buttonHeight, "Close", []() {});
-
-    ecs::ButtonComponent continueButton(buttonWidth, buttonHeight, "Continue", []() {});
-
     auto showBoxEntity = ecs.spawn_entity();
-    Rectangle boxRect = {100, 100, 600, 300};
+    Rectangle boxRect = {100, 100, 600, 200};
     ecs.add_component<ecs::ShowBoxComponent>(
         showBoxEntity,
         ecs::ShowBoxComponent(
-            boxRect, message, boxColor, textColor, "", "Close", "Continue",
+            boxRect, message, boxColor, textColor, "Id...", "Close", "Continue",
             [boxRect](int screenWidth, int screenHeight) { return (float)screenWidth / 2 - (boxRect.width / 2); },
             [boxRect](int screenWidth, int screenHeight) { return (float)screenHeight / 2 - (boxRect.height / 2); }));
 

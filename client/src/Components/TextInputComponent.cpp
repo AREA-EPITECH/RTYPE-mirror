@@ -18,13 +18,14 @@ namespace ecs {
     textColor(_textColor), borderColor(_borderColor), isFocused(false), maxLength(_maxLength),
     dynamicX(std::move(_dynamicX)), dynamicY(std::move(_dynamicY)) {}
 
-    void TextInputComponent::drawTextInput() {
-        if (dynamicX) inputBox.x = (float)dynamicX(GetScreenWidth(), GetScreenHeight());
-        if (dynamicY) inputBox.y = (float)dynamicY(GetScreenWidth(), GetScreenHeight());
+    void TextInputComponent::drawTextInput(int screenWidth, int screenHeight) {
+        if (dynamicX) inputBox.x = (float)dynamicX(screenWidth, screenHeight);
+        if (dynamicY) inputBox.y = (float)dynamicY(screenWidth, screenHeight);
 
         int fontSize = 20;
         GuiSetStyle(DEFAULT, TEXT_SIZE, fontSize);
         GuiSetStyle(DEFAULT, BORDER_COLOR_NORMAL, ColorToInt(borderColor));
+        GuiSetStyle(DEFAULT, BASE_COLOR_NORMAL, ColorToInt(Color{193, 18, 31, 200}));
         GuiSetStyle(DEFAULT, TEXT_COLOR_NORMAL, ColorToInt(BLACK));
 
         char buffer[512] = {0};

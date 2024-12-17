@@ -22,11 +22,15 @@ namespace ecs {
           {
             textInput.placeholder = std::move(_textInput);
 
-            textInput.dynamicX = [_boxRect](int screenWidth, int screenHeight) {
-                return static_cast<int>(_boxRect.x + 10);
+            textInput.maxLength = 20;
+            if (dynamicX) boxRect.x = dynamicX(GetScreenWidth(), GetScreenHeight());
+            if (dynamicY) boxRect.y = dynamicY(GetScreenWidth(), GetScreenHeight());
+
+            textInput.dynamicX = [](int screenWidth, int screenHeight) {
+                return static_cast<int>(screenWidth + 10);
             };
-            textInput.dynamicY = [_boxRect](int screenWidth, int screenHeight) {
-                return static_cast<int>(_boxRect.y + 40);
+            textInput.dynamicY = [](int screenWidth, int screenHeight) {
+                return static_cast<int>(screenHeight + 40);
             };
 
             textInput.inputBox = {boxRect.x + 10, boxRect.y + 40, boxRect.width - 20, 30};
@@ -35,10 +39,14 @@ namespace ecs {
     void ShowBoxComponent::draw() {
         if (!isVisible) return;
 
-        GuiPanel(boxRect, message.c_str());
+        if (dynamicX) boxRect.x = dynamicX(GetScreenWidth(), GetScreenHeight());
+        if (dynamicY) boxRect.y = dynamicY(GetScreenWidth(), GetScreenHeight());
 
         DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), Fade(BLACK, 0.5f));
-        textInput.drawTextInput();
+        GuiPanel(boxRect, message.c_str());
+
+        textInput.drawTextInput( boxRect.x,  boxRect.y);
+        textInput.handleInput();
 
         Rectangle closeButtonRect = {boxRect.x + 10, boxRect.y + boxRect.height - 50, (boxRect.width - 30) / 2, 40};
         Rectangle continueButtonRect = {closeButtonRect.x + closeButtonRect.width + 10, closeButtonRect.y, closeButtonRect.width, closeButtonRect.height};
@@ -58,5 +66,7 @@ namespace ecs {
     void ShowBoxComponent::updateBox(int screenWidth, int screenHeight) {
         if (dynamicX) boxRect.x = dynamicX(screenWidth, screenHeight);
         if (dynamicY) boxRect.y = dynamicY(screenWidth, screenHeight);
+
+        textInput.inputBox = {boxRect.x + 10, boxRect.y + 40, boxRect.width - 20, 30};
     }
 }

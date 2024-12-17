@@ -310,13 +310,13 @@ namespace ecs {
         std::function<int(int screenWidth, int screenHeight)> dynamicY;
 
         explicit TextInputComponent(Rectangle _inputBox, std::string  _defaultText = "", size_t _maxLength = 256,
-                           Color _boxColor = LIGHTGRAY, Color _textColor = BLACK, Color _borderColor = DARKGRAY,
+                           Color _boxColor = BLUE, Color _textColor = BLACK, Color _borderColor = RED,
                            std::function<int(int screenWidth, int screenHeight)> _dynamicX = nullptr,
                            std::function<int(int screenWidth, int screenHeight)> _dynamicY = nullptr);
 
         TextInputComponent() = default;
 
-        void drawTextInput();
+        void drawTextInput(int screenWidth, int screenHeight);
 
         void handleInput();
     };
