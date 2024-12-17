@@ -69,7 +69,7 @@ jobs:
         id: runvcpkg
         with:
           vcpkgDirectory: '${{ runner.workspace }}/b/vcpkg'
-#          vcpkgGitCommitId: '${{ matrix.vcpkgCommitId}}'
+          vcpkgGitCommitId: 'a42af01b72c28a8e1d7b48107b33e4f286a55ef6'
           vcpkgJsonGlob: '**/cmakepresets/vcpkg.json'
 
       - name: Prints output of run-vcpkg's action
