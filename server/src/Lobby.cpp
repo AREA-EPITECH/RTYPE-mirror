@@ -15,7 +15,7 @@ namespace server
     void lobbyAction(Server &server, std::shared_ptr<network::PeerWrapper> &peer,
                      const struct network::LobbyActionPacket &lobby_action_packet)
     {
-        network::LobbySnapshotPacket lobby_snapshot_packet;
+        struct network::LobbySnapshotPacket lobby_snapshot_packet;
         switch (lobby_action_packet.actionType)
         {
         case network::LobbyActionType::CreateRoom:
@@ -24,6 +24,7 @@ namespace server
             lobby_snapshot_packet.gameState = peer->getData<ClientData>().getRoom()->getState();
             server.getServer().sendLobbyPacket(lobby_snapshot_packet, peer);
             break;
+
         case network::LobbyActionType::JoinRoom:
             server.assignClientToRoom(peer, lobby_action_packet.roomId);
             lobby_snapshot_packet.roomId = lobby_action_packet.roomId;
