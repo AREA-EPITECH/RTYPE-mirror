@@ -29,13 +29,15 @@ void display_menu_selectors(Registry &ecs) {
     auto &buttons = ecs.get_components<ecs::ButtonComponent>();
     auto &inputs = ecs.get_components<ecs::TextInputComponent>();
     auto &showbox = ecs.get_components<ecs::ShowBoxComponent>();
+    ecs::WindowFocus focus = ecs::get_focus(ecs);
 
     for (auto & i : buttons) {
         if (i.has_value()) {
             auto &button = i.value();
-            button.drawButton();
+            button.drawButton(focus);
         }
     }
+
     for (auto & input : inputs) {
         if (input.has_value()) {
             input.value().drawTextInput(GetScreenWidth(), GetScreenHeight());
@@ -45,8 +47,9 @@ void display_menu_selectors(Registry &ecs) {
 
     for (auto & box : showbox) {
         if (box.has_value()) {
-            box.value().draw();
+            if (!box.value().draw(focus)) {
+                ecs.run_event(ecs::ChangeFocusEvent{ecs::MENU_FOCUS});
+            }
         }
     }
-
 }

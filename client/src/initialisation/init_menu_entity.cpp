@@ -23,7 +23,7 @@ void init_menu_entity(Registry &ecs)
     ecs.add_component<ecs::ShowBoxComponent>(
         showBoxEntity,
         ecs::ShowBoxComponent(
-            boxRect, message, boxColor, textColor, "Id...", "Close", "Continue",
+            boxRect, message, boxColor, textColor, ecs::JOIN_ROOM_FOCUS, "Id...", "Close", "Continue",
             [boxRect](int screenWidth, int screenHeight) { return (float)screenWidth / 2 - (boxRect.width / 2); },
             [boxRect](int screenWidth, int screenHeight) { return (float)screenHeight / 2 - (boxRect.height / 2); }));
 
@@ -39,9 +39,10 @@ void init_menu_entity(Registry &ecs)
     ecs.add_component<ecs::ButtonComponent>(
         JoinRoom,
         ecs::ButtonComponent(
-            buttonWidth, buttonHeight, "Join room",
+            buttonWidth, buttonHeight, "Join room", ecs::MENU_FOCUS,
             [&ecs]()
             {
+                ecs.run_event(ecs::ChangeFocusEvent{ecs::JOIN_ROOM_FOCUS});
                 auto &showbox = ecs.get_components<ecs::ShowBoxComponent>();
                 for (auto &i : showbox)
                 {
@@ -61,7 +62,7 @@ void init_menu_entity(Registry &ecs)
     ecs.add_component<ecs::ButtonComponent>(
         CreateRoom,
         ecs::ButtonComponent(
-            buttonWidth, buttonHeight, "Create room", [&ecs]() {
+            buttonWidth, buttonHeight, "Create room", ecs::MENU_FOCUS, [&ecs]() {
                 struct network::LobbyActionPacket packet;
                 auto &input = ecs.get_components<ecs::TextInputComponent>();
                 for (auto &it: input) {

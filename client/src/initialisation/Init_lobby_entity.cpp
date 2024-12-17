@@ -32,7 +32,7 @@ void init_lobby_entity(Registry &ecs)
     ecs.add_component<ecs::ButtonComponent>(
         readyButton,
         ecs::ButtonComponent(
-            buttonWidth, buttonHeight, "Ready", [&ecs]() { ecs::change_window(ecs, ecs::WindowType::GAME); },
+            buttonWidth, buttonHeight, "Ready", ecs::LOBBY_FOCUS, [&ecs]() { ecs::change_window(ecs, ecs::WindowType::GAME); },
             [buttonWidth](int screenWidth, int screenHeight) { return screenWidth * 0.66 - (buttonWidth / 2) + 20; },
             [](int screenWidth, int screenHeight) { return screenHeight - 150; }));
 }

@@ -11,12 +11,12 @@
 
 namespace ecs {
 
-    ShowBoxComponent::ShowBoxComponent(Rectangle _boxRect, std::string _message, Color _boxColor, Color _textColor,
+    ShowBoxComponent::ShowBoxComponent(Rectangle _boxRect, std::string _message, Color _boxColor, Color _textColor, WindowFocus _focus,
                                        std::string _textInput, std::string _closeButtonText, std::string _continueButtonText,
                                        std::function<int(int screenWidth, int screenHeight)> _dynamicX,
                                        std::function<int(int screenWidth, int screenHeight)> _dynamicY)
         : boxRect(_boxRect), message(std::move(_message)), boxColor(_boxColor), textColor(_textColor),
-          isVisible(false), dynamicX(std::move(_dynamicX)), dynamicY(std::move(_dynamicY)),
+          isVisible(false), dynamicX(std::move(_dynamicX)), dynamicY(std::move(_dynamicY)), focus(_focus),
           closeButtonText(std::move(_closeButtonText)),
           continueButtonText(std::move(_continueButtonText))
           {
@@ -36,8 +36,15 @@ namespace ecs {
             textInput.inputBox = {boxRect.x + 10, boxRect.y + 40, boxRect.width - 20, 30};
           }
 
-    void ShowBoxComponent::draw() {
-        if (!isVisible) return;
+    bool ShowBoxComponent::draw(WindowFocus _focus) {
+        if (!isVisible)
+            return false;
+
+        int previousState = GuiGetState();
+
+        if (focus != _focus) {
+            GuiDisable();
+        }
 
         if (dynamicX) boxRect.x = dynamicX(GetScreenWidth(), GetScreenHeight());
         if (dynamicY) boxRect.y = dynamicY(GetScreenWidth(), GetScreenHeight());
@@ -53,11 +60,15 @@ namespace ecs {
 
         if (GuiButton(closeButtonRect, closeButtonText.c_str())) {
             isVisible = false;
+            return false;
         }
 
         if (GuiButton(continueButtonRect, continueButtonText.c_str())) {
             isVisible = false;
+            return false;
         }
+        GuiSetState(previousState);
+        return true;
     }
 
     void ShowBoxComponent::handleClick(Vector2 mousePosition) {

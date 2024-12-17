@@ -39,6 +39,7 @@ void init_menu_window (Registry& ecs) {
     ecs.subscribe<ecs::InitModelEvent>(ecs::load_title_menu);
     ecs.subscribe<ecs::InitCameraEvent>(ecs::create_camera_system);
 
+    ecs.run_event(ecs::ChangeFocusEvent{ecs::MENU_FOCUS});
     init_menu_entity(ecs);
 }
 
@@ -76,6 +77,7 @@ void init_lobby_window (Registry& ecs) {
     });
     ecs.subscribe<ecs::WindowDrawEvent>(ecs::draw_lobby_system);
 
+    ecs.run_event(ecs::ChangeFocusEvent{ecs::LOBBY_FOCUS});
     init_lobby_entity(ecs);
 }
 
@@ -114,4 +116,6 @@ void init_game_window (Registry& ecs) {
         close_game_system(e, event);
     });
     ecs.subscribe<ecs::WindowDrawEvent>(ecs::draw_game_system);
+
+    ecs.run_event(ecs::ChangeFocusEvent{ecs::GAME_FOCUS});
 }

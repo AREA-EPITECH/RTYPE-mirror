@@ -17,6 +17,7 @@
 #include "core/ParticleSystem.hpp"
 #include <functional>
 #include "raylib/raygui.h"
+#include "DataType.hpp"
 
 namespace ecs {
 // Window
@@ -88,5 +89,10 @@ namespace ecs {
     {
         std::string path;
         int speed;
+    };
+
+    // Change focus
+    struct ChangeFocusEvent {
+        WindowFocus newFocus;
     };
 }

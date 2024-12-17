@@ -62,7 +62,7 @@ void display_board(Registry &ecs, int screenWidth, int screenHeight) {
     for (int i = 0; i < buttons.size(); i++) {
         if (buttons[i].has_value()) {
             auto &button = buttons[i].value();
-            button.drawButton();
+            button.drawButton(ecs::get_focus(ecs));
         }
     }
 
