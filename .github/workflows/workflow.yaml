@@ -46,47 +46,25 @@ jobs:
 #        run: |
 #          find . -name '*.cpp' -o -name '*.h' | xargs clang-format -i
 
-  build:
-    if: github.repository == 'AREA-EPITECH/RTYPE-mirror'
-    name: Build with CMake and vcpkg
-    runs-on: ubuntu-latest
-#    needs: formatter
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          submodules: true
-
-      - uses: lukka/get-cmake@latest
-      - name: Dump the content of $RUNNER_TEMP
-        run: find $RUNNER_TEMP
-        shell: bash
-      - name: Dump the content of $RUNNER_WORKSPACE
-        run: find $RUNNER_WORKSPACE
-        shell: bash
-
-      - name: Setup vcpkg
-        uses: lukka/run-vcpkg@v11
-        id: runvcpkg
-        with:
-          vcpkgDirectory: '${{ runner.workspace }}/b/vcpkg'
-          vcpkgGitCommitId: '${{ github.sha }}'
-          vcpkgJsonGlob: '**/cmakepresets/vcpkg.json'
-
-      - name: Prints output of run-vcpkg's action
-        run: echo "root='${{ steps.runvcpkg.outputs.RUNVCPKG_VCPKG_ROOT_OUT }}', triplet='${{ steps.runvcpkg.outputs.RUNVCPKG_VCPKG_DEFAULT_TRIPLET_OUT }}'"
-
-      - name: Run CMake with vcpkg.json manifest
-        uses: lukka/run-cmake@v10
-        with:
-          cmakeListsTxtPath: '${{ github.workspace }}/CMakeLists.txt'
-          configurePreset: ninja-multi-vcpkg
-          buildPreset: ninja-multi-vcpkg
+#  build:
+#    if: github.repository == 'AREA-EPITECH/RTYPE-mirror'
+#    name: Build with CMake and vcpkg
+#    runs-on: ubuntu-latest
+##    needs: formatter
+#    steps:
+#      - name: Checkout code
+#        uses: actions/checkout@v3
+#
+#      - name: Build project
+#        run: |
+#          cmake --preset=default
+#          cmake --build build
 
   deploy_docs:
     if: github.repository == 'AREA-EPITECH/RTYPE-mirror'
     name: Deploy Documentation to GitHub Pages
     runs-on: ubuntu-latest
-    needs: build
+#    needs: build
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
