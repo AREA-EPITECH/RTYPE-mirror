@@ -37,6 +37,7 @@ namespace ecs {
         if (focus != _focus) {
             GuiDisable();
         }
+
         GuiSetStyle(DEFAULT, BASE_COLOR_NORMAL, ColorToInt(Color{193, 18, 31, 200}));
         GuiSetStyle(DEFAULT, TEXT_COLOR_NORMAL, ColorToInt(BLACK));
         if (GuiButton({static_cast<float>(buttonX), static_cast<float>(buttonY),

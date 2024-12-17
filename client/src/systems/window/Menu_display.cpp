@@ -40,7 +40,7 @@ void display_menu_selectors(Registry &ecs) {
 
     for (auto & input : inputs) {
         if (input.has_value()) {
-            input.value().drawTextInput(GetScreenWidth(), GetScreenHeight());
+            input.value().drawTextInput(GetScreenWidth(), GetScreenHeight(), focus);
             input.value().handleInput();
         }
     }

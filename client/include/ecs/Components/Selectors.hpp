@@ -43,18 +43,19 @@ namespace ecs {
         Color borderColor{};
         bool isFocused{};
         size_t maxLength{};
+        WindowFocus focus;
 
         std::function<int(int screenWidth, int screenHeight)> dynamicX;
         std::function<int(int screenWidth, int screenHeight)> dynamicY;
 
-        explicit TextInputComponent(Rectangle _inputBox, std::string  _defaultText = "", size_t _maxLength = 256,
+        explicit TextInputComponent(Rectangle _inputBox, WindowFocus _focus, std::string  _defaultText = "", size_t _maxLength = 256,
                                     Color _boxColor = BLUE, Color _textColor = BLACK, Color _borderColor = RED,
                                     std::function<int(int screenWidth, int screenHeight)> _dynamicX = nullptr,
                                     std::function<int(int screenWidth, int screenHeight)> _dynamicY = nullptr);
 
         TextInputComponent() = default;
 
-        void drawTextInput(int screenWidth, int screenHeight);
+        void drawTextInput(int screenWidth, int screenHeight, WindowFocus _focus);
 
         void handleInput();
     };

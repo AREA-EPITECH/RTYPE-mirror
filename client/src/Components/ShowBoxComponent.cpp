@@ -21,7 +21,7 @@ namespace ecs {
           continueButtonText(std::move(_continueButtonText))
           {
             textInput.placeholder = std::move(_textInput);
-
+            textInput.focus = _focus;
             textInput.maxLength = 20;
             if (dynamicX) boxRect.x = dynamicX(GetScreenWidth(), GetScreenHeight());
             if (dynamicY) boxRect.y = dynamicY(GetScreenWidth(), GetScreenHeight());
@@ -52,7 +52,7 @@ namespace ecs {
         DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), Fade(BLACK, 0.5f));
         GuiPanel(boxRect, message.c_str());
 
-        textInput.drawTextInput( boxRect.x,  boxRect.y);
+        textInput.drawTextInput( boxRect.x,  boxRect.y, focus);
         textInput.handleInput();
 
         Rectangle closeButtonRect = {boxRect.x + 10, boxRect.y + boxRect.height - 50, (boxRect.width - 30) / 2, 40};

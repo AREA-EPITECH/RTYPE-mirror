@@ -31,7 +31,7 @@ void init_menu_entity(Registry &ecs)
     ecs.add_component<ecs::TextInputComponent>(
         textInput,
         ecs::TextInputComponent(
-            {0, 0, 500, 100}, "Enter your name...", 20, Color{120, 0, 0, 255}, Color{253, 240, 213, 255}, BLACK,
+            {0, 0, 500, 100}, ecs::MENU_FOCUS, "Enter your name...", 20, Color{120, 0, 0, 255}, Color{253, 240, 213, 255}, BLACK,
             [buttonWidth](int screenWidth, int screenHeight) { return screenWidth / 2 - (buttonWidth / 2); },
             [](int screenWidth, int screenHeight) { return screenHeight / 3; }));
 
@@ -57,7 +57,6 @@ void init_menu_entity(Registry &ecs)
 
     auto CreateRoom = ecs.spawn_entity();
 
-    std::cout << textInput << std::endl;
     ecs::TextComponent createText("Create room", 54, 0, 0);
     ecs.add_component<ecs::ButtonComponent>(
         CreateRoom,
