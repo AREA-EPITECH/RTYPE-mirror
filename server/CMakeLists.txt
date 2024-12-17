@@ -1,12 +1,15 @@
-add_executable(r-type_server
-    src/main.cpp
-)
+file(GLOB_RECURSE SERVER_SRC_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
 
-target_include_directories(r-type_server PUBLIC
+add_executable(r-type_server ${SERVER_SRC_FILES})
+
+target_include_directories(r-type_server PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/include
     shared
 )
+target_link_libraries(r-type_server PRIVATE shared)
 
 # Link dependencies from vcpkg
-find_package(spdlog REQUIRED)
-target_link_libraries(r-type_server spdlog::spdlog shared)
+#find_package(spdlog REQUIRED)
+#target_link_libraries(r-type_server PRIVATE spdlog::spdlog)
+
+set_target_properties(r-type_server PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/)
