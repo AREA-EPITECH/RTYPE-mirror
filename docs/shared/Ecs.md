@@ -1,16 +1,18 @@
 # Ecs documentation
-
+___
 An ECS is an architectural design pattern, mostly used in video game development. This pattern follows
 the principle of composition over inheritance. Instead of defining an inheritance tree as usual in Object Oriented
 Programming, types are split into small yet highly reusable components.
 
-## Initialise registry 
+## Initialise registry
+___
 The Registry will be the body of our Ecs. This is where we'll add all the components, systems, events and control data 
 for our game.
 
 ### Add components to registry
-
+___
 #### - Create Structure for components:
+___
 Each component is a different type, which can be a structure, a class or a standard type (int, float, char...).
 ```c++
 struct Position {
@@ -32,9 +34,10 @@ struct Drawable {
 
 struct Controllable {};
 ```
-*Example using SFML2. Not accurate in out actual project.*
+*Example using SFML2. Not accurate in our actual project.*
 
 #### - Register a component to the registry:
+___
 ```c++
 Registry reg;
 
@@ -43,14 +46,17 @@ reg.register_component<Velocity>();
 reg.register_component<Drawable>();
 reg.register_component<Controllable>();
 ```
-###
+
 ## Entities in the registry
+___
 ### Add / Remove / Modify an Entity
+___
 Your data will be represented in the form of entities, which will simply be **ids** where you can add your components. 
 Here, our entity will be a player, so we'll add a position, velocity, sprite (here, just a simple square) and a 
 controllable component that lets us define that the entity is a player.
 
 #### - Create an entity and add components to the entity
+___
 ```c++
 auto entity = reg.spawn_entity();
 
@@ -61,6 +67,7 @@ reg.add_component<Controllable>(entity, {}); // Controllable : empty (this can b
 ```
 
 #### - Get components array and component value of an entity
+___
 ```c++
 auto &velocity = reg.get_components<Velocity>();
 
@@ -79,6 +86,7 @@ if (position[entity].has_value()) { // or if (position[0].has_value())
 ```
 
 #### - Remove a component from an entity
+___
 ```c++
 auto entity1 = reg.spawn_entity();
 auto entity2 = reg.spawn_entity();
@@ -107,6 +115,7 @@ if (velocity[entity2].has_value()) { // or if (velocity[1].has_value())
 ```
 
 #### - Kill an entity
+___
 The entities are stored in an array, so you can have three entities, kill the second and when you iterate on your 
 entities, the loop will pass over the third entity.
 ```c++
@@ -143,8 +152,8 @@ if (velocity[entity3].has_value()) { // or if (velocity[2].has_value())
 }
 ```
 
-###
 ## Event and Systems
+___
 Here, functions will be launched by systems associated with events. It's in your systems that you'll be able to access 
 or modify the values of your entities (you can also do this externally with **get_component()**). You will then 
 associate these systems with events, and each time you launch an event with **run_event()**, all associated systems 
@@ -152,6 +161,7 @@ will be executed in the order in which they were added. Events are represented b
 therefore pass elements as parameters to your systems using events (e.g. the game window reference to modify it in a 
 system).
 #### - Create structure for each event
+___
 ```c++
 struct ControlEvent {};
 
@@ -162,12 +172,14 @@ struct RenderEvent {
 ```
 
 #### - Register an event to the registry
+___
 ```c++
 reg.register_event<ControlEvent>();
 reg.register_event<RenderEvent>();
 ```
 
 #### - Create systems function
+___
 ```c++
 // this system apply each entity velocity to each entity position 
 void position_system(Registry& r, const RenderEvent& event) {
@@ -209,6 +221,7 @@ void control_system(Registry& r, const ControlEvent&) {
 ```
 
 #### - Add a system to an event
+___
 ```c++
 reg.subscribe<ControlEvent>(control_system);
 reg.subscribe<RenderEvent>(position_system);
@@ -235,6 +248,7 @@ reg.subscribe<ControlEvent>([](Register &r, const ControlEvent &event) {
 ```
 
 #### - Add a system to many event
+___
 ```c++
 reg.subscribe<ControlEvent>(control_system);
 reg.subscribe<RenderEvent>([](Registry &r, const RenderEvent &event) {
@@ -242,12 +256,14 @@ reg.subscribe<RenderEvent>([](Registry &r, const RenderEvent &event) {
 });
 ```
 #### - Remove all systems from an event
+___
 ```c++
 reg.unsubscribe_all<ControlEvent>();
 reg.unsubscribe_all<RenderEvent>();
 ```
 
 #### - Run an event
+___
 ```c++
 sf::RenderWindow window(sf::VideoMode(800, 600), "game window");
 
@@ -256,7 +272,7 @@ reg.run_event(RenderEvent{1.0f, window});
 ```
 
 ## Example
-
+___
 Here's an example using ecs and sfml to move a player, represented by a red square, in a window
 
 ```c++

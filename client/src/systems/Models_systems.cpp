@@ -129,7 +129,7 @@ namespace ecs {
 
     void load_title_menu(Registry &ecs, const InitModelEvent &) {
 
-        std::string title_file = "client/assets/voxels/title/title_blue.vox";
+        std::string title_file = "client/assets/voxels/title/r-type.vox";
         Model models;
         const double t0 = GetTime() * 1000.0;
 
@@ -143,7 +143,7 @@ namespace ecs {
         center.x = min.x + (max.x - min.x) / 2;
         center.z = min.z + (max.z - min.z) / 2;
 
-        const Matrix matTranslate = MatrixTranslate(-center.x, 0, -center.z);
+        const Matrix matTranslate = MatrixTranslate(-center.x, -1.5, -center.z);
         models.transform = matTranslate;
 
         auto ModelEntity = ecs.spawn_entity();

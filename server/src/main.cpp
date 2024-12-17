@@ -6,104 +6,68 @@
 */
 
 #include <atomic>
+#include <chrono>
 #include <csignal>
-#include <spdlog/spdlog.h>
-#include <sstream>
-#include <iostream>
+#include <chrono>
+#include "spdlog/spdlog.h"
+#include "Server.hpp"
 
-#include "ThreadPool.hpp"
-#include "network/NetworkWrapper.hpp"
-#include "network/Server.hpp"
+std::atomic<bool> shutdown_requested(false);
 
-std::atomic<bool> shutdownRequested(false);
-
-void signalHandler(int signal)
+/**
+ * Handle signal
+ * @param signal: SIGINT for CTRL+C
+ */
+static void signalHandler(int signal)
 {
     if (signal == SIGINT)
     {
         spdlog::info("Shutdown signal (Ctrl+C) received...");
-        shutdownRequested.store(true);
+        shutdown_requested.store(true);
     }
 }
 
-void handleClientData(ENetPeer* peer, const std::vector<uint8_t>& data) {
-    //network::InputPacket input = network::Packet::deserializeInputPacket(data);
-    spdlog::info("Processing data from client: {}", (void*)peer);
-    // Process the data (game logic, etc.)
-}
-
-std::string deserializeString(const std::vector<uint8_t> &data) {
-    size_t offset = 0;
-    // Deserialize the string length
-    uint32_t length = 0;
-    std::memcpy(&length, data.data() + offset, sizeof(length));
-    offset += sizeof(length);
-
-    // Deserialize the string content
-    std::string str(reinterpret_cast<const char *>(data.data() + offset), length);
-    offset += length;
-
-    return str;
-}
-
-
-void runMultithreadedServer() {
-    network::NetworkServer server;
-    if (!server.start(12345)) {
-        spdlog::error("Failed to start server");
-        return;
-    }
-
-    spdlog::info("Server running on port 12345...");
-
-    ThreadPool threadPool(std::thread::hardware_concurrency()); // Create thread pool
-
-    while (!shutdownRequested.load()) {
-        network::ServerEvent event;
-
-        // Poll for events
-        while (server.pollEvent(event)) {
-            switch (event.type) {
-                case network::ServerEventType::ClientConnect: {
-                    struct network::LobbySnapshotPacket packet;
-                    packet.gameState = network::LobbyGameState::Waiting;
-                    packet.roomId = 0;
-                    spdlog::info("Client connected: {}", (void*)event.peer->getPeer().get());
-                    server.sendLobbyPacket(packet, event.peer);
-                    break;
-                }
-
-                case network::ServerEventType::ClientDisconnect:
-                    spdlog::info("Client disconnected: {}", (void*)event.peer->getPeer().get());
-                    break;
-
-                case network::ServerEventType::DataReceive: {
-                    if (event.packetType == network::PacketType::LobbyActionPacket) {
-                        auto receivedPacket = std::any_cast<struct network::LobbyActionPacket>(event.data);
-                        spdlog::info("Received Lobby Action Packet id: {}", receivedPacket.header.packetId);
-                    } else {
-                        spdlog::info("Received data");
-                    }
-                    break;
-                }
+static void runMainLoop(server::Server &server)
+{
+    auto last_lobby_snapshot = std::chrono::steady_clock::now();
+    auto last_snapshot = std::chrono::steady_clock::now();
+    while (!shutdown_requested.load())
+    {
+        server.pollEvent();
+        auto current_time = std::chrono::steady_clock::now();
+        auto elapsed_time =
+            std::chrono::duration_cast<std::chrono::milliseconds>(current_time - last_lobby_snapshot).count();
+        if (elapsed_time >= 100)
+        {
+            for (auto room : server.getWaitingRooms())
+            {
+                room->sendUpdateRoom(server);
             }
+            last_lobby_snapshot = current_time;
         }
-
-        // Small delay to avoid busy-waiting
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(current_time - last_snapshot).count();
+        if (elapsed_time >= 20)
+        {
+            for (auto room : server.getPlayingRooms())
+            {
+                room->sendUpdateRoom(server);
+            }
+            last_snapshot = current_time;
+        }
     }
-
-    spdlog::info("Shutting down server...");
-    server.stop();
 }
 
-int main() {
-    // Register signal handler
+int main(int argc, char *argv[]) {
     std::signal(SIGINT, signalHandler);
 
-    // Run the server
-    runMultithreadedServer();
-
+    try {
+        server::Server server(argv);
+        server.initServer();
+        runMainLoop(server);
+        server.stopServer();
+    } catch (server::Server::ServerException& e) {
+        spdlog::error(e.what());
+    }
     spdlog::info("Application exited cleanly.");
     return 0;
 }

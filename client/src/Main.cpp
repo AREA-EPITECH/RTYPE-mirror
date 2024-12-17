@@ -155,7 +155,6 @@ int main(int argc, char *argv[])
     std::cout << "Game will run on " << host << " using port " << port << std::endl;
 
     Registry ecs = init_ecs();
-    // auto network_func = [&host, port, std::ref(messageQueue)] { handle_network_event(host, port); };
     std::thread thread_network(handle_network_event, std::ref(host), port, std::ref(receiveQueue), std::ref(sendQueue));
 
     auto windowEntity = ecs.spawn_entity();
