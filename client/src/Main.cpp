@@ -9,6 +9,8 @@
 
 #include "queue/MessageQueue.hpp"
 
+#include <variant>
+
 std::atomic<bool> shutdown_requested(false);
 
 /**
@@ -50,6 +52,8 @@ Registry init_ecs()
     ecs.register_event<ecs::InitDecorElementEvent>();
 
     ecs.register_event<network::ClientEvent>();
+    ecs.register_event<struct network::LobbyActionPacket>();
+    ecs.register_event<struct network::InputPacket>();
 
     ecs.subscribe<network::ClientEvent>(
         [](Registry &ecs, const network::ClientEvent &event)
@@ -86,7 +90,9 @@ Registry init_ecs()
  * @param host
  * @param port
  */
-void handle_network_event(const std::string &host, int port, client::MessageQueue<network::ClientEvent> &messageQueue)
+void handle_network_event(
+    const std::string &host, int port, client::MessageQueue<network::ClientEvent> &receiveQueue,
+    client::MessageQueue<std::variant<struct network::LobbyActionPacket, struct network::InputPacket>> &sendQueue)
 {
     network::NetworkClient network_client;
 
@@ -101,7 +107,26 @@ void handle_network_event(const std::string &host, int port, client::MessageQueu
     {
         while (network_client.pollEvent(event))
         {
-            messageQueue.push(event);
+            receiveQueue.push(event);
+        }
+        while (!sendQueue.empty())
+        {
+            auto message = sendQueue.pop();
+
+            std::visit(
+                [&network_client](auto &&arg)
+                {
+                    using T = std::decay_t<decltype(arg)>;
+                    if constexpr (std::is_same_v<T, struct network::LobbyActionPacket>)
+                    {
+                        network_client.sendLobbyPacket(arg);
+                    }
+                    else if constexpr (std::is_same_v<T, struct network::InputPacket>)
+                    {
+                        network_client.sendInputPacket(arg);
+                    }
+                },
+                message);
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
@@ -124,13 +149,14 @@ int main(int argc, char *argv[])
     std::string host = argv[1];
     int port = static_cast<int>(strtol(argv[2], nullptr, 10));
 
-    client::MessageQueue<network::ClientEvent> messageQueue;
+    client::MessageQueue<network::ClientEvent> receiveQueue;
+    client::MessageQueue<std::variant<struct network::LobbyActionPacket, struct network::InputPacket>> sendQueue;
 
     std::cout << "Game will run on " << host << " using port " << port << std::endl;
 
     Registry ecs = init_ecs();
     // auto network_func = [&host, port, std::ref(messageQueue)] { handle_network_event(host, port); };
-    std::thread thread_network(handle_network_event, std::ref(host), port, std::ref(messageQueue));
+    std::thread thread_network(handle_network_event, std::ref(host), port, std::ref(receiveQueue), std::ref(sendQueue));
 
     auto windowEntity = ecs.spawn_entity();
     ecs.add_component<ecs::Window>(windowEntity, {1920, 1080, "ECS Raylib - Multi Events", false});
@@ -142,13 +168,17 @@ int main(int argc, char *argv[])
     ecs.run_event(ecs::CreateWindowEvent{});
     ecs.run_event(ecs::WindowOpenEvent{});
 
+    ecs.subscribe<struct network::LobbyActionPacket>(
+        [&sendQueue](Registry &ecs, const struct network::LobbyActionPacket &packet) { sendQueue.push(packet); });
+    ecs.subscribe<struct network::InputPacket>([&sendQueue](Registry &ecs, const struct network::InputPacket &packet)
+                                               { sendQueue.push(packet); });
+
     while (!WindowShouldClose())
     {
-        while (!messageQueue.empty())
+        while (!receiveQueue.empty())
         {
-            ecs.run_event(messageQueue.pop());
+            ecs.run_event(receiveQueue.pop());
         }
-
         ecs.run_event(ecs::WindowDrawEvent{});
     }
     shutdown_requested.store(true);
