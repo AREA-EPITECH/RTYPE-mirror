@@ -2,7 +2,7 @@
 
 ## Usage
 To start the client, first compile the project with `./build.sh` and then run the client with 
-`./r-type_client <host> <port>`. It will start the client and connect to the server at using the given host and port.
+`./r-type_client <host> <port>`. It will start the client and connect it to the server, using the given host and port.
 
 ## Models
 All the models used by the clients are voxels, except for the backgrounds that are png files.
