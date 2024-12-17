@@ -105,9 +105,9 @@ bool network::NetworkClient::sendPacket(const std::vector<uint8_t> &data)
  * @param packet The InputPacket containing user input data.
  * @return True if the packet is sent successfully, false otherwise.
  */
-bool network::NetworkClient::sendInputPacket(const InputPacket &packet)
+bool network::NetworkClient::sendInputPacket(const struct InputPacket &packet)
 {
-    InputPacket newPacket;
+    struct InputPacket newPacket;
 
     lastPacketId++;
     newPacket.header.packetId = lastPacketId;
@@ -130,9 +130,9 @@ bool network::NetworkClient::sendInputPacket(const InputPacket &packet)
  * @param packet The LobbyActionPacket containing lobby action details.
  * @return True if the packet is sent successfully, false otherwise.
  */
-bool network::NetworkClient::sendLobbyPacket(const LobbyActionPacket &packet)
+bool network::NetworkClient::sendLobbyPacket(const struct LobbyActionPacket &packet)
 {
-    LobbyActionPacket newPacket;
+    struct LobbyActionPacket newPacket;
 
     lastPacketId++;
     newPacket.header.packetId = lastPacketId;

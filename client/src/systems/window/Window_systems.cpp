@@ -12,7 +12,7 @@ namespace ecs {
      * Create window
      * @param ecs
      */
-    void init_window_system(Registry &ecs, const WindowOpenEvent &) {
+    void init_window_system(Registry &ecs, const CreateWindowEvent &) {
         auto &windows = ecs.get_components<Window>();
         for (size_t i = 0; i < windows.size(); ++i) {
             if (windows[i]) {

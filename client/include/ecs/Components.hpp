@@ -79,34 +79,45 @@ namespace ecs {
 
     class ButtonComponent {
     public:
+        ButtonComponent(int _buttonWidth, int _buttonHeight, std::string _text,
+                        std::function<void()> _onClick,
+                        std::function<int(int, int)> _dynamicX = nullptr,
+                        std::function<int(int, int)> _dynamicY = nullptr,
+                        Color _buttonColor = GRAY)
+                : buttonWidth(_buttonWidth),
+                  buttonHeight(_buttonHeight),
+                  text(std::move(_text)),
+                  onClick(std::move(_onClick)),
+                  dynamicX(std::move(_dynamicX)),
+                  dynamicY(std::move(_dynamicY)),
+                  buttonColor(_buttonColor)
+        {
+            updateButton(GetScreenWidth(), GetScreenHeight());
+        }
+
+        void updateButton(int screenWidth, int screenHeight) {
+            if (dynamicX) buttonX = dynamicX(screenWidth, screenHeight);
+            if (dynamicY) buttonY = dynamicY(screenWidth, screenHeight);
+        }
+
+        void drawButton() {
+            if (GuiButton({static_cast<float>(buttonX), static_cast<float>(buttonY),
+                           static_cast<float>(buttonWidth), static_cast<float>(buttonHeight)},
+                          text.c_str())) {
+                if (onClick) onClick();
+            }
+        }
+
+    private:
+        int buttonX = 0;
+        int buttonY = 0;
         int buttonWidth;
         int buttonHeight;
-        Color color{};
-        TextComponent text;
-        std::function<int(int screenWidth, int screenHeight)> dynamicX;
-        std::function<int(int screenWidth, int screenHeight)> dynamicY;
+        std::string text;
         std::function<void()> onClick;
-
-        int buttonX{};
-        int buttonY{};
-
-        void drawButton() const;
-
-        void updateButton(int screenWidth, int screenHeight);
-
-        bool isButtonPressed(Vector2 mousePosition);
-
-        [[nodiscard]] bool isHover(Vector2 mousePosition) const;
-
-        ButtonComponent(
-                int _buttonWidth,
-                int _buttonHeight,
-                TextComponent _text,
-                std::function<void()> _onClick = nullptr,
-                std::function<int(int screenWidth, int screenHeight)> _dynamicX = nullptr,
-                std::function<int(int screenWidth, int screenHeight)> _dynamicY = nullptr,
-                Color _color = {120, 0, 0, 255});
-
+        std::function<int(int, int)> dynamicX;
+        std::function<int(int, int)> dynamicY;
+        Color buttonColor;
     };
 
     class VesselsComponent {
@@ -123,7 +134,51 @@ namespace ecs {
             path = std::move(_path);
             name = std::move(_name);
         }
+
+        void Move(const client::Direction direction, Camera &camera)
+        {
+            Vector2 screen_pos = GetWorldToScreen(position, camera);
+            const float max_height = static_cast<float>(GetScreenHeight()) * 0.1f;
+            const float min_height = static_cast<float>(GetScreenHeight()) * 0.9f;
+
+            const float min_width = static_cast<float>(GetScreenWidth()) * 0.15f;
+            const float max_width = static_cast<float>(GetScreenWidth()) * 0.6f;
+
+            switch (direction)
+            {
+            case client::Direction::UP:
+                if ((screen_pos.y += 0.1f) > max_height)
+                {
+                    position.y += 0.1f;
+                }
+                break;
+            case client::Direction::DOWN:
+                if ((screen_pos.y -= 0.1f) < min_height)
+                {
+                    position.y -= 0.1f;
+                }
+                break;
+            case client::Direction::LEFT:
+                if ((screen_pos.x -= 0.1f) > min_width)
+                {
+                    position.x -= 0.1f;
+                }
+                break;
+            case client::Direction::RIGHT:
+                if ((screen_pos.x += 0.1f) < max_width)
+                {
+                    position.x += 0.1f;
+                }
+                break;
+            default:
+                break;
+           }
+        }
     };
+
+    struct ControllableComponent{};
+
+    struct EnemyComponent{};
 
     class MenuText {
     public:
@@ -239,36 +294,37 @@ namespace ecs {
         }
     };
 
+
     class TextInputComponent {
     public:
-        Rectangle inputBox;
+        Rectangle inputBox{};
         std::string text;
         std::string placeholder;
-        Color boxColor;
-        Color textColor;
-        Color borderColor;
-        bool isFocused;
-        size_t maxLength;
+        Color boxColor{};
+        Color textColor{};
+        Color borderColor{};
+        bool isFocused{};
+        size_t maxLength{};
 
         std::function<int(int screenWidth, int screenHeight)> dynamicX;
         std::function<int(int screenWidth, int screenHeight)> dynamicY;
 
-        TextInputComponent(Rectangle _inputBox, const std::string& _defaultText = "", size_t _maxLength = 256,
+        explicit TextInputComponent(Rectangle _inputBox, std::string  _defaultText = "", size_t _maxLength = 256,
                            Color _boxColor = LIGHTGRAY, Color _textColor = BLACK, Color _borderColor = DARKGRAY,
                            std::function<int(int screenWidth, int screenHeight)> _dynamicX = nullptr,
                            std::function<int(int screenWidth, int screenHeight)> _dynamicY = nullptr);
 
+        TextInputComponent() = default;
+
         void drawTextInput();
+
         void handleInput();
-        void updateInput(int screenWidth, int screenHeight);
     };
+
 
     class ShowBoxComponent {
     public:
         Rectangle boxRect;
-        TextInputComponent textInput;
-        ButtonComponent closeButton;
-        ButtonComponent continueButton;
         std::string message;
         Color boxColor;
         Color textColor;
@@ -276,13 +332,17 @@ namespace ecs {
         std::function<int(int screenWidth, int screenHeight)> dynamicX;
         std::function<int(int screenWidth, int screenHeight)> dynamicY;
 
+        TextInputComponent textInput;
+        std::string closeButtonText;
+        std::string continueButtonText;
+
         ShowBoxComponent(Rectangle _boxRect, std::string _message, Color _boxColor, Color _textColor,
-                         TextInputComponent _textInput, ButtonComponent _closeButton,
-                         ButtonComponent _continueButton, std::function<int(int screenWidth, int screenHeight)> _dynamicX = nullptr,
+                         std::string _textInput = "", std::string _closeButtonText = "Close",
+                         std::string _continueButtonText = "Continue",
+                         std::function<int(int screenWidth, int screenHeight)> _dynamicX = nullptr,
                          std::function<int(int screenWidth, int screenHeight)> _dynamicY = nullptr);
 
         void draw();
-        void handleInput(char key);
         void handleClick(Vector2 mousePosition);
         void updateBox(int screenWidth, int screenHeight);
     };

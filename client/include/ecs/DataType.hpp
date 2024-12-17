@@ -13,4 +13,10 @@ namespace ecs {
         LOBBY,
         GAME,
     };
+
+    enum WindowFocus {
+        MENU_FOCUS,
+        JOIN_ROOM_FOCUS
+    };
+
 }

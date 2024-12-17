@@ -5,31 +5,44 @@
 ** TextInputComponent
 */
 
+#include <utility>
+
 #include "ecs/Components.hpp"
 
 namespace ecs {
-    TextInputComponent::TextInputComponent(Rectangle _inputBox, const std::string& _defaultText, size_t _maxLength,
+    TextInputComponent::TextInputComponent(Rectangle _inputBox, std::string  _defaultText, size_t _maxLength,
                                                 Color _boxColor, Color _textColor, Color _borderColor,
                                                 std::function<int(int screenWidth, int screenHeight)> _dynamicX,
                                                 std::function<int(int screenWidth, int screenHeight)> _dynamicY)
-            : inputBox(_inputBox), placeholder(_defaultText), boxColor(_boxColor),
-              textColor(_textColor), borderColor(_borderColor), isFocused(false),
-              maxLength(_maxLength), dynamicX(_dynamicX), dynamicY(_dynamicY) {}
+            : inputBox(_inputBox), placeholder(std::move(_defaultText)), boxColor(_boxColor),
+    textColor(_textColor), borderColor(_borderColor), isFocused(false), maxLength(_maxLength),
+    dynamicX(std::move(_dynamicX)), dynamicY(std::move(_dynamicY)) {}
 
     void TextInputComponent::drawTextInput() {
-        Color currentBoxColor = isFocused ? Fade(boxColor, 0.8f) : boxColor;
+        if (dynamicX) inputBox.x = (float)dynamicX(GetScreenWidth(), GetScreenHeight());
+        if (dynamicY) inputBox.y = (float)dynamicY(GetScreenWidth(), GetScreenHeight());
 
-        DrawRectangleRec(inputBox, currentBoxColor);
+        int fontSize = 20;
+        GuiSetStyle(DEFAULT, TEXT_SIZE, fontSize);
+        GuiSetStyle(DEFAULT, BORDER_COLOR_NORMAL, ColorToInt(borderColor));
+        GuiSetStyle(DEFAULT, TEXT_COLOR_NORMAL, ColorToInt(BLACK));
 
-        DrawRectangleLinesEx(inputBox, 2, borderColor);
+        char buffer[512] = {0};
+        strncpy(buffer, text.c_str(), maxLength);
 
-        int textWidth = MeasureText(text.c_str(), 20);
-        float textX = inputBox.x + 50;
-        float textY = inputBox.y + (inputBox.height - 20) / 2;
-        DrawText(text.c_str(), textX, textY, 20, textColor);
+        bool active = GuiTextBox(inputBox, buffer, maxLength, isFocused);
 
-        if (isFocused && (GetTime() * 2) - int(GetTime() * 2) < 0.5) {
-            DrawRectangle(textX + textWidth + 2, textY, 2, 20, textColor);
+        text = std::string(buffer);
+
+        if (active) {
+            isFocused = true;
+        }
+
+        if (!isFocused && text.empty()) {
+            Vector2 textSize = MeasureTextEx(GetFontDefault(), placeholder.c_str(), (float)fontSize, 1);
+            float textY = inputBox.y + (inputBox.height - textSize.y) / 2;
+
+            DrawText(placeholder.c_str(), (int)inputBox.x + 20, (int)textY, fontSize, GRAY);
         }
     }
 
@@ -38,35 +51,8 @@ namespace ecs {
 
         if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
             isFocused = CheckCollisionPointRec(mousePosition, inputBox);
-            if (isFocused && text == placeholder)
-                text = "";
-        }
-
-        if (isFocused) {
-            int key = GetKeyPressed();
-            while (key > 0) {
-                if ((key >= 32) && (key <= 125)) {
-                    if (text.size() < maxLength) {
-                        text += static_cast<char>(key);
-                    }
-                } else if (key == KEY_BACKSPACE && !text.empty()) {
-                    text.pop_back();
-                }
-                key = GetKeyPressed();
-            }
-        } else {
-            if (text.empty()) {
-                text = placeholder;
-            }
         }
     }
 
-    void TextInputComponent::updateInput(int screenWidth, int screenHeight) {
-        if (dynamicX) {
-            inputBox.x = dynamicX(screenWidth, screenHeight);
-        }
-        if (dynamicY) {
-            inputBox.y = dynamicY(screenWidth, screenHeight);
-        }
-    }
+
 }

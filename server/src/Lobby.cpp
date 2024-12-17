@@ -13,7 +13,7 @@
 namespace server
 {
     void lobbyAction(Server &server, std::shared_ptr<network::PeerWrapper> &peer,
-                     const network::LobbyActionPacket &lobby_action_packet)
+                     const struct network::LobbyActionPacket &lobby_action_packet)
     {
         network::LobbySnapshotPacket lobby_snapshot_packet;
         switch (lobby_action_packet.actionType)

@@ -16,14 +16,6 @@ void update_menu_selectors(Registry &ecs, int screenWidth, int screenHeight) {
         }
     }
 
-    auto& textInputs = ecs.get_components<ecs::TextInputComponent>();
-
-    for (auto& textInput : textInputs) {
-        if (textInput.has_value()) {
-            textInput.value().updateInput(screenWidth, screenHeight);
-        }
-    }
-
     auto &boxs = ecs.get_components<ecs::ShowBoxComponent>();
 
     for (auto& box : boxs) {

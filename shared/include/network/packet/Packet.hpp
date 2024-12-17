@@ -31,56 +31,56 @@ namespace network
          * @param packet The `SnapshotPacket` to serialize.
          * @return A binary representation of the `SnapshotPacket`.
          */
-        static std::vector<uint8_t> serializeSnapshotPacket(const SnapshotPacket &packet);
+        static std::vector<uint8_t> serializeSnapshotPacket(const struct SnapshotPacket &packet);
 
         /**
          * @brief Deserializes a binary format into a `SnapshotPacket`.
          * @param data The binary data to deserialize.
          * @return The deserialized `SnapshotPacket`.
          */
-        static SnapshotPacket deserializeSnapshotPacket(const std::vector<uint8_t> &data);
+        static struct SnapshotPacket deserializeSnapshotPacket(const std::vector<uint8_t> &data);
 
         /**
          * @brief Serializes an `InputPacket` to a binary format.
          * @param packet The `InputPacket` to serialize.
          * @return A binary representation of the `InputPacket`.
          */
-        static std::vector<uint8_t> serializeInputPacket(const InputPacket &packet);
+        static std::vector<uint8_t> serializeInputPacket(const struct InputPacket &packet);
 
         /**
          * @brief Deserializes a binary format into an `InputPacket`.
          * @param data The binary data to deserialize.
          * @return The deserialized `InputPacket`.
          */
-        static InputPacket deserializeInputPacket(const std::vector<uint8_t> &data);
+        static struct InputPacket deserializeInputPacket(const std::vector<uint8_t> &data);
 
         /**
          * @brief Serializes a `LobbyActionPacket` to a binary format.
          * @param packet The `LobbyActionPacket` to serialize.
          * @return A binary representation of the `LobbyActionPacket`.
          */
-        static std::vector<uint8_t> serializeLobbyActionPacket(const LobbyActionPacket &packet);
+        static std::vector<uint8_t> serializeLobbyActionPacket(const struct LobbyActionPacket &packet);
 
         /**
          * @brief Deserializes a binary format into a `LobbyActionPacket`.
          * @param data The binary data to deserialize.
          * @return The deserialized `LobbyActionPacket`.
          */
-        static LobbyActionPacket deserializeLobbyActionPacket(const std::vector<uint8_t> &data);
+        static struct LobbyActionPacket deserializeLobbyActionPacket(const std::vector<uint8_t> &data);
 
         /**
          * @brief Serializes a `LobbySnapshotPacket` to a binary format.
          * @param packet The `LobbySnapshotPacket` to serialize.
          * @return A binary representation of the `LobbySnapshotPacket`.
          */
-        static std::vector<uint8_t> serializeLobbySnapshotPacket(const LobbySnapshotPacket &packet);
+        static std::vector<uint8_t> serializeLobbySnapshotPacket(const struct LobbySnapshotPacket &packet);
 
         /**
          * @brief Deserializes a binary format into a `LobbySnapshotPacket`.
          * @param data The binary data to deserialize.
          * @return The deserialized `LobbySnapshotPacket`.
          */
-        static LobbySnapshotPacket deserializeLobbySnapshotPacket(const std::vector<uint8_t> &data);
+        static struct LobbySnapshotPacket deserializeLobbySnapshotPacket(const std::vector<uint8_t> &data);
 
         /**
          * @brief Deserializes a binary format into a recognized packet type.

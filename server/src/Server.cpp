@@ -281,13 +281,13 @@ namespace server
         {
         case network::PacketType::InputPacket:
             {
-                auto input_packet = std::any_cast<network::InputPacket>(data);
+                auto input_packet = std::any_cast<struct network::InputPacket>(data);
                 gameAction(server, peer, input_packet);
                 break;
             }
         case network::PacketType::LobbyActionPacket:
             {
-                auto lobby_action_packet = std::any_cast<network::LobbyActionPacket>(data);
+                auto lobby_action_packet = std::any_cast<struct network::LobbyActionPacket>(data);
                 lobbyAction(server, peer, lobby_action_packet);
                 break;
             }

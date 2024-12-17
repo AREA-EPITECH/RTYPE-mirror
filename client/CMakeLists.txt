@@ -3,18 +3,21 @@ project(r-type_client)
 
 file(GLOB_RECURSE PROJECT_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_LIST_DIR}/src/*.cpp")
 file(GLOB_RECURSE PROJECT_HEADERS CONFIGURE_DEPENDS "${CMAKE_CURRENT_LIST_DIR}/include/*.hpp")
+
+set(RAYGUI_IMPLEMENTATION_FILE "${CMAKE_CURRENT_LIST_DIR}/src/raygui_impl.cpp")
+
 add_executable(${PROJECT_NAME}
-    ${PROJECT_SOURCES}
-    ${PROJECT_HEADERS}
+        ${PROJECT_SOURCES}
+        ${PROJECT_HEADERS}
+        ${RAYGUI_IMPLEMENTATION_FILE}
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
-    shared
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+        shared
 )
 target_link_libraries(${PROJECT_NAME} PRIVATE shared)
 
-# Link dependencies from vcpkg
 find_package(spdlog REQUIRED)
 find_package(raylib CONFIG REQUIRED)
 find_package(glfw3 CONFIG REQUIRED)

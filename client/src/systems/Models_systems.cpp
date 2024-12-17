@@ -84,6 +84,7 @@ namespace ecs {
                 const Matrix matRotate = MatrixRotateY(DEG2RAD * 90.0f);
                 modelComponent.model.transform = MatrixMultiply(matTranslate, matRotate);
 
+                ecs.add_component<ControllableComponent>(i, {});
                 TraceLog(LOG_INFO, TextFormat("Model reloaded and centered from %s", modelComponent.path.c_str()));
             }
         }
@@ -128,7 +129,7 @@ namespace ecs {
 
     void load_title_menu(Registry &ecs, const InitModelEvent &) {
 
-        std::string title_file = "client/assets/voxels/title_blue.vox";
+        std::string title_file = "client/assets/voxels/title/r-type.vox";
         Model models;
         const double t0 = GetTime() * 1000.0;
 
@@ -142,7 +143,7 @@ namespace ecs {
         center.x = min.x + (max.x - min.x) / 2;
         center.z = min.z + (max.z - min.z) / 2;
 
-        const Matrix matTranslate = MatrixTranslate(-center.x, 0, -center.z);
+        const Matrix matTranslate = MatrixTranslate(-center.x, -1.5, -center.z);
         models.transform = matTranslate;
 
         auto ModelEntity = ecs.spawn_entity();
@@ -231,6 +232,7 @@ namespace ecs {
         auto &vessels_models = ecs.get_components<VesselsComponent>();
         auto &projectiles_models = ecs.get_components<ProjectilesComponent>();
         auto &shaders = ecs.get_components<ShaderComponent>();
+        auto &menus = ecs.get_components<MenuText>();
         Shader shader = {};
         for (std::size_t i = 0; i < shaders.size(); ++i) {
             if (shaders[i].has_value()) {
@@ -251,6 +253,15 @@ namespace ecs {
         for (std::size_t i = 0; i < projectiles_models.size(); ++i) {
             if (projectiles_models[i].has_value()) {
                 Model &model = projectiles_models[i]->model;
+                for (int j = 0; j < model.materialCount; ++j) {
+                    model.materials[j].shader = shader;
+                }
+                TraceLog(LOG_INFO, TextFormat("Applied shader to model of entity %zu.", i));
+            }
+        }
+        for (std::size_t i = 0; i < menus.size(); ++i) {
+            if (menus[i].has_value()) {
+                Model &model = menus[i]->model;
                 for (int j = 0; j < model.materialCount; ++j) {
                     model.materials[j].shader = shader;
                 }

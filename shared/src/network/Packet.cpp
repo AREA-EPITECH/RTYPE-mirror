@@ -8,6 +8,7 @@
 #include "network/packet/Packet.hpp"
 #include <cstring>
 #include <stdexcept>
+#include <spdlog/spdlog.h>
 
 inline void ensureValidOffset(size_t offset, size_t size, size_t dataSize)
 {
@@ -22,25 +23,30 @@ inline void ensureValidOffset(size_t offset, size_t size, size_t dataSize)
  * @param packet The `SnapshotPacket` to serialize.
  * @return A binary representation of the `SnapshotPacket`.
  */
-std::vector<uint8_t> network::Packet::serializeSnapshotPacket(const network::SnapshotPacket &packet)
+std::vector<uint8_t> network::Packet::serializeSnapshotPacket(const struct network::SnapshotPacket &packet)
 {
     std::vector<uint8_t> buffer;
+    size_t offset = 0;
 
     // Serialize the header
-    buffer.resize(sizeof(PacketHeader));
-    std::memcpy(buffer.data(), &packet.header, sizeof(PacketHeader));
+    size_t headerSize = sizeof(packet.header);
+    buffer.resize(headerSize);
+    std::memcpy(buffer.data(), &packet.header, headerSize);
+    offset += headerSize;
 
     // Serialize the number of entities
     uint16_t numEntities = packet.numEntities;
     buffer.resize(buffer.size() + sizeof(uint16_t));
-    std::memcpy(buffer.data() + buffer.size() - sizeof(uint16_t), &numEntities, sizeof(uint16_t));
+    std::memcpy(buffer.data() + offset, &numEntities, sizeof(uint16_t));
+    offset += sizeof(uint16_t);
 
     // Serialize each EntityUpdate
     for (const auto &entity : packet.entities)
     {
         size_t entitySize = sizeof(EntityUpdate);
         buffer.resize(buffer.size() + entitySize);
-        std::memcpy(buffer.data() + buffer.size() - entitySize, &entity, entitySize);
+        std::memcpy(buffer.data() + offset, &entity, entitySize);
+        offset += entitySize;
     }
 
     return buffer;
@@ -51,9 +57,9 @@ std::vector<uint8_t> network::Packet::serializeSnapshotPacket(const network::Sna
  * @param data The binary data to deserialize.
  * @return The deserialized `SnapshotPacket`.
  */
-network::SnapshotPacket network::Packet::deserializeSnapshotPacket(const std::vector<uint8_t> &data)
+struct network::SnapshotPacket network::Packet::deserializeSnapshotPacket(const std::vector<uint8_t> &data)
 {
-    network::SnapshotPacket packet;
+    struct network::SnapshotPacket packet;
     size_t offset = 0;
 
     // Deserialize the header
@@ -85,7 +91,7 @@ network::SnapshotPacket network::Packet::deserializeSnapshotPacket(const std::ve
  * @param packet The `InputPacket` to serialize.
  * @return A binary representation of the `InputPacket`.
  */
-std::vector<uint8_t> network::Packet::serializeInputPacket(const network::InputPacket &packet)
+std::vector<uint8_t> network::Packet::serializeInputPacket(const struct network::InputPacket &packet)
 {
     std::vector<uint8_t> buffer;
     size_t offset = 0;
@@ -113,9 +119,9 @@ std::vector<uint8_t> network::Packet::serializeInputPacket(const network::InputP
  * @param data The binary data to deserialize.
  * @return The deserialized `InputPacket`.
  */
-network::InputPacket network::Packet::deserializeInputPacket(const std::vector<uint8_t> &data)
+struct network::InputPacket network::Packet::deserializeInputPacket(const std::vector<uint8_t> &data)
 {
-    InputPacket packet;
+    struct InputPacket packet;
     size_t offset = 0;
 
     // Deserialize PacketHeader
@@ -142,7 +148,7 @@ network::InputPacket network::Packet::deserializeInputPacket(const std::vector<u
  * @param packet The `LobbyActionPacket` to serialize.
  * @return A binary representation of the `LobbyActionPacket`.
  */
-std::vector<uint8_t> network::Packet::serializeLobbyActionPacket(const network::LobbyActionPacket &packet)
+std::vector<uint8_t> network::Packet::serializeLobbyActionPacket(const struct network::LobbyActionPacket &packet)
 {
     std::vector<uint8_t> buffer;
     size_t offset = 0;
@@ -200,9 +206,9 @@ std::vector<uint8_t> network::Packet::serializeLobbyActionPacket(const network::
  * @param data The binary data to deserialize.
  * @return The deserialized `LobbyActionPacket`.
  */
-network::LobbyActionPacket network::Packet::deserializeLobbyActionPacket(const std::vector<uint8_t> &data)
+struct network::LobbyActionPacket network::Packet::deserializeLobbyActionPacket(const std::vector<uint8_t> &data)
 {
-    LobbyActionPacket packet;
+    struct LobbyActionPacket packet;
     size_t offset = 0;
 
     // Deserialize PacketHeader
@@ -262,14 +268,20 @@ network::LobbyActionPacket network::Packet::deserializeLobbyActionPacket(const s
  * @param packet The `LobbySnapshotPacket` to serialize.
  * @return A binary representation of the `LobbySnapshotPacket`.
  */
-std::vector<uint8_t> network::Packet::serializeLobbySnapshotPacket(const network::LobbySnapshotPacket &packet)
+std::vector<uint8_t> network::Packet::serializeLobbySnapshotPacket(const struct network::LobbySnapshotPacket &packet)
 {
     std::vector<uint8_t> buffer;
     size_t offset = 0;
 
+    // Serialize PacketHeader
+    size_t headerSize = sizeof(packet.header);
+    buffer.resize(headerSize);
+    std::memcpy(buffer.data(), &packet.header, headerSize);
+    offset += headerSize;
+
     // Serialize roomId
-    buffer.resize(sizeof(packet.roomId));
-    std::memcpy(buffer.data(), &packet.roomId, sizeof(packet.roomId));
+    buffer.resize(buffer.size() + sizeof(packet.roomId));
+    std::memcpy(buffer.data() + offset, &packet.roomId, sizeof(packet.roomId));
     offset += sizeof(packet.roomId);
 
     // Serialize gameState
@@ -318,10 +330,16 @@ std::vector<uint8_t> network::Packet::serializeLobbySnapshotPacket(const network
  * @param data The binary data to deserialize.
  * @return The deserialized `LobbySnapshotPacket`.
  */
-network::LobbySnapshotPacket network::Packet::deserializeLobbySnapshotPacket(const std::vector<uint8_t> &data)
+struct network::LobbySnapshotPacket network::Packet::deserializeLobbySnapshotPacket(const std::vector<uint8_t> &data)
 {
-    LobbySnapshotPacket packet;
+    struct LobbySnapshotPacket packet;
     size_t offset = 0;
+
+    // Deserialize PacketHeader
+    ensureValidOffset(offset, sizeof(PacketHeader), data.size());
+    size_t headerSize = sizeof(packet.header);
+    std::memcpy(&packet.header, data.data(), headerSize);
+    offset += headerSize;
 
     // Deserialize roomId
     ensureValidOffset(offset, sizeof(packet.roomId), data.size());
@@ -407,22 +425,28 @@ std::pair<network::PacketType, std::any> network::Packet::deserializePacket(cons
     // Dispatch based on the packet type
     switch (header.type)
     {
-    case PacketType::RawPacket:
+    case PacketType::RawPacket: {
         return {header.type, data}; // Return raw data
+    }
 
-    case PacketType::SnapshotPacket:
+    case PacketType::SnapshotPacket: {
         return {header.type, deserializeSnapshotPacket(data)};
+    }
 
-    case PacketType::InputPacket:
+    case PacketType::InputPacket: {
         return {header.type, deserializeInputPacket(data)};
+    }
 
-    case PacketType::LobbyActionPacket:
+    case PacketType::LobbyActionPacket: {
         return {header.type, deserializeLobbyActionPacket(data)};
+    }
 
-    case PacketType::LobbySnapshotPacket:
+    case PacketType::LobbySnapshotPacket: {
         return {header.type, deserializeLobbySnapshotPacket(data)};
+    }
 
-    default:
+    default: {
         return {PacketType::RawPacket, data};
+    }
     }
 }

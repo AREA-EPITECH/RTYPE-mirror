@@ -63,7 +63,7 @@ namespace server
     {
         if (this->_state == network::LobbyGameState::Playing)
         {
-            network::SnapshotPacket snapshot_packet;
+            struct network::SnapshotPacket snapshot_packet;
             // TODO: populate snapshot_packet.entities + fill num_entities
             for (auto client : this->_clients)
             {
@@ -72,7 +72,7 @@ namespace server
         }
         else
         {
-            network::LobbySnapshotPacket lobby_snapshot_packet;
+            struct network::LobbySnapshotPacket lobby_snapshot_packet;
             lobby_snapshot_packet.roomId = this->_id;
             lobby_snapshot_packet.players = this->toLobbyPlayers();
             lobby_snapshot_packet.gameState = this->_state;

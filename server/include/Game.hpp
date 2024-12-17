@@ -13,5 +13,5 @@
 namespace server
 {
     void gameAction(Server &server, std::shared_ptr<network::PeerWrapper> &peer,
-                    const network::InputPacket &input_packet);
+                    const struct network::InputPacket &input_packet);
 } // namespace server
