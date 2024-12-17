@@ -18,7 +18,7 @@ void init_menu_entity (Registry &ecs) {
     auto textColor = WHITE;
 
     ecs::TextInputComponent textBoxInput({500, 100, 500, 50},
-                                         "",
+                                         "Enter room id",
                                          20,
                                          Color{120, 0, 0, 255},
                                          Color{253, 240, 213, 255},

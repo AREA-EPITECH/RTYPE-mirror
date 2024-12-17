@@ -156,7 +156,7 @@ int main(int argc, char *argv[])
 
     Registry ecs = init_ecs();
     // auto network_func = [&host, port, std::ref(messageQueue)] { handle_network_event(host, port); };
-    std::thread thread_network(handle_network_event, std::ref(host), port, std::ref(receiveQueue), std::ref(sendQueue));
+    //std::thread thread_network(handle_network_event, std::ref(host), port, std::ref(receiveQueue), std::ref(sendQueue));
 
     auto windowEntity = ecs.spawn_entity();
     ecs.add_component<ecs::Window>(windowEntity, {1920, 1080, "ECS Raylib - Multi Events", false});
@@ -182,7 +182,7 @@ int main(int argc, char *argv[])
         ecs.run_event(ecs::WindowDrawEvent{});
     }
     shutdown_requested.store(true);
-    thread_network.join();
+    //thread_network.join();
 
     return 0;
 }
