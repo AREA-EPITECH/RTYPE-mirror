@@ -294,29 +294,33 @@ namespace ecs {
         }
     };
 
+
     class TextInputComponent {
     public:
-        Rectangle inputBox;
+        Rectangle inputBox{};
         std::string text;
         std::string placeholder;
-        Color boxColor;
-        Color textColor;
-        Color borderColor;
-        bool isFocused;
-        size_t maxLength;
+        Color boxColor{};
+        Color textColor{};
+        Color borderColor{};
+        bool isFocused{};
+        size_t maxLength{};
 
         std::function<int(int screenWidth, int screenHeight)> dynamicX;
         std::function<int(int screenWidth, int screenHeight)> dynamicY;
 
-        TextInputComponent(Rectangle _inputBox, const std::string& _defaultText = "", size_t _maxLength = 256,
+        explicit TextInputComponent(Rectangle _inputBox, std::string  _defaultText = "", size_t _maxLength = 256,
                            Color _boxColor = LIGHTGRAY, Color _textColor = BLACK, Color _borderColor = DARKGRAY,
                            std::function<int(int screenWidth, int screenHeight)> _dynamicX = nullptr,
                            std::function<int(int screenWidth, int screenHeight)> _dynamicY = nullptr);
 
+        TextInputComponent() = default;
+
         void drawTextInput();
+
         void handleInput();
-        void updateInput(int screenWidth, int screenHeight);
     };
+
 
     class ShowBoxComponent {
     public:
@@ -328,7 +332,7 @@ namespace ecs {
         std::function<int(int screenWidth, int screenHeight)> dynamicX;
         std::function<int(int screenWidth, int screenHeight)> dynamicY;
 
-        std::string textInput;
+        TextInputComponent textInput;
         std::string closeButtonText;
         std::string continueButtonText;
 

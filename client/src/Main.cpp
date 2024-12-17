@@ -181,7 +181,7 @@ int main(int argc, char *argv[])
         ecs.run_event(ecs::WindowDrawEvent{});
     }
     shutdown_requested.store(true);
-    thread_network.join();
+    //thread_network.join();
 
     return 0;
 }

@@ -18,7 +18,11 @@ void init_menu_entity(Registry &ecs)
     auto boxColor = DARKGRAY;
     auto textColor = WHITE;
 
-    ecs::TextInputComponent textBoxInput({500, 100, 500, 50}, "", 20, Color{120, 0, 0, 255}, Color{253, 240, 213, 255},
+    ecs::TextInputComponent textBoxInput({500, 100, 500, 50},
+                                         "Enter room id",
+                                         20,
+                                         Color{120, 0, 0, 255},
+                                         Color{253, 240, 213, 255},
                                          BLACK);
 
     ecs::ButtonComponent closeButton(buttonWidth, buttonHeight, "Close", []() {});
