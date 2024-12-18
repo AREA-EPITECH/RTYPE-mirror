@@ -88,6 +88,7 @@ namespace ecs {
     struct InitDecorElementEvent
     {
         std::string path;
+        size_t depth;
         int speed;
     };
 
