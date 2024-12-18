@@ -18,12 +18,8 @@ void init_menu_entity(Registry &ecs)
     auto boxColor = DARKGRAY;
     auto textColor = WHITE;
 
-    ecs::TextInputComponent textBoxInput({500, 100, 500, 50},
-                                         "Enter room id",
-                                         20,
-                                         Color{120, 0, 0, 255},
-                                         Color{253, 240, 213, 255},
-                                         BLACK);
+    ecs::TextInputComponent textBoxInput({500, 100, 500, 50}, "Enter room id", 20, Color{120, 0, 0, 255},
+                                         Color{253, 240, 213, 255}, BLACK);
 
     ecs::ButtonComponent closeButton(buttonWidth, buttonHeight, "Close", []() {});
 
@@ -72,15 +68,17 @@ void init_menu_entity(Registry &ecs)
     ecs.add_component<ecs::ButtonComponent>(
         CreateRoom,
         ecs::ButtonComponent(
-            buttonWidth, buttonHeight, "Create room", [&ecs]() {
+            buttonWidth, buttonHeight, "Create room",
+            [&ecs, textInput]()
+            {
                 struct network::LobbyActionPacket packet;
                 auto &input = ecs.get_components<ecs::TextInputComponent>();
-                for (auto &it: input) {
-                    if (it.has_value()) {
-                        packet.name = it->text;
-                    }
+                if (input[textInput].has_value())
+                {
+                    packet.name = input[textInput]->text;
                 }
-                if (!packet.name.length()) {
+                if (!packet.name.length())
+                {
                     return;
                 }
                 packet.actionType = network::LobbyActionType::CreateRoom;
