@@ -115,12 +115,24 @@ void draw_menu_system(Registry &ecs, const WindowDrawEvent &) {
         ecs.run_event(InitDecorElementEvent{"client/assets/backgrounds/game/space_midground.png", 300});
         ecs.run_event(InitDecorElementEvent{"client/assets/backgrounds/game/space_midground_2.png", 300});
         ecs.run_event(InitDecorElementEvent{"client/assets/backgrounds/game/space_foreground.png", 400});
+        auto settingsIcons = ecs.spawn_entity();
+        std::string icon_path = ASSET_FILE("images/settings.png");
+        float width = 100.0f;
+        float height = 100.0f;
+
+        ecs.add_component<ecs::ImageComponent>(settingsIcons, { icon_path, MENU_FOCUS,
+                                                                [width](int screenWidth, int screenHeight) { return screenWidth - 50 - width; },
+                                                                [height](int screenWidth, int screenHeight) { return screenHeight - 50 - height; },
+                                                                []() {
+                                                                    std::cout << "Image clicked!" << std::endl;
+                                                                }, width, height});
     }
 
     void close_menu_system(Registry &ecs, const WindowCloseEvent &) {
         auto &models = ecs.get_components<MenuText>();
         auto &backgrounds = ecs.get_components<BackgroundComponent>();
         auto &decors = ecs.get_components<DecorElementComponent>();
+        auto &images = ecs.get_components<ImageComponent>();
 
         for (std::size_t i = 0; i < models.size(); ++i) {
             if (models[i].has_value()) {
@@ -137,6 +149,12 @@ void draw_menu_system(Registry &ecs, const WindowDrawEvent &) {
         for (std::size_t i = 0; i < decors.size(); ++i) {
             if (decors[i].has_value()) {
                 UnloadTexture(decors[i]->texture);
+                ecs.kill_entity(i);
+            }
+        }
+        for (std::size_t i = 0; i < images.size(); ++i) {
+            if (images[i].has_value()) {
+                UnloadTexture(images[i]->texture);
                 ecs.kill_entity(i);
             }
         }

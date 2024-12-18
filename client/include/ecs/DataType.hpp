@@ -20,6 +20,7 @@ namespace ecs {
         // MENU
         MENU_FOCUS,
         JOIN_ROOM_FOCUS,
+        SETTINGS_FOCUS,
 
         // LOBBY
         LOBBY_FOCUS,
@@ -27,5 +28,8 @@ namespace ecs {
         // GAME
         GAME_FOCUS
     };
+
+    #define ASSETS_PATH "client/assets/"
+    #define ASSET_FILE(file) ASSETS_PATH file
 
 }

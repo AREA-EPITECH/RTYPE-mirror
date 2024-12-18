@@ -38,6 +38,7 @@ Registry init_ecs()
     ecs.register_component<ecs::ControllableComponent>();
     ecs.register_component<ecs::EnemyComponent>();
     ecs.register_component<ecs::FocusComponent>();
+    ecs.register_component<ecs::ImageComponent>();
 
     ecs.register_event<ecs::CreateWindowEvent>();
     ecs.register_event<ecs::WindowOpenEvent>();
@@ -161,7 +162,7 @@ int main(int argc, char *argv[])
     std::cout << "Game will run on " << host << " using port " << port << std::endl;
 
     Registry ecs = init_ecs();
-    //std::thread thread_network(handle_network_event, std::ref(host), port, std::ref(receiveQueue), std::ref(sendQueue));
+    std::thread thread_network(handle_network_event, std::ref(host), port, std::ref(receiveQueue), std::ref(sendQueue));
 
     auto windowEntity = ecs.spawn_entity();
     ecs.add_component<ecs::Window>(windowEntity, {1920, 1080, "ECS Raylib - Multi Events", false});
@@ -187,7 +188,7 @@ int main(int argc, char *argv[])
         ecs.run_event(ecs::WindowDrawEvent{});
     }
     shutdown_requested.store(true);
-    //thread_network.join();
+    thread_network.join();
 
     return 0;
 }

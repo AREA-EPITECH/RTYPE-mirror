@@ -95,4 +95,9 @@ namespace ecs {
     struct ChangeFocusEvent {
         WindowFocus newFocus;
     };
+
+    //Init menu
+    struct InitMenuElement {
+
+    };
 }
