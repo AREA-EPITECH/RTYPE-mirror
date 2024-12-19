@@ -110,12 +110,6 @@ void draw_menu_system(Registry &ecs, const WindowDrawEvent &) {
             }
         }
 
-        // Init background
-        ecs.run_event(InitBackgroundEvent{"client/assets/backgrounds/game/space_background.png", 2,
-                    200, 0});
-        ecs.run_event(InitDecorElementEvent{"client/assets/backgrounds/game/space_midground.png", 300});
-        ecs.run_event(InitDecorElementEvent{"client/assets/backgrounds/game/space_midground_2.png", 300});
-        ecs.run_event(InitDecorElementEvent{"client/assets/backgrounds/game/space_foreground.png", 400});
         auto settingsIcons = ecs.spawn_entity();
         std::string icon_path = ASSET_FILE("images/settings.png");
         float width = 100.0f;
@@ -127,6 +121,7 @@ void draw_menu_system(Registry &ecs, const WindowDrawEvent &) {
                                                                 []() {
                                                                     std::cout << "Image clicked!" << std::endl;
                                                                 }, width, height});
+        // Init background
         ecs.run_event(InitBackgroundEvent{"client/assets/backgrounds/game/space_background.png", 1,
                     50, 0});
         ecs.run_event(InitDecorElementEvent{"client/assets/backgrounds/game/space_midground.png", 1, 75});
