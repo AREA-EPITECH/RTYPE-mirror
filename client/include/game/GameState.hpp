@@ -12,6 +12,8 @@
 #include <tuple>
 #include <vector>
 
+#include "ecs/Systems.hpp"
+
 namespace game
 {
     class GameState {
@@ -38,9 +40,23 @@ namespace game
         auto getGameState() -> bool;
         auto updateGameState(bool state) -> void;
 
+        auto getRoomId() -> uint32_t;
+        auto setRoomId(uint32_t _roomId) -> void;
+
+        auto getIdEntity() -> entity_t;
+        auto setIdEntity(entity_t entity) -> void;
+
+        auto getPlayerNameEntities() -> std::vector<entity_t>;
+        auto addPlayerNameEntities(entity_t entity) -> void;
+        auto removePlayerNameEntities(entity_t entity) -> void;
+
     private:
         Player user;
         std::vector<Player> other_players;
         bool is_playing = false;
+        uint32_t roomId;
+
+        entity_t textIdEntity;
+        std::vector<entity_t> textPlayerNameEntities;
     };
 } // namespace game
