@@ -37,6 +37,7 @@ Registry init_ecs()
     ecs.register_component<ecs::ProjectilesComponent>();
     ecs.register_component<ecs::ControllableComponent>();
     ecs.register_component<ecs::EnemyComponent>();
+    ecs.register_component<ecs::FocusComponent>();
 
     ecs.register_event<ecs::CreateWindowEvent>();
     ecs.register_event<ecs::WindowOpenEvent>();
@@ -50,6 +51,7 @@ Registry init_ecs()
     ecs.register_event<ecs::InitShaderEvent>();
     ecs.register_event<ecs::InitBackgroundEvent>();
     ecs.register_event<ecs::InitDecorElementEvent>();
+    ecs.register_event<ecs::ChangeFocusEvent>();
 
     ecs.register_event<network::ClientEvent>();
     ecs.register_event<struct network::LobbyActionPacket>();
@@ -78,6 +80,10 @@ Registry init_ecs()
                 break;
             }
         });
+
+    auto focus = ecs.spawn_entity();
+    ecs.add_component<ecs::FocusComponent>(focus, {ecs::DEFAULT_FOCUS});
+    ecs.subscribe<ecs::ChangeFocusEvent>(ecs::change_focus_system);
 
     init_menu_window(ecs);
 
@@ -155,7 +161,7 @@ int main(int argc, char *argv[])
     std::cout << "Game will run on " << host << " using port " << port << std::endl;
 
     Registry ecs = init_ecs();
-    std::thread thread_network(handle_network_event, std::ref(host), port, std::ref(receiveQueue), std::ref(sendQueue));
+    //std::thread thread_network(handle_network_event, std::ref(host), port, std::ref(receiveQueue), std::ref(sendQueue));
 
     auto windowEntity = ecs.spawn_entity();
     ecs.add_component<ecs::Window>(windowEntity, {1920, 1080, "ECS Raylib - Multi Events", false});
@@ -181,7 +187,7 @@ int main(int argc, char *argv[])
         ecs.run_event(ecs::WindowDrawEvent{});
     }
     shutdown_requested.store(true);
-    thread_network.join();
+    //thread_network.join();
 
     return 0;
 }

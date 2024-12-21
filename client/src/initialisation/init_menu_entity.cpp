@@ -18,19 +18,12 @@ void init_menu_entity(Registry &ecs)
     auto boxColor = DARKGRAY;
     auto textColor = WHITE;
 
-    ecs::TextInputComponent textBoxInput({500, 100, 500, 50}, "Enter room id", 20, Color{120, 0, 0, 255},
-                                         Color{253, 240, 213, 255}, BLACK);
-
-    ecs::ButtonComponent closeButton(buttonWidth, buttonHeight, "Close", []() {});
-
-    ecs::ButtonComponent continueButton(buttonWidth, buttonHeight, "Continue", []() {});
-
     auto showBoxEntity = ecs.spawn_entity();
-    Rectangle boxRect = {100, 100, 600, 300};
+    Rectangle boxRect = {100, 100, 600, 200};
     ecs.add_component<ecs::ShowBoxComponent>(
         showBoxEntity,
         ecs::ShowBoxComponent(
-            boxRect, message, boxColor, textColor, "", "Close", "Continue",
+            boxRect, message, boxColor, textColor, ecs::JOIN_ROOM_FOCUS, "Id...", "Close", "Continue",
             [boxRect](int screenWidth, int screenHeight) { return (float)screenWidth / 2 - (boxRect.width / 2); },
             [boxRect](int screenWidth, int screenHeight) { return (float)screenHeight / 2 - (boxRect.height / 2); }));
 
@@ -38,7 +31,7 @@ void init_menu_entity(Registry &ecs)
     ecs.add_component<ecs::TextInputComponent>(
         textInput,
         ecs::TextInputComponent(
-            {0, 0, 500, 100}, "Enter your name...", 20, Color{120, 0, 0, 255}, Color{253, 240, 213, 255}, BLACK,
+            {0, 0, 500, 100}, ecs::MENU_FOCUS, "Enter your name...", 20, Color{120, 0, 0, 255}, Color{253, 240, 213, 255}, BLACK,
             [buttonWidth](int screenWidth, int screenHeight) { return screenWidth / 2 - (buttonWidth / 2); },
             [](int screenWidth, int screenHeight) { return screenHeight / 3; }));
 
@@ -46,9 +39,10 @@ void init_menu_entity(Registry &ecs)
     ecs.add_component<ecs::ButtonComponent>(
         JoinRoom,
         ecs::ButtonComponent(
-            buttonWidth, buttonHeight, "Join room",
+            buttonWidth, buttonHeight, "Join room", ecs::MENU_FOCUS,
             [&ecs]()
             {
+                ecs.run_event(ecs::ChangeFocusEvent{ecs::JOIN_ROOM_FOCUS});
                 auto &showbox = ecs.get_components<ecs::ShowBoxComponent>();
                 for (auto &i : showbox)
                 {
@@ -63,14 +57,11 @@ void init_menu_entity(Registry &ecs)
 
     auto CreateRoom = ecs.spawn_entity();
 
-    std::cout << textInput << std::endl;
     ecs::TextComponent createText("Create room", 54, 0, 0);
     ecs.add_component<ecs::ButtonComponent>(
         CreateRoom,
         ecs::ButtonComponent(
-            buttonWidth, buttonHeight, "Create room",
-            [&ecs, textInput]()
-            {
+            buttonWidth, buttonHeight, "Create room", ecs::MENU_FOCUS, [&ecs, textInput]() {
                 struct network::LobbyActionPacket packet;
                 auto &input = ecs.get_components<ecs::TextInputComponent>();
                 if (input[textInput].has_value())

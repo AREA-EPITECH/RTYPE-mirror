@@ -15,8 +15,17 @@ namespace ecs {
     };
 
     enum WindowFocus {
+        DEFAULT_FOCUS,
+
+        // MENU
         MENU_FOCUS,
-        JOIN_ROOM_FOCUS
+        JOIN_ROOM_FOCUS,
+
+        // LOBBY
+        LOBBY_FOCUS,
+
+        // GAME
+        GAME_FOCUS
     };
 
 }

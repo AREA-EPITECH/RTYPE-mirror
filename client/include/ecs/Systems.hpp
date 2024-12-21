@@ -20,6 +20,10 @@ namespace ecs {
     void close_window_system(Registry &ecs, const WindowCloseEvent &);
     void change_window(Registry &ecs, WindowType type);
 
+// Focus
+    void change_focus_system(Registry &ecs, const ChangeFocusEvent &event);
+    WindowFocus get_focus(Registry &ecs);
+
 // Lobby
     void draw_lobby_system(Registry &ecs, const WindowDrawEvent &);
     void close_lobby_system(Registry &ecs, const WindowCloseEvent &);
