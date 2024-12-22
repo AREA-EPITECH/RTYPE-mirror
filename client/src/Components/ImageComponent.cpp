@@ -1,6 +1,9 @@
-//
-// Created by lferraro on 12/18/24.
-//
+/*
+** EPITECH PROJECT, 2024
+** r-type
+** File description:
+** ImageComponent
+*/
 
 #include "ecs/Components.hpp"
 

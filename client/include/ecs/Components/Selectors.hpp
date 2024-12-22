@@ -2,23 +2,26 @@
 
 #include "../DataType.hpp"
 
-namespace ecs {
+namespace ecs
+{
 
-    struct FocusComponent {
+    struct FocusComponent
+    {
         WindowFocus focus;
     };
 
-    class ButtonComponent {
+    class ButtonComponent
+    {
     public:
-        ButtonComponent(int _buttonWidth, int _buttonHeight, std::string _text,
-                        WindowFocus _focus,
-                        std::function<void()> _onClick,
-                        std::function<int(int, int)> _dynamicX = nullptr,
-                        std::function<int(int, int)> _dynamicY = nullptr,
-                        Color _buttonColor = GRAY);
+        ButtonComponent(int _buttonWidth, int _buttonHeight, std::string _text, WindowFocus _focus,
+                        std::function<void()> _onClick, std::function<int(int, int)> _dynamicX = nullptr,
+                        std::function<int(int, int)> _dynamicY = nullptr, int _text_size = 12, int _border_width = 2,
+                        Color _base_color_normal = {0, 0, 0, 100}, Color _text_color_normal = {0, 0, 0, 100},
+                        Color _border_color_normal = {0, 0, 0, 100}, Color _base_color_focused = {0, 0, 0, 100},
+                        Color _text_color_focused = {0, 0, 0, 100}, Color _border_color_focused = {0, 0, 0, 100});
 
         void updateButton(int screenWidth, int screenHeight);
-        void drawButton(WindowFocus _focus);
+        void drawButton(WindowFocus _focus) const;
 
     private:
         int buttonX = 0;
@@ -29,18 +32,28 @@ namespace ecs {
         std::function<void()> onClick;
         std::function<int(int, int)> dynamicX;
         std::function<int(int, int)> dynamicY;
-        Color buttonColor;
         WindowFocus focus;
+
+        int text_size;
+        int border_width;
+
+        // Normal
+        Color base_color_normal;
+        Color text_color_normal;
+        Color border_color_normal;
+
+        // Focused
+        Color base_color_focused;
+        Color text_color_focused;
+        Color border_color_focused;
     };
 
-    class TextInputComponent {
+    class TextInputComponent
+    {
     public:
         Rectangle inputBox{};
         std::string text;
         std::string placeholder;
-        Color boxColor{};
-        Color textColor{};
-        Color borderColor{};
         bool isFocused{};
         size_t maxLength{};
         WindowFocus focus;
@@ -48,10 +61,34 @@ namespace ecs {
         std::function<int(int screenWidth, int screenHeight)> dynamicX;
         std::function<int(int screenWidth, int screenHeight)> dynamicY;
 
-        explicit TextInputComponent(Rectangle _inputBox, WindowFocus _focus, std::string  _defaultText = "", size_t _maxLength = 256,
-                                    Color _boxColor = BLUE, Color _textColor = BLACK, Color _borderColor = RED,
-                                    std::function<int(int screenWidth, int screenHeight)> _dynamicX = nullptr,
-                                    std::function<int(int screenWidth, int screenHeight)> _dynamicY = nullptr);
+        int text_size;
+        int border_width;
+        int font_size;
+
+        // Normal
+        Color base_color_normal;
+        Color text_color_normal;
+        Color border_color_normal;
+
+        // Focused
+        Color base_color_focused;
+        Color text_color_focused;
+        Color border_color_focused;
+
+        // Pressed
+        Color base_color_pressed;
+        Color text_color_pressed;
+        Color border_color_pressed;
+
+        explicit TextInputComponent(
+            Rectangle _inputBox, WindowFocus _focus, std::string _defaultText = "", size_t _maxLength = 256,
+            std::function<int(int screenWidth, int screenHeight)> _dynamicX = nullptr,
+            std::function<int(int screenWidth, int screenHeight)> _dynamicY = nullptr, int _text_size = 12,
+            int _border_width = 2, int _font_size = 20, Color _base_color_normal = {0, 0, 0, 100},
+            Color _text_color_normal = {0, 0, 0, 100}, Color _border_color_normal = {0, 0, 0, 100},
+            Color _base_color_focused = {0, 0, 0, 100}, Color _text_color_focused = {0, 0, 0, 100},
+            Color _border_color_focused = {0, 0, 0, 100}, Color _base_color_pressed = {0, 0, 0, 100},
+            Color _text_color_pressed = {0, 0, 0, 100}, Color _border_color_pressed = {0, 0, 0, 100});
 
         TextInputComponent() = default;
 
@@ -61,7 +98,8 @@ namespace ecs {
     };
 
 
-    class ShowBoxComponent {
+    class ShowBoxComponent
+    {
     public:
         Rectangle boxRect;
         std::string message;
@@ -76,8 +114,8 @@ namespace ecs {
         std::string closeButtonText;
         std::string continueButtonText;
 
-        ShowBoxComponent(Rectangle _boxRect, std::string _message, Color _boxColor, Color _textColor, WindowFocus _focus,
-                         std::string _textInput = "", std::string _closeButtonText = "Close",
+        ShowBoxComponent(Rectangle _boxRect, std::string _message, Color _boxColor, Color _textColor,
+                         WindowFocus _focus, std::string _textInput = "", std::string _closeButtonText = "Close",
                          std::string _continueButtonText = "Continue",
                          std::function<int(int screenWidth, int screenHeight)> _dynamicX = nullptr,
                          std::function<int(int screenWidth, int screenHeight)> _dynamicY = nullptr);
@@ -87,12 +125,12 @@ namespace ecs {
         void updateBox(int screenWidth, int screenHeight);
     };
 
-    class ImageComponent {
+    class ImageComponent
+    {
     public:
-        ImageComponent(const std::string& _imagePath, WindowFocus _focus,
+        ImageComponent(const std::string &_imagePath, WindowFocus _focus,
                        std::function<int(int screenWidth, int screenHeight)> _dynamicX,
-                       std::function<int(int screenWidth, int screenHeight)> _dynamicY,
-                       std::function<void()> _onClick,
+                       std::function<int(int screenWidth, int screenHeight)> _dynamicY, std::function<void()> _onClick,
                        float _width = 0.0f, float _height = 0.0f);
 
         void draw(int screenWidth, int screenHeight);
@@ -106,4 +144,4 @@ namespace ecs {
         float height;
         WindowFocus focus;
     };
-}
+} // namespace ecs

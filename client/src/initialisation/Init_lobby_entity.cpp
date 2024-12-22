@@ -28,11 +28,18 @@ void init_lobby_entity(Registry &ecs)
     int buttonWidth = 500;
     int buttonHeight = 100;
 
+
     ecs::TextComponent readyText("Ready", 54, 0, 0);
     ecs.add_component<ecs::ButtonComponent>(
         readyButton,
         ecs::ButtonComponent(
-            buttonWidth, buttonHeight, "Ready", ecs::LOBBY_FOCUS, [&ecs]() { ecs::change_window(ecs, ecs::WindowType::GAME); },
-            [buttonWidth](int screenWidth, int screenHeight) { return screenWidth * 0.66 - (buttonWidth / 2) + 20; },
-            [](int screenWidth, int screenHeight) { return screenHeight - 150; }));
+            buttonWidth, buttonHeight, "Ready", ecs::LOBBY_FOCUS, [&ecs]()
+            { ecs::change_window(ecs, ecs::WindowType::GAME); }, [buttonWidth](int screenWidth, int screenHeight)
+            { return screenWidth * 0.66 - (buttonWidth / 2) + 20; }, [](int screenWidth, int screenHeight)
+            { return screenHeight - 150; }, 24, 4, ecs::ButtonStyleColors.at(ecs::BUTTON_BASE_COLOR_NORMAL),
+            ecs::ButtonStyleColors.at(ecs::BUTTON_TEXT_COLOR_NORMAL),
+            ecs::ButtonStyleColors.at(ecs::BUTTON_BORDER_COLOR_NORMAL),
+            ecs::ButtonStyleColors.at(ecs::BUTTON_BASE_COLOR_FOCUSED),
+            ecs::ButtonStyleColors.at(ecs::BUTTON_TEXT_COLOR_FOCUSED),
+            ecs::ButtonStyleColors.at(ecs::BUTTON_BORDER_COLOR_FOCUSED)));
 }
