@@ -108,6 +108,8 @@ namespace ecs
         bool isVisible;
         std::function<int(int screenWidth, int screenHeight)> dynamicX;
         std::function<int(int screenWidth, int screenHeight)> dynamicY;
+        std::function<void()> continue_func;
+        std::function<void()> close_func;
         WindowFocus focus;
 
         TextInputComponent textInput;
@@ -118,9 +120,11 @@ namespace ecs
                          WindowFocus _focus, std::string _textInput = "", std::string _closeButtonText = "Close",
                          std::string _continueButtonText = "Continue",
                          std::function<int(int screenWidth, int screenHeight)> _dynamicX = nullptr,
-                         std::function<int(int screenWidth, int screenHeight)> _dynamicY = nullptr);
+                         std::function<int(int screenWidth, int screenHeight)> _dynamicY = nullptr,
+                         std::function<void()> _continue_func = nullptr,
+                         std::function<void()> _close_func = nullptr);
 
-        bool draw(WindowFocus _focus);
+        void draw(WindowFocus _focus);
         void handleClick(Vector2 mousePosition);
         void updateBox(int screenWidth, int screenHeight);
     };
@@ -130,8 +134,8 @@ namespace ecs
     public:
         ImageComponent(const std::string &_imagePath, WindowFocus _focus,
                        std::function<int(int screenWidth, int screenHeight)> _dynamicX,
-                       std::function<int(int screenWidth, int screenHeight)> _dynamicY, std::function<void()> _onClick,
-                       float _width = 0.0f, float _height = 0.0f);
+                       std::function<int(int screenWidth, int screenHeight)> _dynamicY,
+                       float _width = 0.0f, float _height = 0.0f, std::function<void()> _onClick = nullptr);
 
         void draw(int screenWidth, int screenHeight);
         void handleClick(Vector2 mousePosition, WindowFocus _focus);

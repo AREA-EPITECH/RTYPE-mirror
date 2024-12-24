@@ -60,8 +60,6 @@ namespace ecs
 
         const int screenWidth = GetScreenWidth();
         const int screenHeight = GetScreenHeight();
-        update_menu_selectors(ecs, screenWidth, screenHeight);
-        display_menu_selectors(ecs);
         auto &cameras = ecs.get_components<CameraComponent>();
 
         for (auto &camera_i : cameras)
@@ -86,6 +84,9 @@ namespace ecs
                 break;
             }
         }
+
+        update_menu_selectors(ecs, screenWidth, screenHeight);
+        display_menu_selectors(ecs);
         EndDrawing();
 
         if (WindowShouldClose())
@@ -141,11 +142,25 @@ namespace ecs
         float width = 100.0f;
         float height = 100.0f;
 
+
         ecs.add_component<ImageComponent>(
             settingsIcons,
             {icon_path, MENU_FOCUS, [width](int screenWidth, int screenHeight) { return screenWidth - 50 - width; },
-             [height](int screenWidth, int screenHeight) { return screenHeight - 50 - height; },
-             []() { std::cout << "Image clicked!" << std::endl; }, width, height});
+             [height](int screenWidth, int screenHeight) { return screenHeight - 50 - height; }, width, height,
+             []() { std::cout << "Image clicked!" << std::endl; }});
+        ecs.add_component<ecs::ImageComponent>(settingsIcons, {icon_path, MENU_FOCUS,
+                                                                [width](int screenWidth, int screenHeight) { return screenWidth - 50 - width; },
+                                                                [height](int screenWidth, int screenHeight) { return screenHeight - 50 - height; },
+                                                                width, height, [&ecs]() {
+                                                                    auto settingEntity = ecs.spawn_entity();
+
+                                                                    std::string back_path = ASSET_FILE("backgrounds/menu/setting_back.jpg");
+                                                                    ImageComponent setting_back(back_path, SETTINGS_FOCUS,
+                                                                                                [](int screenWidth, int screenHeight) {return 0;},
+                                                                                                [](int screenWidth, int screenHeight) {return 0;}, GetScreenWidth(), GetScreenHeight());
+                                                                    ecs.add_component<SettingsComponent>(settingEntity, {setting_back});
+                                                                    ecs.run_event(ChangeFocusEvent{SETTINGS_FOCUS});
+                                                                }});
         // Init background
         ecs.run_event(InitBackgroundEvent{"client/assets/backgrounds/game/space_background.png", 1, 50, 0});
         ecs.run_event(InitDecorElementEvent{"client/assets/backgrounds/game/space_midground.png", 1, 75});

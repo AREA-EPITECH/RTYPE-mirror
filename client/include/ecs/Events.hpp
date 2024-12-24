@@ -101,4 +101,7 @@ namespace ecs {
     struct InitMenuElement {
 
     };
+
+    // Settings
+    struct DisplaySettingEvent {};
 }

@@ -70,4 +70,7 @@ namespace ecs {
 
 // DecorElement
     void load_decor_element(Registry &ecs, const InitDecorElementEvent &event);
+
+// Settings
+    void display_settings_system (Registry &ecs, const DisplaySettingEvent &);
 }

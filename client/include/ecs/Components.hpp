@@ -11,6 +11,7 @@
 
 #include "Events.hpp"
 #include "Components/Selectors.hpp"
+#include "Components/Controls.hpp"
 #include "core/ParticleSystem.hpp"
 #include <cstring>
 
