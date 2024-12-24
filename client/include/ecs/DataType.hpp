@@ -97,4 +97,3 @@ namespace ecs
         {INPUT_TEXT_COLOR_PRESSED, {255, 255, 255, 255}},
         {INPUT_BORDER_COLOR_PRESSED, {16, 7, 16, 200}}};
 } // namespace ecs
-

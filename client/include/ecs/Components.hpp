@@ -255,34 +255,4 @@ namespace ecs {
         }
     };
 
-    class KeyBindingComponent {
-    private:
-        std::unordered_map<std::string, int> key_bindings;
-
-    public:
-        KeyBindingComponent() {
-            key_bindings["Move Up"] = KEY_UP;
-            key_bindings["Move Down"] = KEY_DOWN;
-            key_bindings["Move Left"] = KEY_LEFT;
-            key_bindings["Move Right"] = KEY_RIGHT;
-            key_bindings["Basic Shoot"] = KEY_SPACE;
-            key_bindings["Special Shoot"] = KEY_LEFT_SHIFT;
-        }
-
-        int getKey(const std::string &action) const {
-            return key_bindings.at(action);
-        }
-
-        void setKey(const std::string &action, const int newKey) {
-            key_bindings[action] = newKey;
-        }
-
-        std::vector<std::string> getActions() const {
-            std::vector<std::string> actions;
-            for (const auto& [action, key] : key_bindings) {
-                actions.push_back(action);
-            }
-            return actions;
-        }
-    };
 }
