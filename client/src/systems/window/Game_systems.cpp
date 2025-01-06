@@ -17,7 +17,16 @@ namespace ecs {
     void draw_game_system(Registry &ecs, const WindowDrawEvent &) {
         ecs.run_event(ControlsEvent{});
         auto &backgrounds = ecs.get_components<BackgroundComponent>();
+        auto &shaders = ecs.get_components<ShaderComponent>();
         auto &decors = ecs.get_components<DecorElementComponent>();
+
+        Shader shader = {};
+        for (auto & shader_i : shaders) {
+            if (shader_i.has_value()) {
+                shader = shader_i->shader;
+                break;
+            }
+        }
 
         for (auto & background : backgrounds) {
             if (background.has_value()) {
@@ -82,9 +91,11 @@ namespace ecs {
                             if (projectile->IsAlive(camera))
                             {
                                 DrawModel(projectile->model, projectile->position, 1.0f, WHITE);
+                                projectile->light->UpdateLightValues(shader);
                             }
                             else
                             {
+                                projectile->light->UpdateLightValues(shader, false);
                                 ecs.kill_entity(i);
                             }
                         }

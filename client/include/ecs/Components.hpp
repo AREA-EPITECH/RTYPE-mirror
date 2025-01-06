@@ -231,20 +231,25 @@ namespace ecs {
         Vector3 position{};
         bool player;
         Vector3 velocity{};
+        std::shared_ptr<client::Light> light;
 
         ProjectilesComponent(Model _model, bool _drawable, std::string _path, Vector3 _position, bool _player,
-            Vector3 _velocity) {
+            Vector3 _velocity, Vector3 _target, Color _color, int _nb, Shader _shader) {
             model = _model;
             drawable = _drawable;
             path = std::move(_path);
             position = _position;
             player = _player;
             velocity = _velocity;
+            light = std::make_shared<client::Light>(client::LIGHT_DIRECTIONAL, position, _target, _color, _nb);
+            light->UpdateLightValues(_shader);
         }
 
         void ApplyVelocity() {
             position.x += velocity.x;
             position.y += velocity.y;
+            light->_position.x += velocity.x;
+            light->_position.y += velocity.y;
         }
 
         [[nodiscard]] bool IsAlive(const Camera &camera) const {
