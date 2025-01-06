@@ -19,6 +19,9 @@ namespace ecs {
         auto &backgrounds = ecs.get_components<BackgroundComponent>();
         auto &shaders = ecs.get_components<ShaderComponent>();
         auto &decors = ecs.get_components<DecorElementComponent>();
+        auto &health_bars = ecs.get_components<HealthBarComponent>();
+        auto &vessels = ecs.get_components<VesselsComponent>();
+        auto &cameras = ecs.get_components<CameraComponent>();
 
         Shader shader = {};
         for (auto & shader_i : shaders) {
@@ -38,12 +41,35 @@ namespace ecs {
                 }
             }
         }
+
         float deltaTime = GetFrameTime();
         for (auto &decor : decors) {
             if (decor.has_value()) {
                 decor->Update(deltaTime, GetScreenWidth(), GetScreenHeight());
             }
         }
+
+        std::vector<Vector2> vessels_positions = {};
+        std::vector<int> vessels_health = {};
+        for (auto & vessel : vessels)
+        {
+            if (vessel.has_value())
+            {
+                for (auto & camera_i : cameras)
+                {
+                    if (camera_i.has_value())
+                    {
+                        VesselsComponent &vesselComponent = vessel.value();
+                        if (vesselComponent.drawable)
+                        {
+                            vessels_positions.emplace_back(GetWorldToScreen(vesselComponent.position, camera_i->camera));
+                            vessels_health.emplace_back(vesselComponent.health);
+                        }
+                    }
+                }
+            }
+        }
+
         BeginDrawing();
         ClearBackground(RAYWHITE);
 
@@ -52,13 +78,24 @@ namespace ecs {
                 background->DrawLayer(GetScreenWidth(), GetScreenHeight());
             }
         }
+
         for (auto &decor : decors) {
             if (decor.has_value()) {
                 decor->DrawDecorElement(GetScreenWidth(), GetScreenHeight());
             }
         }
 
-        auto &cameras = ecs.get_components<CameraComponent>();
+        for (auto &health_bar: health_bars)
+        {
+            if (health_bar.has_value())
+            {
+                for (size_t i = 0; i < vessels_positions.size(); i++)
+                {
+                    DrawTexture(health_bar->textures[vessels_health[i]], static_cast<int>(vessels_positions[i].x),
+                        static_cast<int>(vessels_positions[i].y), WHITE);
+                }
+            }
+        }
 
         for (auto & camera_i : cameras) {
             if (camera_i.has_value()) {
@@ -153,6 +190,9 @@ namespace ecs {
         // Init models & shaders
         ecs.run_event(InitModelEvent{});
         ecs.run_event(InitShaderEvent{});
+
+        // Init health bars
+        ecs.run_event(HealthBarEvent{"./client/assets/health_bar"});
 
         auto &shaders = ecs.get_components<ShaderComponent>();
         Shader shader = {};

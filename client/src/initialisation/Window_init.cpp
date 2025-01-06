@@ -83,6 +83,7 @@ void init_game_window (Registry& ecs) {
     ecs.unsubscribe_all<ecs::InitShaderEvent>();
 
     ecs.subscribe<ecs::InitLightEvent>(ecs::create_light_system);
+    ecs.subscribe<ecs::HealthBarEvent>(ecs::create_health_bar_system);
     ecs.subscribe<ecs::ParticleSystemEvent>(ecs::particles_system);
     ecs.subscribe<ecs::ControlsEvent>(ecs::game_controls_system);
     ecs.subscribe<ecs::InitShaderEvent>([](Registry &ecs, const ecs::InitShaderEvent &event) {

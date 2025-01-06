@@ -98,10 +98,14 @@ namespace ecs {
     };
 
     //Init menu
-    struct InitMenuElement {
-
-    };
+    struct InitMenuElement {};
 
     // Settings
     struct DisplaySettingEvent {};
+
+// Health bar
+    struct HealthBarEvent
+    {
+        std::string path;
+    };
 }

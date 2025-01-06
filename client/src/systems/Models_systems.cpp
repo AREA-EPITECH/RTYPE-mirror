@@ -374,4 +374,27 @@ namespace ecs {
                 {}, true, {}, {}, {}, 0, {}});
         }
     }
+
+    void create_health_bar_system(Registry &ecs, const HealthBarEvent &event)
+    {
+        std::vector<Texture> images;
+        std::vector<std::string> files;
+
+        for (const auto &entry : std::filesystem::directory_iterator(event.path))
+        {
+            if (std::string file = entry.path().c_str(); file.find(".png") != std::string::npos)
+                files.emplace_back(file);
+        }
+
+        std::sort(files.begin(), files.end());
+
+        for (const auto &file : files)
+        {
+            images.emplace_back(LoadTexture(file.c_str()));
+        }
+
+
+        const auto ModelEntity = ecs.spawn_entity();
+        ecs.add_component<HealthBarComponent>(ModelEntity, {images});
+    }
 }

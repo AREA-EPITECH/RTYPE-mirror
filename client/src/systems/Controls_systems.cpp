@@ -252,8 +252,7 @@ namespace ecs
                             ecs, projectile->model,
                             {modelComponent->position.x + 10, modelComponent->position.y + 2, 0}, {0.5, 0, 0}, true,
                             projectile->path,
-                            Vector3Normalize(
-                                Vector3Subtract(cameraComponent->camera.target, cameraComponent->camera.position)), nb_lights, shader);
+                            Vector3Zero(), nb_lights, shader);
                     }
                 }
             }

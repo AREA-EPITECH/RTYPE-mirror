@@ -39,6 +39,7 @@ Registry init_ecs()
     ecs.register_component<ecs::FocusComponent>();
     ecs.register_component<ecs::KeyBindingComponent>();
     ecs.register_component<ecs::ImageComponent>();
+    ecs.register_component<ecs::HealthBarComponent>();
 
     ecs.register_event<ecs::CreateWindowEvent>();
     ecs.register_event<ecs::WindowOpenEvent>();
@@ -53,6 +54,7 @@ Registry init_ecs()
     ecs.register_event<ecs::InitBackgroundEvent>();
     ecs.register_event<ecs::InitDecorElementEvent>();
     ecs.register_event<ecs::ChangeFocusEvent>();
+    ecs.register_event<ecs::HealthBarEvent>();
 
     ecs.register_event<network::ClientEvent>();
     ecs.register_event<struct network::LobbyActionPacket>();

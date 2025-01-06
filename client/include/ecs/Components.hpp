@@ -7,6 +7,8 @@
 
 #pragma once
 
+#define MAX_HEALTH 10
+
 #include <utility>
 
 #include "Events.hpp"
@@ -86,6 +88,7 @@ namespace ecs {
         std::string path;
         TextComponent name;
         Vector3 position = {0, 0, 0};
+        int health = MAX_HEALTH;
 
         VesselsComponent(Model _model, bool _drawable, std::string _path, TextComponent _name) {
             model = _model;
@@ -260,4 +263,8 @@ namespace ecs {
         }
     };
 
+    struct HealthBarComponent
+    {
+        std::vector<Texture> textures;
+    };
 }
