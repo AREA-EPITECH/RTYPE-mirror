@@ -74,31 +74,14 @@ Registry init_ecs()
                     {
                         auto received_packet = std::any_cast<struct network::LobbySnapshotPacket>(event.data);
                         auto &gameStateCps = ecs.get_components<game::GameState>();
-                        std::optional<std::reference_wrapper<game::GameState>> gameState;
-                        for (auto &it : gameStateCps)
-                        {
-                            if (it.has_value())
-                            {
-                                gameState = std::ref(*it);
-                                break;
-                            }
-                        }
+                        auto gameState = getGameState(ecs);
                         gameState->get().setRoomId(received_packet.roomId);
                         spdlog::info("Received lobby snapshot packet: {}", received_packet.header.packetId);
                     }
                     else if (event.packetType == network::PacketType::SnapshotPacket)
                     {
                         auto received_packet = std::any_cast<struct network::SnapshotPacket>(event.data);
-                        auto &gameStateCps = ecs.get_components<game::GameState>();
-                        std::optional<std::reference_wrapper<game::GameState>> gameState;
-                        for (auto &it : gameStateCps)
-                        {
-                            if (it.has_value())
-                            {
-                                gameState = std::ref(*it);
-                                break;
-                            }
-                        }
+                        auto gameState = getGameState(ecs);
                         auto user = gameState->get().getUser();
                         user.id = received_packet.entities[0].entityId;
                         gameState->get().updateUser(user);

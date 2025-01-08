@@ -44,13 +44,7 @@ void init_menu_entity(Registry &ecs)
                 auto &boxCpt = ecs.get_components<ecs::ShowBoxComponent>();
                 packet.roomId = boxCpt[showBoxEntity]->numberInput.value;
                 auto &gameStateCps = ecs.get_components<game::GameState>();
-                std::optional<std::reference_wrapper<game::GameState>> gameState;
-                for (auto &it : gameStateCps) {
-                    if (it.has_value()) {
-                        gameState = std::ref(*it);
-                        break;
-                    }
-                }
+                auto gameState = getGameState(ecs);
                 if (gameState) {
                     game::GameState::Player user = gameState->get().getUser();
                     user.health = 100;
@@ -131,14 +125,7 @@ void init_menu_entity(Registry &ecs)
                 {
                     return;
                 }
-                auto &gameStateCps = ecs.get_components<game::GameState>();
-                std::optional<std::reference_wrapper<game::GameState>> gameState;
-                for (auto &it : gameStateCps) {
-                    if (it.has_value()) {
-                        gameState = std::ref(*it);
-                        break;
-                    }
-                }
+                auto gameState = getGameState(ecs);
                 if (gameState) {
                     game::GameState::Player user = gameState->get().getUser();
                     user.health = 100;

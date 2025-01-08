@@ -12,15 +12,8 @@ void update_board_component(Registry &ecs, int screenWidth, int screenHeight) {
 
     auto &texts = ecs.get_components<ecs::TextComponent>();
     auto &buttons = ecs.get_components<ecs::ButtonComponent>();
-    auto &gameStateCps = ecs.get_components<game::GameState>();
+    auto gameState = getGameState(ecs);
     int players_ids = 0;
-    std::optional<std::reference_wrapper<game::GameState>> gameState;
-    for (auto &it : gameStateCps) {
-        if (it.has_value()) {
-            gameState = std::ref(*it);
-            break;
-        }
-    }
 
     game::GameState::Player user = gameState->get().getUser();
     std::vector<game::GameState::Player> other_user = gameState->get().getOtherPlayer();

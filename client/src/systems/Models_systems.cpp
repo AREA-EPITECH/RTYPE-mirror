@@ -43,14 +43,7 @@ namespace ecs {
             auto ModelEntity = ecs.spawn_entity();
             std::cout << "MODEL ID : " << ModelEntity << std::endl;
 
-            auto &gameStateCps = ecs.get_components<game::GameState>();
-            std::optional<std::reference_wrapper<game::GameState>> gameState;
-            for (auto &it : gameStateCps) {
-                if (it.has_value()) {
-                    gameState = std::ref(*it);
-                    break;
-                }
-            }
+            auto gameState = getGameState(ecs);
             std::string name_str = gameState->get().getUser().name;
             int fontSize = 54;
             int textWidth = MeasureText(name_str.c_str(), fontSize);

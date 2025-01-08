@@ -71,3 +71,17 @@ namespace game
         }
     }
 } // namespace game
+
+std::optional<std::reference_wrapper<game::GameState>> getGameState(Registry &ecs) {
+    auto &gameStateCps = ecs.get_components<game::GameState>();
+    std::optional<std::reference_wrapper<game::GameState>> gameState;
+    for (auto &it : gameStateCps)
+    {
+        if (it.has_value())
+        {
+            gameState = std::ref(*it);
+            break;
+        }
+    }
+    return gameState;
+}

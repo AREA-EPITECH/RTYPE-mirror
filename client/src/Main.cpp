@@ -122,8 +122,8 @@ void handle_network_event(
 
     if (!network_client.connectToServer(host, port))
     {
-        std::cerr << "Failed to connect to server!" << std::endl;
-        exit(84);
+        spdlog::error("Failed to connect to server!");
+        return ;
     }
 
     network::ClientEvent event;

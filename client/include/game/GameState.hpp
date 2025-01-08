@@ -12,6 +12,7 @@
 #include <tuple>
 #include <vector>
 
+#include "Registry.hpp"
 #include "ecs/Systems.hpp"
 
 namespace game
@@ -60,3 +61,5 @@ namespace game
         std::vector<entity_t> textPlayerNameEntities;
     };
 } // namespace game
+
+std::optional<std::reference_wrapper<game::GameState>> getGameState(Registry &ecs);

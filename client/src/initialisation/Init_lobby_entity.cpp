@@ -10,14 +10,7 @@
 
 void init_lobby_entity(Registry &ecs)
 {
-    auto &gameStateCps = ecs.get_components<game::GameState>();
-    std::optional<std::reference_wrapper<game::GameState>> gameState;
-    for (auto &it : gameStateCps) {
-        if (it.has_value()) {
-            gameState = std::ref(*it);
-            break;
-        }
-    }
+    auto gameState = getGameState(ecs);
     auto idText = ecs.spawn_entity();
     std::string idStr = "ID : ";
     ecs.add_component<ecs::TextComponent>(idText, {idStr, 54, 50, 50, 2});
