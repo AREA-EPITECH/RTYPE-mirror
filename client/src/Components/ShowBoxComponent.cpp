@@ -13,20 +13,20 @@ namespace ecs
 {
     ShowBoxComponent::ShowBoxComponent(Rectangle _boxRect, std::string _message, Color _boxColor, Color _textColor,
                                        WindowFocus _focus, std::string _textInput, std::string _closeButtonText,
-                                       std::string _continueButtonText, std::function<void()> _onClose,
-                                       std::function<void()> _onContinue,
+                                       std::string _continueButtonText,
                                        std::function<int(int screenWidth, int screenHeight)> _dynamicX,
-                                       std::function<int(int screenWidth, int screenHeight)> _dynamicY) :
+                                       std::function<int(int screenWidth, int screenHeight)> _dynamicY,
+                                       std::function<void()> _continue_func, std::function<void()> _close_func) :
         boxRect(_boxRect), message(std::move(_message)), boxColor(_boxColor), textColor(_textColor), isVisible(false),
-        onClose(std::move(_onClose)), onContinue(std::move(_onContinue)), dynamicX(std::move(_dynamicX)),
-        dynamicY(std::move(_dynamicY)), focus(_focus), closeButtonText(std::move(_closeButtonText)),
+        dynamicX(std::move(_dynamicX)), dynamicY(std::move(_dynamicY)), continue_func(std::move(_continue_func)),
+        close_func(std::move(_close_func)), focus(_focus), closeButtonText(std::move(_closeButtonText)),
         continueButtonText(std::move(_continueButtonText))
     {
-        numberInput.placeholder = "";
-        numberInput.focus = _focus;
+        numberInput.placeholder = std::move(_textInput);
+        numberInput.value = 0;
         numberInput.minValue = 0;
-        numberInput.maxValue = 100;
-        numberInput.value = numberInput.minValue;
+        numberInput.maxValue = INT16_MAX;
+        numberInput.focus = _focus;
         if (dynamicX)
             boxRect.x = dynamicX(GetScreenWidth(), GetScreenHeight());
         if (dynamicY)
@@ -38,10 +38,10 @@ namespace ecs
         numberInput.inputBox = {boxRect.x + 10, boxRect.y + 40, boxRect.width - 20, 30};
     }
 
-    bool ShowBoxComponent::draw(WindowFocus _focus)
+    void ShowBoxComponent::draw(WindowFocus _focus)
     {
         if (!isVisible)
-            return false;
+            return;
 
         int previousState = GuiGetState();
 
@@ -67,21 +67,22 @@ namespace ecs
 
         if (GuiButton(closeButtonRect, closeButtonText.c_str()))
         {
-            if (onClose)
-                onClose();
+            if (close_func)
+            {
+                close_func();
+            }
             isVisible = false;
-            return false;
         }
 
         if (GuiButton(continueButtonRect, continueButtonText.c_str()))
         {
-            if (onContinue)
-                onContinue();
+            if (continue_func)
+            {
+                continue_func();
+            }
             isVisible = false;
-            return false;
         }
         GuiSetState(previousState);
-        return true;
     }
 
     void ShowBoxComponent::handleClick(Vector2 mousePosition) {}

@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <algorithm>
 #include "Registry.hpp"
 #include "Events.hpp"
 #include "Components.hpp"
@@ -70,4 +71,10 @@ namespace ecs {
 
 // DecorElement
     void load_decor_element(Registry &ecs, const InitDecorElementEvent &event);
+
+// Settings
+    void display_settings_system (Registry &ecs, const DisplaySettingEvent &);
+
+// HealthBar
+    void create_health_bar_system(Registry &ecs, const HealthBarEvent &event);
 }

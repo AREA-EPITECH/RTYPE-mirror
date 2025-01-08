@@ -38,9 +38,11 @@ namespace client
     /**
      * @brief Update the light values
      * @param shader
+     * @param enabled
      */
-    void Light::UpdateLightValues(const Shader shader)
+    void Light::UpdateLightValues(const Shader shader, const bool enabled)
     {
+        _enabled = enabled;
         _enabledLoc = GetShaderLocation(shader, TextFormat("lights[%i].enabled", _nb));
         _typeLoc = GetShaderLocation(shader, TextFormat("lights[%i].type", _nb));
         _positionLoc = GetShaderLocation(shader, TextFormat("lights[%i].position", _nb));

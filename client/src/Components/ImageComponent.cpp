@@ -1,6 +1,9 @@
-//
-// Created by lferraro on 12/18/24.
-//
+/*
+** EPITECH PROJECT, 2024
+** r-type
+** File description:
+** ImageComponent
+*/
 
 #include "ecs/Components.hpp"
 
@@ -8,8 +11,7 @@ namespace ecs {
     ImageComponent::ImageComponent(const std::string& _imagePath, WindowFocus _focus,
                                    std::function<int(int screenWidth, int screenHeight)> _dynamicX,
                                    std::function<int(int screenWidth, int screenHeight)> _dynamicY,
-                                   std::function<void()> _onClick,
-                                   float _width, float _height)
+                                   float _width, float _height, std::function<void()> _onClick)
             : dynamicX(std::move(_dynamicX)), dynamicY(std::move(_dynamicY)), onClick(std::move(_onClick)),
               width(_width), height(_height), focus(_focus) {
         texture = LoadTexture(_imagePath.c_str());

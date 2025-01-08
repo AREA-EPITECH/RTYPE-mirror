@@ -7,10 +7,13 @@
 
 #pragma once
 
+#define MAX_HEALTH 10
+
 #include <utility>
 
 #include "Events.hpp"
 #include "Components/Selectors.hpp"
+#include "Components/Controls.hpp"
 #include "core/ParticleSystem.hpp"
 #include <cstring>
 
@@ -85,6 +88,7 @@ namespace ecs {
         std::string path;
         TextComponent name;
         Vector3 position = {0, 0, 0};
+        int health = MAX_HEALTH;
 
         VesselsComponent(Model _model, bool _drawable, std::string _path, TextComponent _name) {
             model = _model;
@@ -230,20 +234,25 @@ namespace ecs {
         Vector3 position{};
         bool player;
         Vector3 velocity{};
+        std::shared_ptr<client::Light> light;
 
         ProjectilesComponent(Model _model, bool _drawable, std::string _path, Vector3 _position, bool _player,
-            Vector3 _velocity) {
+            Vector3 _velocity, Vector3 _target, Color _color, int _nb, Shader _shader) {
             model = _model;
             drawable = _drawable;
             path = std::move(_path);
             position = _position;
             player = _player;
             velocity = _velocity;
+            light = std::make_shared<client::Light>(client::LIGHT_DIRECTIONAL, position, _target, _color, _nb);
+            light->UpdateLightValues(_shader);
         }
 
         void ApplyVelocity() {
             position.x += velocity.x;
             position.y += velocity.y;
+            light->_position.x += velocity.x;
+            light->_position.y += velocity.y;
         }
 
         [[nodiscard]] bool IsAlive(const Camera &camera) const {
@@ -254,34 +263,8 @@ namespace ecs {
         }
     };
 
-    class KeyBindingComponent {
-    private:
-        std::unordered_map<std::string, int> key_bindings;
-
-    public:
-        KeyBindingComponent() {
-            key_bindings["Move Up"] = KEY_UP;
-            key_bindings["Move Down"] = KEY_DOWN;
-            key_bindings["Move Left"] = KEY_LEFT;
-            key_bindings["Move Right"] = KEY_RIGHT;
-            key_bindings["Basic Shoot"] = KEY_SPACE;
-            key_bindings["Special Shoot"] = KEY_LEFT_SHIFT;
-        }
-
-        int getKey(const std::string &action) const {
-            return key_bindings.at(action);
-        }
-
-        void setKey(const std::string &action, const int newKey) {
-            key_bindings[action] = newKey;
-        }
-
-        std::vector<std::string> getActions() const {
-            std::vector<std::string> actions;
-            for (const auto& [action, key] : key_bindings) {
-                actions.push_back(action);
-            }
-            return actions;
-        }
+    struct HealthBarComponent
+    {
+        std::vector<Texture> textures;
     };
 }

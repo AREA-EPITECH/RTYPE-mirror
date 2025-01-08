@@ -15,140 +15,6 @@
 std::atomic<bool> shutdown_requested(false);
 
 /**
- * Init the ecs
- * @return
- */
-Registry init_ecs()
-{
-    Registry ecs;
-
-    ecs.register_component<ecs::Window>();
-    ecs.register_component<ecs::VesselsComponent>();
-    ecs.register_component<ecs::ShaderComponent>();
-    ecs.register_component<ecs::CameraComponent>();
-    ecs.register_component<ecs::ParticleSystemComponent>();
-    ecs.register_component<ecs::LightComponent>();
-    ecs.register_component<ecs::TextComponent>();
-    ecs.register_component<ecs::ButtonComponent>();
-    ecs.register_component<ecs::MenuText>();
-    ecs.register_component<ecs::BackgroundComponent>();
-    ecs.register_component<ecs::DecorElementComponent>();
-    ecs.register_component<ecs::TextInputComponent>();
-    ecs.register_component<ecs::ShowBoxComponent>();
-    ecs.register_component<ecs::ProjectilesComponent>();
-    ecs.register_component<ecs::ControllableComponent>();
-    ecs.register_component<ecs::EnemyComponent>();
-    ecs.register_component<ecs::FocusComponent>();
-    ecs.register_component<ecs::KeyBindingComponent>();
-    ecs.register_component<ecs::ImageComponent>();
-    ecs.register_component<game::GameState>();
-
-    ecs.register_event<ecs::CreateWindowEvent>();
-    ecs.register_event<ecs::WindowOpenEvent>();
-    ecs.register_event<ecs::WindowCloseEvent>();
-    ecs.register_event<ecs::WindowDrawEvent>();
-    ecs.register_event<ecs::InitCameraEvent>();
-    ecs.register_event<ecs::InitModelEvent>();
-    ecs.register_event<ecs::ControlsEvent>();
-    ecs.register_event<ecs::ParticleSystemEvent>();
-    ecs.register_event<ecs::InitLightEvent>();
-    ecs.register_event<ecs::InitShaderEvent>();
-    ecs.register_event<ecs::InitBackgroundEvent>();
-    ecs.register_event<ecs::InitDecorElementEvent>();
-    ecs.register_event<ecs::ChangeFocusEvent>();
-
-    ecs.register_event<network::ClientEvent>();
-    ecs.register_event<struct network::LobbyActionPacket>();
-    ecs.register_event<struct network::InputPacket>();
-
-    ecs.subscribe<network::ClientEvent>(
-        [](Registry &ecs, const network::ClientEvent &event)
-        {
-            switch (event.type)
-            {
-            case network::ClientEventType::DataReceive:
-                {
-                    if (event.packetType == network::PacketType::LobbySnapshotPacket)
-                    {
-                        auto received_packet = std::any_cast<struct network::LobbySnapshotPacket>(event.data);
-                        auto &gameStateCps = ecs.get_components<game::GameState>();
-                        std::optional<std::reference_wrapper<game::GameState>> gameState;
-                        for (auto &it : gameStateCps) {
-                            if (it.has_value()) {
-                                gameState = std::ref(*it);
-                                break;
-                            }
-                        }
-                        if (gameState) {
-                            spdlog::info("Connected to room {}", received_packet.roomId);
-                            gameState->get().setRoomId(received_packet.roomId);
-                            game::GameState::Player user = gameState->get().getUser();
-                            std::vector<game::GameState::Player> other_players;
-                            for (auto &player: received_packet.players) {
-                                if (player.id == user.id) {
-                                    user.ship_id = player.shipId;
-                                    user.is_ready = player.ready;
-                                } else {
-                                    game::GameState::Player new_player;
-                                    new_player.id = player.id;
-                                    new_player.is_ready = player.ready;
-                                    new_player.name = player.name;
-                                    new_player.ship_id = player.shipId;
-                                    other_players.push_back(new_player);
-                                }
-                            }
-                            gameState->get().updateUser(user);
-                            gameState->get().updateOtherPlayer(other_players);
-                        }
-                        spdlog::info("Received lobby snapshot packet: {}", received_packet.header.packetId);
-                    } else if (event.packetType == network::PacketType::SnapshotPacket)
-                    {
-                        auto received_packet = std::any_cast<struct network::SnapshotPacket>(event.data);
-                        auto &gameStateCps = ecs.get_components<game::GameState>();
-                        std::optional<std::reference_wrapper<game::GameState>> gameState;
-                        for (auto &it : gameStateCps) {
-                            if (it.has_value()) {
-                                gameState = std::ref(*it);
-                                break;
-                            }
-                        }
-                        if (gameState) {
-                            game::GameState::Player player = gameState->get().getUser();
-                            if (!player.id) {
-                                // Player id is not defined
-                                if (received_packet.numEntities == 1) {
-                                    player.id = received_packet.entities[0].entityId;
-                                    spdlog::info("Logged with id: {}", player.id);
-                                }
-                                gameState->get().updateUser(player);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        spdlog::info("Data received");
-                    }
-                    break;
-                }
-            case network::ClientEventType::ServerDisconnect:
-                std::cout << "Disconnected from server!" << std::endl;
-                break;
-            }
-        });
-
-    auto focus = ecs.spawn_entity();
-    ecs.add_component<ecs::FocusComponent>(focus, {ecs::DEFAULT_FOCUS});
-    ecs.subscribe<ecs::ChangeFocusEvent>(ecs::change_focus_system);
-
-    auto gameState = ecs.spawn_entity();
-    ecs.add_component<game::GameState>(gameState, game::GameState());
-
-    init_menu_window(ecs);
-
-    return ecs;
-}
-
-/**
  * @brief Empty ecs from all entities and components
  * @param ecs
  */
@@ -172,6 +38,19 @@ void empty_ecs(Registry &ecs)
         if (shaders[i].has_value())
         {
             UnloadShader(shaders[i]->shader);
+            ecs.kill_entity(i);
+        }
+    }
+
+    auto &health_bars = ecs.get_components<ecs::HealthBarComponent>();
+    for (std::size_t i = 0; i < health_bars.size(); ++i)
+    {
+        if (health_bars[i].has_value())
+        {
+            for (const auto &texture : health_bars[i]->textures)
+            {
+                UnloadTexture(texture);
+            }
             ecs.kill_entity(i);
         }
     }
@@ -327,6 +206,9 @@ int main(int argc, char *argv[])
     }
     shutdown_requested.store(true);
     thread_network.join();
+    empty_ecs(ecs);
+    CloseAudioDevice();
+    CloseWindow();
 
     return 0;
 }
