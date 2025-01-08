@@ -29,6 +29,7 @@ void display_menu_selectors(Registry &ecs) {
     auto &buttons = ecs.get_components<ecs::ButtonComponent>();
     auto &inputs = ecs.get_components<ecs::TextInputComponent>();
     auto &showbox = ecs.get_components<ecs::ShowBoxComponent>();
+    auto &images = ecs.get_components<ecs::ImageComponent>();
     ecs::WindowFocus focus = ecs::get_focus(ecs);
 
     for (auto & i : buttons) {
@@ -50,6 +51,12 @@ void display_menu_selectors(Registry &ecs) {
             if (!box.value().draw(focus)) {
                 ecs.run_event(ecs::ChangeFocusEvent{ecs::MENU_FOCUS});
             }
+        }
+    }
+
+    for (auto & image : images) {
+        if (image.has_value()) {
+            image.value().draw(GetScreenWidth(), GetScreenHeight());
         }
     }
 }

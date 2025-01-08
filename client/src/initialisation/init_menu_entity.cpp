@@ -119,7 +119,7 @@ void init_menu_entity(Registry &ecs)
                 }
                 packet.actionType = network::LobbyActionType::CreateRoom;
                 ecs.run_event(packet);
-                ecs::change_window(ecs, ecs::WindowType::LOBBY);
+                change_window(ecs, ecs::WindowType::LOBBY);
             },
             [buttonWidth](int screenWidth, int screenHeight) { return screenWidth / 2 - (buttonWidth / 2); },
             [buttonHeight](int screenWidth, int screenHeight) { return screenHeight / 3 + (buttonHeight * 2 + 100); }));

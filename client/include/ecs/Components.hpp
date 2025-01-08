@@ -93,7 +93,7 @@ namespace ecs {
             name = std::move(_name);
         }
 
-        void Move(const client::Direction direction, Camera &camera)
+        void Move(const client::Direction direction, const Camera &camera)
         {
             Vector2 screen_pos = GetWorldToScreen(position, camera);
             const float max_height = static_cast<float>(GetScreenHeight()) * 0.1f;
@@ -182,30 +182,32 @@ namespace ecs {
     {
     public:
         Texture2D texture{};
-        int x{};
+        float x{};
         int y{};
         int speed;
+        size_t depth;
 
-        explicit DecorElementComponent(const std::string &path, const int speed)
+        explicit DecorElementComponent(const std::string &path, const int speed, const size_t depth)
         {
             texture = LoadTexture(path.c_str());
             this->speed = speed;
+            this->depth = depth;
         }
 
         void ResetPosition(const int screen_width, const int screen_height)
         {
-            x = screen_width;
+            x = static_cast<float>(screen_width);
             y = GetRandomValue(0, screen_height - 50);
         }
 
         void Update(const float deltaTime, const int screen_width, const int screen_height)
         {
-            x -= static_cast<int>(static_cast<float>(speed) * deltaTime);
+            x -= static_cast<float>(speed) * deltaTime;
 
-            if (static_cast<float>(x) + static_cast<float>(texture.width) * (static_cast<float>(screen_height) /
+            if (x + static_cast<float>(texture.width) * (static_cast<float>(screen_height) /
                 static_cast<float>(texture.height)) < 0) {
                 ResetPosition(screen_width, screen_height);
-            }
+                }
         }
 
         void DrawDecorElement(const int screen_width, const int screen_height) const
@@ -214,7 +216,7 @@ namespace ecs {
             const float scaled_width = static_cast<float>(texture.width) * scale_factor;
 
             DrawTexturePro(texture, {0, 0, static_cast<float>(texture.width),
-                static_cast<float>(texture.height)}, {static_cast<float>(x), 0, scaled_width,
+                static_cast<float>(texture.height)}, {x, 0, scaled_width,
                 static_cast<float>(screen_height)}, {0, 0}, 0.0f, WHITE
             );
         }
@@ -249,6 +251,37 @@ namespace ecs {
 
             return screenPos.x >= 0 && screenPos.x <= static_cast<float>(GetScreenWidth()) &&
                        screenPos.y >= 0 && screenPos.y <= static_cast<float>(GetScreenHeight());
+        }
+    };
+
+    class KeyBindingComponent {
+    private:
+        std::unordered_map<std::string, int> key_bindings;
+
+    public:
+        KeyBindingComponent() {
+            key_bindings["Move Up"] = KEY_UP;
+            key_bindings["Move Down"] = KEY_DOWN;
+            key_bindings["Move Left"] = KEY_LEFT;
+            key_bindings["Move Right"] = KEY_RIGHT;
+            key_bindings["Basic Shoot"] = KEY_SPACE;
+            key_bindings["Special Shoot"] = KEY_LEFT_SHIFT;
+        }
+
+        int getKey(const std::string &action) const {
+            return key_bindings.at(action);
+        }
+
+        void setKey(const std::string &action, const int newKey) {
+            key_bindings[action] = newKey;
+        }
+
+        std::vector<std::string> getActions() const {
+            std::vector<std::string> actions;
+            for (const auto& [action, key] : key_bindings) {
+                actions.push_back(action);
+            }
+            return actions;
         }
     };
 }

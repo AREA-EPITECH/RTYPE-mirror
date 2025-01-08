@@ -76,6 +76,17 @@ public:
         get_components<Component>().erase(from);
     }
 
+    template <typename Component>
+    void delete_component() {
+        auto type_idx = std::type_index(typeid(Component));
+        auto it = _components_arrays.find(type_idx);
+
+        if (it != _components_arrays.end()) {
+            _components_arrays.erase(type_idx);
+            _erase_functions.erase(type_idx);
+        }
+    }
+
     entity_t spawn_entity() {
         entity_t entity;
         if (!_dead_entities.empty()) {

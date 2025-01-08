@@ -6,6 +6,7 @@
 */
 
 #include "ecs/Systems.hpp"
+#include <algorithm>
 
 namespace ecs {
 
@@ -119,13 +120,16 @@ namespace ecs {
     * @param ecs
     */
     void open_game_system(Registry &ecs, const WindowOpenEvent &) {
-        // Init camera
-        ecs.run_event(InitCameraEvent{{0.0f, 0.0f, 50.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, 45.0f,
-                                      CAMERA_PERSPECTIVE});
+        // Update camera
         auto &cameras = ecs.get_components<CameraComponent>();
         Camera camera = {};
         for (auto & camera_i : cameras) {
             if (camera_i.has_value()) {
+                camera_i->camera.position = {0.0f, 0.0f, 50.0f};
+                camera_i->camera.target = Vector3Zero();
+                camera_i->camera.up = {0.0f, 1.0f, 0.0f};
+                camera_i->camera.fovy = 45.0f;
+                camera_i->camera.projection = CAMERA_PERSPECTIVE;
                 camera = camera_i->camera;
                 break;
             }
@@ -154,12 +158,32 @@ namespace ecs {
             }
         }
 
-        // Init background
-        ecs.run_event(InitBackgroundEvent{"client/assets/backgrounds/game/space_background.png", 2,
-                    200, 0});
-        ecs.run_event(InitDecorElementEvent{"client/assets/backgrounds/game/space_midground.png", 300});
-        ecs.run_event(InitDecorElementEvent{"client/assets/backgrounds/game/space_midground_2.png", 300});
-        ecs.run_event(InitDecorElementEvent{"client/assets/backgrounds/game/space_foreground.png", 400});
+        auto &backgrounds = ecs.get_components<BackgroundComponent>();
+        for (auto & background : backgrounds) {
+            if (background.has_value()) {
+                background->speed = 200;
+            }
+        }
+
+        auto &decors = ecs.get_components<DecorElementComponent>();
+        for (auto & decor : decors) {
+            if (decor.has_value()) {
+                switch (decor->depth)
+                {
+                    case 1:
+                        decor->speed = 100;
+                        break;
+                    case 2:
+                        decor->speed = 200;
+                        break;
+                    case 3:
+                        decor->speed = 300;
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
     }
 
     /**

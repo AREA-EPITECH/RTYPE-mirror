@@ -302,7 +302,7 @@ namespace ecs {
      */
     void load_decor_element(Registry &ecs, const InitDecorElementEvent &event)
     {
-        DecorElementComponent decor_element{event.path, event.speed};
+        DecorElementComponent decor_element{event.path, event.speed, event.depth};
         auto entity = ecs.spawn_entity();
         ecs.add_component<DecorElementComponent>(entity, {(std::move(decor_element))});
     }

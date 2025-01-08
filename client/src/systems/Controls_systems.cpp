@@ -43,8 +43,16 @@ namespace ecs {
      * Get controls in the menu
      * @param ecs
      */
-    void menu_controls_system(Registry &, const ControlsEvent &) {
-
+    void menu_controls_system(Registry &ecs, const ControlsEvent &) {
+        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+            auto &images = ecs.get_components<ImageComponent>();
+            Vector2 mousePosition = GetMousePosition();
+            for (auto &image : images) {
+                if (image.has_value()) {
+                    image.value().handleClick(mousePosition, get_focus(ecs));
+                }
+            }
+        }
     }
 
     /**

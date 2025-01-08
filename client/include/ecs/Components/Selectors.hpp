@@ -122,4 +122,24 @@ namespace ecs
         void handleClick(Vector2 mousePosition);
         void updateBox(int screenWidth, int screenHeight);
     };
+
+    class ImageComponent {
+    public:
+        ImageComponent(const std::string& _imagePath, WindowFocus _focus,
+                       std::function<int(int screenWidth, int screenHeight)> _dynamicX,
+                       std::function<int(int screenWidth, int screenHeight)> _dynamicY,
+                       std::function<void()> _onClick,
+                       float _width = 0.0f, float _height = 0.0f);
+
+        void draw(int screenWidth, int screenHeight);
+        void handleClick(Vector2 mousePosition, WindowFocus _focus);
+
+        Texture2D texture;
+        std::function<int(int screenWidth, int screenHeight)> dynamicX;
+        std::function<int(int screenWidth, int screenHeight)> dynamicY;
+        std::function<void()> onClick;
+        float width;
+        float height;
+        WindowFocus focus;
+    };
 } // namespace ecs
