@@ -172,25 +172,22 @@ namespace ecs
      * @brief Get controls in the game
      * @param ecs
      */
-    void game_controls_system(Registry &ecs, const ControlsEvent &)
-    {
+    void game_controls_system(Registry &ecs, const ControlsEvent &) {
         auto &cameras = ecs.get_components<CameraComponent>();
         auto &models = ecs.get_components<VesselsComponent>();
         auto &controllables = ecs.get_components<ControllableComponent>();
         auto &lights = ecs.get_components<LightComponent>();
         auto &projectiles = ecs.get_components<ProjectilesComponent>();
         auto &shaders = ecs.get_components<ShaderComponent>();
-        int nb_lights= 0;
+        int nb_lights = 0;
+
+        auto &controls = ecs.get_components<KeyBindingComponent>();
 
         VesselsComponent *modelComponent = nullptr;
-        for (auto &model : models)
-        {
-            for (auto &controllable : controllables)
-            {
-                if (controllable.has_value())
-                {
-                    if (model.has_value())
-                    {
+        for (auto &model: models) {
+            for (auto &controllable: controllables) {
+                if (controllable.has_value()) {
+                    if (model.has_value()) {
                         modelComponent = &model.value();
                         break;
                     }
@@ -198,37 +195,30 @@ namespace ecs
             }
         }
         CameraComponent *cameraComponent = nullptr;
-        for (auto &camera : cameras)
-        {
-            if (camera.has_value())
-            {
+        for (auto &camera: cameras) {
+            if (camera.has_value()) {
                 cameraComponent = &camera.value();
                 break;
             }
         }
 
         Shader shader = {};
-        for (auto & shader_i : shaders) {
+        for (auto &shader_i: shaders) {
             if (shader_i.has_value()) {
                 shader = shader_i->shader;
                 break;
             }
         }
 
-        for (auto &light : lights)
-        {
-            if (light.has_value())
-            {
+        for (auto &light: lights) {
+            if (light.has_value()) {
                 nb_lights += 1;
             }
         }
 
-        for (auto &projectile : projectiles)
-        {
-            if (projectile.has_value())
-            {
-                if (projectile->drawable)
-                {
+        for (auto &projectile: projectiles) {
+            if (projectile.has_value()) {
+                if (projectile->drawable) {
                     nb_lights += 1;
                 }
             }
@@ -236,42 +226,45 @@ namespace ecs
 
         if (modelComponent == nullptr || cameraComponent == nullptr)
             return;
-        if (IsKeyPressed(KEY_ENTER))
-        {
+        if (IsKeyPressed(KEY_ENTER)) {
             change_window(ecs, MENU);
         }
-        if (IsKeyPressed(KEY_SPACE))
-        {
-            for (auto &projectile : projectiles)
-            {
-                if (projectile.has_value())
-                {
-                    if (projectile->player && !projectile->drawable)
-                    {
-                        create_player_basic_projectile(
-                            ecs, projectile->model,
-                            {modelComponent->position.x + 10, modelComponent->position.y + 2, 0}, {0.5, 0, 0}, true,
-                            projectile->path,
-                            Vector3Zero(), nb_lights, shader);
+            for (auto &key: controls) {
+                if (key.has_value()) {
+                    int move_up = key.value().getKey("Move Up");
+                    int move_down = key.value().getKey("Move Down");
+                    int move_left = key.value().getKey("Move Left");
+                    int move_right = key.value().getKey("Move Right");
+
+                    if (IsKeyPressed(move_left) || IsKeyDown(move_left)) {
+                        modelComponent->Move(client::Direction::LEFT, cameraComponent->camera);
+                    }
+                    if (IsKeyPressed(move_right) || IsKeyDown(move_right)) {
+                        modelComponent->Move(client::Direction::RIGHT, cameraComponent->camera);
+                    }
+                    if (IsKeyPressed(move_up) || IsKeyDown(move_up)) {
+                        modelComponent->Move(client::Direction::UP, cameraComponent->camera);
+                    }
+                    if (IsKeyPressed(move_down) || IsKeyDown(move_down)) {
+                        modelComponent->Move(client::Direction::DOWN, cameraComponent->camera);
+                    }
+
+                    if (IsKeyPressed(key.value().getKey("Basic Shoot"))) {
+                        auto &projectiles = ecs.get_components<ProjectilesComponent>();
+                        for (auto &projectile: projectiles) {
+                            if (projectile.has_value()) {
+                                if (projectile->player && !projectile->drawable) {
+                                    create_player_basic_projectile(ecs, projectile->model,
+                                                                   {modelComponent->position.x + 10,
+                                                                    modelComponent->position.y + 2,
+                                                                    0},
+                                                                   {0.5, 0, 0}, true, projectile->path, Vector3Zero(),
+                                                                   nb_lights, shader);
+                                }
+                            }
+                        }
                     }
                 }
             }
-        }
-        if (IsKeyPressed(KEY_LEFT) || IsKeyDown(KEY_LEFT))
-        {
-            modelComponent->Move(client::Direction::LEFT, cameraComponent->camera);
-        }
-        if (IsKeyPressed(KEY_RIGHT) || IsKeyDown(KEY_RIGHT))
-        {
-            modelComponent->Move(client::Direction::RIGHT, cameraComponent->camera);
-        }
-        if (IsKeyPressed(KEY_UP) || IsKeyDown(KEY_UP))
-        {
-            modelComponent->Move(client::Direction::UP, cameraComponent->camera);
-        }
-        if (IsKeyPressed(KEY_DOWN) || IsKeyDown(KEY_DOWN))
-        {
-            modelComponent->Move(client::Direction::DOWN, cameraComponent->camera);
-        }
     }
 } // namespace ecs

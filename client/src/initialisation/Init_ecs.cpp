@@ -12,6 +12,10 @@ void init_settings(Registry &ecs)
     ecs.register_event<ecs::DisplaySettingEvent>();
 
     ecs.subscribe<ecs::DisplaySettingEvent>(ecs::display_settings_system);
+    ecs.register_component<ecs::KeyBindingComponent>();
+
+    auto keys = ecs.spawn_entity();
+    ecs.add_component<ecs::KeyBindingComponent>(keys, {});
 }
 
 /**
@@ -39,7 +43,6 @@ Registry init_ecs()
     ecs.register_component<ecs::ControllableComponent>();
     ecs.register_component<ecs::EnemyComponent>();
     ecs.register_component<ecs::FocusComponent>();
-    ecs.register_component<ecs::KeyBindingComponent>();
     ecs.register_component<ecs::ImageComponent>();
     ecs.register_component<ecs::HealthBarComponent>();
     ecs.register_component<game::GameState>();
