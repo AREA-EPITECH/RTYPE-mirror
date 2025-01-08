@@ -6,6 +6,7 @@
 */
 
 #include "ecs/Systems.hpp"
+#include "raylib/kbd_layout.h"
 
 namespace ecs
 {
@@ -70,7 +71,7 @@ namespace ecs
     {
         auto &models = ecs.get_components<VesselsComponent>();
 
-        if (IsKeyPressed(KEY_LEFT))
+        if (Kbd_IsKeyPressed(KBD_Layout::FR, KEY_LEFT))
         {
             size_t current = -1;
             size_t to_change = 0;
@@ -101,7 +102,7 @@ namespace ecs
             }
         }
 
-        if (IsKeyPressed(KEY_RIGHT))
+        if (Kbd_IsKeyPressed(KBD_Layout::FR, KEY_RIGHT))
         {
             size_t current = -1;
             size_t to_change = 0;
@@ -226,7 +227,7 @@ namespace ecs
 
         if (modelComponent == nullptr || cameraComponent == nullptr)
             return;
-        if (IsKeyPressed(KEY_ENTER)) {
+        if (Kbd_IsKeyPressed(KBD_Layout::FR, KEY_ENTER)) {
             change_window(ecs, MENU);
         }
             for (auto &key: controls) {
@@ -236,20 +237,20 @@ namespace ecs
                     int move_left = key.value().getKey("Move Left");
                     int move_right = key.value().getKey("Move Right");
 
-                    if (IsKeyPressed(move_left) || IsKeyDown(move_left)) {
+                    if (Kbd_IsKeyPressed(KBD_Layout::FR, move_left) || Kbd_IsKeyDown(KBD_Layout::FR, move_left)) {
                         modelComponent->Move(client::Direction::LEFT, cameraComponent->camera);
                     }
-                    if (IsKeyPressed(move_right) || IsKeyDown(move_right)) {
+                    if (Kbd_IsKeyPressed(KBD_Layout::FR, move_right) || Kbd_IsKeyDown(KBD_Layout::FR, move_right)) {
                         modelComponent->Move(client::Direction::RIGHT, cameraComponent->camera);
                     }
-                    if (IsKeyPressed(move_up) || IsKeyDown(move_up)) {
+                    if (Kbd_IsKeyPressed(KBD_Layout::FR, move_up) || Kbd_IsKeyDown(KBD_Layout::FR, move_up)) {
                         modelComponent->Move(client::Direction::UP, cameraComponent->camera);
                     }
-                    if (IsKeyPressed(move_down) || IsKeyDown(move_down)) {
+                    if (Kbd_IsKeyPressed(KBD_Layout::FR, move_down) || Kbd_IsKeyDown(KBD_Layout::FR, move_down)) {
                         modelComponent->Move(client::Direction::DOWN, cameraComponent->camera);
                     }
 
-                    if (IsKeyPressed(key.value().getKey("Basic Shoot"))) {
+                    if (Kbd_IsKeyPressed(KBD_Layout::FR, key.value().getKey("Basic Shoot"))) {
                         auto &projectiles = ecs.get_components<ProjectilesComponent>();
                         for (auto &projectile: projectiles) {
                             if (projectile.has_value()) {
