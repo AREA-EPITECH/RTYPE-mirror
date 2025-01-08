@@ -29,24 +29,45 @@ void display_menu_selectors(Registry &ecs) {
     auto &buttons = ecs.get_components<ecs::ButtonComponent>();
     auto &inputs = ecs.get_components<ecs::TextInputComponent>();
     auto &showbox = ecs.get_components<ecs::ShowBoxComponent>();
+    auto &images = ecs.get_components<ecs::ImageComponent>();
+    auto &settings = ecs.get_components<ecs::SettingsComponent>();
+    ecs::WindowFocus focus = ecs::get_focus(ecs);
+
+    int s_width = GetScreenWidth();
+    int s_height = GetScreenHeight();
 
     for (auto & i : buttons) {
         if (i.has_value()) {
             auto &button = i.value();
-            button.drawButton();
+            button.drawButton(focus);
         }
     }
+
     for (auto & input : inputs) {
         if (input.has_value()) {
-            input.value().drawTextInput();
+            input.value().drawTextInput(s_width, s_height, focus);
             input.value().handleInput();
         }
     }
 
     for (auto & box : showbox) {
         if (box.has_value()) {
-            box.value().draw();
+            box.value().draw(focus);
         }
     }
 
+    for (auto & image : images) {
+        if (image.has_value()) {
+            image.value().draw(s_width, s_height);
+        }
+    }
+
+    for (auto & setting : settings) {
+        if (setting.has_value()) {
+            setting.value().background.width = (float)s_width;
+            setting.value().background.height = (float)s_height;
+            setting.value().drawSettings(s_width, s_height);
+            ecs.run_event(ecs::DisplaySettingEvent{});
+        }
+    }
 }

@@ -6,6 +6,7 @@
 */
 
 #include "ecs/Systems.hpp"
+#include <algorithm>
 
 namespace ecs {
 
@@ -16,7 +17,19 @@ namespace ecs {
     void draw_game_system(Registry &ecs, const WindowDrawEvent &) {
         ecs.run_event(ControlsEvent{});
         auto &backgrounds = ecs.get_components<BackgroundComponent>();
+        auto &shaders = ecs.get_components<ShaderComponent>();
         auto &decors = ecs.get_components<DecorElementComponent>();
+        auto &health_bars = ecs.get_components<HealthBarComponent>();
+        auto &vessels = ecs.get_components<VesselsComponent>();
+        auto &cameras = ecs.get_components<CameraComponent>();
+
+        Shader shader = {};
+        for (auto & shader_i : shaders) {
+            if (shader_i.has_value()) {
+                shader = shader_i->shader;
+                break;
+            }
+        }
 
         for (auto & background : backgrounds) {
             if (background.has_value()) {
@@ -28,12 +41,35 @@ namespace ecs {
                 }
             }
         }
+
         float deltaTime = GetFrameTime();
         for (auto &decor : decors) {
             if (decor.has_value()) {
                 decor->Update(deltaTime, GetScreenWidth(), GetScreenHeight());
             }
         }
+
+        std::vector<Vector2> vessels_positions = {};
+        std::vector<int> vessels_health = {};
+        for (auto & vessel : vessels)
+        {
+            if (vessel.has_value())
+            {
+                for (auto & camera_i : cameras)
+                {
+                    if (camera_i.has_value())
+                    {
+                        VesselsComponent &vesselComponent = vessel.value();
+                        if (vesselComponent.drawable)
+                        {
+                            vessels_positions.emplace_back(GetWorldToScreen(vesselComponent.position, camera_i->camera));
+                            vessels_health.emplace_back(vesselComponent.health);
+                        }
+                    }
+                }
+            }
+        }
+
         BeginDrawing();
         ClearBackground(RAYWHITE);
 
@@ -42,13 +78,24 @@ namespace ecs {
                 background->DrawLayer(GetScreenWidth(), GetScreenHeight());
             }
         }
+
         for (auto &decor : decors) {
             if (decor.has_value()) {
                 decor->DrawDecorElement(GetScreenWidth(), GetScreenHeight());
             }
         }
 
-        auto &cameras = ecs.get_components<CameraComponent>();
+        for (auto &health_bar: health_bars)
+        {
+            if (health_bar.has_value())
+            {
+                for (size_t i = 0; i < vessels_positions.size(); i++)
+                {
+                    DrawTexture(health_bar->textures[vessels_health[i]], static_cast<int>(vessels_positions[i].x),
+                        static_cast<int>(vessels_positions[i].y), WHITE);
+                }
+            }
+        }
 
         for (auto & camera_i : cameras) {
             if (camera_i.has_value()) {
@@ -81,9 +128,11 @@ namespace ecs {
                             if (projectile->IsAlive(camera))
                             {
                                 DrawModel(projectile->model, projectile->position, 1.0f, WHITE);
+                                projectile->light->UpdateLightValues(shader);
                             }
                             else
                             {
+                                projectile->light->UpdateLightValues(shader, false);
                                 ecs.kill_entity(i);
                             }
                         }
@@ -119,13 +168,16 @@ namespace ecs {
     * @param ecs
     */
     void open_game_system(Registry &ecs, const WindowOpenEvent &) {
-        // Init camera
-        ecs.run_event(InitCameraEvent{{0.0f, 0.0f, 50.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, 45.0f,
-                                      CAMERA_PERSPECTIVE});
+        // Update camera
         auto &cameras = ecs.get_components<CameraComponent>();
         Camera camera = {};
         for (auto & camera_i : cameras) {
             if (camera_i.has_value()) {
+                camera_i->camera.position = {0.0f, 0.0f, 50.0f};
+                camera_i->camera.target = Vector3Zero();
+                camera_i->camera.up = {0.0f, 1.0f, 0.0f};
+                camera_i->camera.fovy = 45.0f;
+                camera_i->camera.projection = CAMERA_PERSPECTIVE;
                 camera = camera_i->camera;
                 break;
             }
@@ -138,6 +190,9 @@ namespace ecs {
         // Init models & shaders
         ecs.run_event(InitModelEvent{});
         ecs.run_event(InitShaderEvent{});
+
+        // Init health bars
+        ecs.run_event(HealthBarEvent{"./client/assets/health_bar"});
 
         auto &shaders = ecs.get_components<ShaderComponent>();
         Shader shader = {};
@@ -154,12 +209,32 @@ namespace ecs {
             }
         }
 
-        // Init background
-        ecs.run_event(InitBackgroundEvent{"client/assets/backgrounds/game/space_background.png", 2,
-                    200, 0});
-        ecs.run_event(InitDecorElementEvent{"client/assets/backgrounds/game/space_midground.png", 300});
-        ecs.run_event(InitDecorElementEvent{"client/assets/backgrounds/game/space_midground_2.png", 300});
-        ecs.run_event(InitDecorElementEvent{"client/assets/backgrounds/game/space_foreground.png", 400});
+        auto &backgrounds = ecs.get_components<BackgroundComponent>();
+        for (auto & background : backgrounds) {
+            if (background.has_value()) {
+                background->speed = 200;
+            }
+        }
+
+        auto &decors = ecs.get_components<DecorElementComponent>();
+        for (auto & decor : decors) {
+            if (decor.has_value()) {
+                switch (decor->depth)
+                {
+                    case 1:
+                        decor->speed = 100;
+                        break;
+                    case 2:
+                        decor->speed = 200;
+                        break;
+                    case 3:
+                        decor->speed = 300;
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
     }
 
     /**

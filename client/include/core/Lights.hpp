@@ -12,7 +12,7 @@
 
 namespace client
 {
-    #define MAX_LIGHTS  4  // Max dynamic lights supported by shaders implemented
+    #define MAX_LIGHTS  100  // Max dynamic lights supported by shaders implemented
 
     typedef enum {
         LIGHT_DIRECTIONAL = 0,
@@ -28,6 +28,7 @@ namespace client
         float _attenuation{};
         std::string _name;
         int _nb;
+        bool _enabled;
 
         // Shader location
         int _enabledLoc{};
@@ -38,12 +39,11 @@ namespace client
         int _attenuationLoc{};
 
     public:
-        bool _enabled;
         Vector3 _position{};
         Color _color{};
 
         Light(LightType type, Vector3 position, Vector3 target, Color color, int nb);
-        void UpdateLightValues(Shader shader);
+        void UpdateLightValues(Shader shader, bool enabled = true);
     };
 }
 

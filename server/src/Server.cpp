@@ -79,6 +79,10 @@ namespace server
                     ClientData data(unique_id);
                     event.peer->setData<ClientData>(std::move(data));
                     spdlog::info("Client connected: {}", static_cast<void *>(event.peer->getPeer().get()));
+                    struct network::SnapshotPacket snapshot;
+                    snapshot.numEntities = 1;
+                    snapshot.entities.push_back({unique_id, network::EntityType::Player, 0, 0, 0, 0});
+                    _server.sendSnapshotPacket(snapshot, event.peer);
                     break;
                 }
             case network::ServerEventType::ClientDisconnect:
@@ -87,6 +91,7 @@ namespace server
                     if (event.peer->getData<ClientData>().getRoom() == nullptr)
                         break;
                     this->clientDisconnect(event.peer);
+                    break;
                 }
             case network::ServerEventType::DataReceive:
                 this->_thread_pool.enqueueTask(

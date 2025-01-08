@@ -23,6 +23,7 @@ namespace ecs {
                     SetConfigFlags(FLAG_WINDOW_RESIZABLE);
                     InitWindow(win.width, win.height, win.title.c_str());
                     SetTargetFPS(144);
+                    InitAudioDevice();
                     win.isOpen = true;
                     break;
                 }

@@ -6,6 +6,7 @@
 */
 
 #include "ecs/Systems.hpp"
+#include "game/GameState.hpp"
 
 namespace ecs {
 
@@ -42,7 +43,15 @@ namespace ecs {
             auto ModelEntity = ecs.spawn_entity();
             std::cout << "MODEL ID : " << ModelEntity << std::endl;
 
-            std::string name_str = "player_vessel";
+            auto &gameStateCps = ecs.get_components<game::GameState>();
+            std::optional<std::reference_wrapper<game::GameState>> gameState;
+            for (auto &it : gameStateCps) {
+                if (it.has_value()) {
+                    gameState = std::ref(*it);
+                    break;
+                }
+            }
+            std::string name_str = gameState->get().getUser().name;
             int fontSize = 54;
             int textWidth = MeasureText(name_str.c_str(), fontSize);
             int posX = static_cast<int>(screenWidth * 0.66) - textWidth / 2 + 20;
@@ -302,7 +311,7 @@ namespace ecs {
      */
     void load_decor_element(Registry &ecs, const InitDecorElementEvent &event)
     {
-        DecorElementComponent decor_element{event.path, event.speed};
+        DecorElementComponent decor_element{event.path, event.speed, event.depth};
         auto entity = ecs.spawn_entity();
         ecs.add_component<DecorElementComponent>(entity, {(std::move(decor_element))});
     }
@@ -347,7 +356,7 @@ namespace ecs {
             std::cout << "MODEL ID : " << ModelEntity << std::endl;
 
             ecs.add_component<ProjectilesComponent>(ModelEntity, {models, false, vox_files_enemy[i],
-                {}, false, {}});
+                {}, false, {}, {}, {}, 0, {}});
         }
 
         for (int i = 0; i < vox_files_player.size(); i++) {
@@ -371,7 +380,30 @@ namespace ecs {
             std::cout << "MODEL ID : " << ModelEntity << std::endl;
 
             ecs.add_component<ProjectilesComponent>(ModelEntity, {models, false, vox_files_player[i],
-                {}, true, {}});
+                {}, true, {}, {}, {}, 0, {}});
         }
+    }
+
+    void create_health_bar_system(Registry &ecs, const HealthBarEvent &event)
+    {
+        std::vector<Texture> images;
+        std::vector<std::string> files;
+
+        for (const auto &entry : std::filesystem::directory_iterator(event.path))
+        {
+            if (std::string file = entry.path().c_str(); file.find(".png") != std::string::npos)
+                files.emplace_back(file);
+        }
+
+        std::sort(files.begin(), files.end());
+
+        for (const auto &file : files)
+        {
+            images.emplace_back(LoadTexture(file.c_str()));
+        }
+
+
+        const auto ModelEntity = ecs.spawn_entity();
+        ecs.add_component<HealthBarComponent>(ModelEntity, {images});
     }
 }

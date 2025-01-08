@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <algorithm>
 #include "Registry.hpp"
 #include "Events.hpp"
 #include "Components.hpp"
@@ -19,6 +20,10 @@ namespace ecs {
     void init_window_system(Registry &ecs, const CreateWindowEvent &);
     void close_window_system(Registry &ecs, const WindowCloseEvent &);
     void change_window(Registry &ecs, WindowType type);
+
+// Focus
+    void change_focus_system(Registry &ecs, const ChangeFocusEvent &event);
+    WindowFocus get_focus(Registry &ecs);
 
 // Lobby
     void draw_lobby_system(Registry &ecs, const WindowDrawEvent &);
@@ -66,4 +71,10 @@ namespace ecs {
 
 // DecorElement
     void load_decor_element(Registry &ecs, const InitDecorElementEvent &event);
+
+// Settings
+    void display_settings_system (Registry &ecs, const DisplaySettingEvent &);
+
+// HealthBar
+    void create_health_bar_system(Registry &ecs, const HealthBarEvent &event);
 }

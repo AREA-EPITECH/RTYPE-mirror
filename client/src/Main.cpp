@@ -8,80 +8,104 @@
 #include "Main.hpp"
 
 #include "queue/MessageQueue.hpp"
+#include "game/GameState.hpp"
 
 #include <variant>
 
 std::atomic<bool> shutdown_requested(false);
 
 /**
- * Init the ecs
- * @return
+ * @brief Empty ecs from all entities and components
+ * @param ecs
  */
-Registry init_ecs()
+void empty_ecs(Registry &ecs)
 {
-    Registry ecs;
+    kill_entities_with_component<ecs::Window>(ecs);
 
-    ecs.register_component<ecs::Window>();
-    ecs.register_component<ecs::VesselsComponent>();
-    ecs.register_component<ecs::ShaderComponent>();
-    ecs.register_component<ecs::CameraComponent>();
-    ecs.register_component<ecs::ParticleSystemComponent>();
-    ecs.register_component<ecs::LightComponent>();
-    ecs.register_component<ecs::TextComponent>();
-    ecs.register_component<ecs::ButtonComponent>();
-    ecs.register_component<ecs::MenuText>();
-    ecs.register_component<ecs::BackgroundComponent>();
-    ecs.register_component<ecs::DecorElementComponent>();
-    ecs.register_component<ecs::TextInputComponent>();
-    ecs.register_component<ecs::ShowBoxComponent>();
-    ecs.register_component<ecs::ProjectilesComponent>();
-    ecs.register_component<ecs::ControllableComponent>();
-    ecs.register_component<ecs::EnemyComponent>();
-
-    ecs.register_event<ecs::CreateWindowEvent>();
-    ecs.register_event<ecs::WindowOpenEvent>();
-    ecs.register_event<ecs::WindowCloseEvent>();
-    ecs.register_event<ecs::WindowDrawEvent>();
-    ecs.register_event<ecs::InitCameraEvent>();
-    ecs.register_event<ecs::InitModelEvent>();
-    ecs.register_event<ecs::ControlsEvent>();
-    ecs.register_event<ecs::ParticleSystemEvent>();
-    ecs.register_event<ecs::InitLightEvent>();
-    ecs.register_event<ecs::InitShaderEvent>();
-    ecs.register_event<ecs::InitBackgroundEvent>();
-    ecs.register_event<ecs::InitDecorElementEvent>();
-
-    ecs.register_event<network::ClientEvent>();
-    ecs.register_event<struct network::LobbyActionPacket>();
-    ecs.register_event<struct network::InputPacket>();
-
-    ecs.subscribe<network::ClientEvent>(
-        [](Registry &ecs, const network::ClientEvent &event)
+    auto &vessels = ecs.get_components<ecs::VesselsComponent>();
+    for (std::size_t i = 0; i < vessels.size(); ++i)
+    {
+        if (vessels[i].has_value())
         {
-            switch (event.type)
+            UnloadModel(vessels[i]->model);
+            ecs.kill_entity(i);
+        }
+    }
+
+    auto &shaders = ecs.get_components<ecs::ShaderComponent>();
+    for (std::size_t i = 0; i < shaders.size(); ++i)
+    {
+        if (shaders[i].has_value())
+        {
+            UnloadShader(shaders[i]->shader);
+            ecs.kill_entity(i);
+        }
+    }
+
+    auto &health_bars = ecs.get_components<ecs::HealthBarComponent>();
+    for (std::size_t i = 0; i < health_bars.size(); ++i)
+    {
+        if (health_bars[i].has_value())
+        {
+            for (const auto &texture : health_bars[i]->textures)
             {
-            case network::ClientEventType::DataReceive:
-                {
-                    if (event.packetType == network::PacketType::LobbySnapshotPacket)
-                    {
-                        auto received_packet = std::any_cast<struct network::LobbySnapshotPacket>(event.data);
-                        spdlog::info("Received lobby snapshot packet: {}", received_packet.header.packetId);
-                    }
-                    else
-                    {
-                        spdlog::info("Data received");
-                    }
-                    break;
-                }
-            case network::ClientEventType::ServerDisconnect:
-                std::cout << "Disconnected from server!" << std::endl;
-                break;
+                UnloadTexture(texture);
             }
-        });
+            ecs.kill_entity(i);
+        }
+    }
 
-    init_menu_window(ecs);
+    kill_entities_with_component<ecs::CameraComponent>(ecs);
+    kill_entities_with_component<ecs::ParticleSystemComponent>(ecs);
+    kill_entities_with_component<ecs::LightComponent>(ecs);
+    kill_entities_with_component<ecs::TextComponent>(ecs);
+    kill_entities_with_component<ecs::ButtonComponent>(ecs);
+    kill_entities_with_component<ecs::MenuText>(ecs);
 
-    return ecs;
+    auto &backgrounds = ecs.get_components<ecs::BackgroundComponent>();
+    for (std::size_t i = 0; i < backgrounds.size(); ++i)
+    {
+        if (backgrounds[i].has_value())
+        {
+            UnloadTexture(backgrounds[i]->texture);
+            ecs.kill_entity(i);
+        }
+    }
+
+    auto &decors = ecs.get_components<ecs::DecorElementComponent>();
+    for (std::size_t i = 0; i < decors.size(); ++i)
+    {
+        if (decors[i].has_value())
+        {
+            UnloadTexture(decors[i]->texture);
+            ecs.kill_entity(i);
+        }
+    }
+    kill_entities_with_component<ecs::TextInputComponent>(ecs);
+    kill_entities_with_component<ecs::ShowBoxComponent>(ecs);
+
+    auto &projectiles = ecs.get_components<ecs::ProjectilesComponent>();
+    for (std::size_t i = 0; i < projectiles.size(); ++i)
+    {
+        if (projectiles[i].has_value())
+        {
+            UnloadModel(projectiles[i]->model);
+            ecs.kill_entity(i);
+        }
+    }
+
+    auto &images = ecs.get_components<ecs::ImageComponent>();
+    for (std::size_t i = 0; i < images.size(); ++i) {
+        if (images[i].has_value()) {
+            UnloadTexture(images[i]->texture);
+            ecs.kill_entity(i);
+        }
+    }
+
+    kill_entities_with_component<ecs::ControllableComponent>(ecs);
+    kill_entities_with_component<ecs::EnemyComponent>(ecs);
+    kill_entities_with_component<ecs::FocusComponent>(ecs);
+    kill_entities_with_component<ecs::KeyBindingComponent>(ecs);
 }
 
 /**
@@ -182,6 +206,9 @@ int main(int argc, char *argv[])
     }
     shutdown_requested.store(true);
     thread_network.join();
+    empty_ecs(ecs);
+    CloseAudioDevice();
+    CloseWindow();
 
     return 0;
 }

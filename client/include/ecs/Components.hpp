@@ -7,9 +7,13 @@
 
 #pragma once
 
+#define MAX_HEALTH 10
+
 #include <utility>
 
 #include "Events.hpp"
+#include "Components/Selectors.hpp"
+#include "Components/Controls.hpp"
 #include "core/ParticleSystem.hpp"
 #include <cstring>
 
@@ -77,49 +81,6 @@ namespace ecs {
         }
     };
 
-    class ButtonComponent {
-    public:
-        ButtonComponent(int _buttonWidth, int _buttonHeight, std::string _text,
-                        std::function<void()> _onClick,
-                        std::function<int(int, int)> _dynamicX = nullptr,
-                        std::function<int(int, int)> _dynamicY = nullptr,
-                        Color _buttonColor = GRAY)
-                : buttonWidth(_buttonWidth),
-                  buttonHeight(_buttonHeight),
-                  text(std::move(_text)),
-                  onClick(std::move(_onClick)),
-                  dynamicX(std::move(_dynamicX)),
-                  dynamicY(std::move(_dynamicY)),
-                  buttonColor(_buttonColor)
-        {
-            updateButton(GetScreenWidth(), GetScreenHeight());
-        }
-
-        void updateButton(int screenWidth, int screenHeight) {
-            if (dynamicX) buttonX = dynamicX(screenWidth, screenHeight);
-            if (dynamicY) buttonY = dynamicY(screenWidth, screenHeight);
-        }
-
-        void drawButton() {
-            if (GuiButton({static_cast<float>(buttonX), static_cast<float>(buttonY),
-                           static_cast<float>(buttonWidth), static_cast<float>(buttonHeight)},
-                          text.c_str())) {
-                if (onClick) onClick();
-            }
-        }
-
-    private:
-        int buttonX = 0;
-        int buttonY = 0;
-        int buttonWidth;
-        int buttonHeight;
-        std::string text;
-        std::function<void()> onClick;
-        std::function<int(int, int)> dynamicX;
-        std::function<int(int, int)> dynamicY;
-        Color buttonColor;
-    };
-
     class VesselsComponent {
     public:
         Model model{};
@@ -127,6 +88,7 @@ namespace ecs {
         std::string path;
         TextComponent name;
         Vector3 position = {0, 0, 0};
+        int health = MAX_HEALTH;
 
         VesselsComponent(Model _model, bool _drawable, std::string _path, TextComponent _name) {
             model = _model;
@@ -135,7 +97,7 @@ namespace ecs {
             name = std::move(_name);
         }
 
-        void Move(const client::Direction direction, Camera &camera)
+        void Move(const client::Direction direction, const Camera &camera)
         {
             Vector2 screen_pos = GetWorldToScreen(position, camera);
             const float max_height = static_cast<float>(GetScreenHeight()) * 0.1f;
@@ -224,30 +186,32 @@ namespace ecs {
     {
     public:
         Texture2D texture{};
-        int x{};
+        float x{};
         int y{};
         int speed;
+        size_t depth;
 
-        explicit DecorElementComponent(const std::string &path, const int speed)
+        explicit DecorElementComponent(const std::string &path, const int speed, const size_t depth)
         {
             texture = LoadTexture(path.c_str());
             this->speed = speed;
+            this->depth = depth;
         }
 
         void ResetPosition(const int screen_width, const int screen_height)
         {
-            x = screen_width;
+            x = static_cast<float>(screen_width);
             y = GetRandomValue(0, screen_height - 50);
         }
 
         void Update(const float deltaTime, const int screen_width, const int screen_height)
         {
-            x -= static_cast<int>(static_cast<float>(speed) * deltaTime);
+            x -= static_cast<float>(speed) * deltaTime;
 
-            if (static_cast<float>(x) + static_cast<float>(texture.width) * (static_cast<float>(screen_height) /
+            if (x + static_cast<float>(texture.width) * (static_cast<float>(screen_height) /
                 static_cast<float>(texture.height)) < 0) {
                 ResetPosition(screen_width, screen_height);
-            }
+                }
         }
 
         void DrawDecorElement(const int screen_width, const int screen_height) const
@@ -256,7 +220,7 @@ namespace ecs {
             const float scaled_width = static_cast<float>(texture.width) * scale_factor;
 
             DrawTexturePro(texture, {0, 0, static_cast<float>(texture.width),
-                static_cast<float>(texture.height)}, {static_cast<float>(x), 0, scaled_width,
+                static_cast<float>(texture.height)}, {x, 0, scaled_width,
                 static_cast<float>(screen_height)}, {0, 0}, 0.0f, WHITE
             );
         }
@@ -270,20 +234,25 @@ namespace ecs {
         Vector3 position{};
         bool player;
         Vector3 velocity{};
+        std::shared_ptr<client::Light> light;
 
         ProjectilesComponent(Model _model, bool _drawable, std::string _path, Vector3 _position, bool _player,
-            Vector3 _velocity) {
+            Vector3 _velocity, Vector3 _target, Color _color, int _nb, Shader _shader) {
             model = _model;
             drawable = _drawable;
             path = std::move(_path);
             position = _position;
             player = _player;
             velocity = _velocity;
+            light = std::make_shared<client::Light>(client::LIGHT_DIRECTIONAL, position, _target, _color, _nb);
+            light->UpdateLightValues(_shader);
         }
 
         void ApplyVelocity() {
             position.x += velocity.x;
             position.y += velocity.y;
+            light->_position.x += velocity.x;
+            light->_position.y += velocity.y;
         }
 
         [[nodiscard]] bool IsAlive(const Camera &camera) const {
@@ -294,56 +263,8 @@ namespace ecs {
         }
     };
 
-
-    class TextInputComponent {
-    public:
-        Rectangle inputBox{};
-        std::string text;
-        std::string placeholder;
-        Color boxColor{};
-        Color textColor{};
-        Color borderColor{};
-        bool isFocused{};
-        size_t maxLength{};
-
-        std::function<int(int screenWidth, int screenHeight)> dynamicX;
-        std::function<int(int screenWidth, int screenHeight)> dynamicY;
-
-        explicit TextInputComponent(Rectangle _inputBox, std::string  _defaultText = "", size_t _maxLength = 256,
-                           Color _boxColor = LIGHTGRAY, Color _textColor = BLACK, Color _borderColor = DARKGRAY,
-                           std::function<int(int screenWidth, int screenHeight)> _dynamicX = nullptr,
-                           std::function<int(int screenWidth, int screenHeight)> _dynamicY = nullptr);
-
-        TextInputComponent() = default;
-
-        void drawTextInput();
-
-        void handleInput();
-    };
-
-
-    class ShowBoxComponent {
-    public:
-        Rectangle boxRect;
-        std::string message;
-        Color boxColor;
-        Color textColor;
-        bool isVisible;
-        std::function<int(int screenWidth, int screenHeight)> dynamicX;
-        std::function<int(int screenWidth, int screenHeight)> dynamicY;
-
-        TextInputComponent textInput;
-        std::string closeButtonText;
-        std::string continueButtonText;
-
-        ShowBoxComponent(Rectangle _boxRect, std::string _message, Color _boxColor, Color _textColor,
-                         std::string _textInput = "", std::string _closeButtonText = "Close",
-                         std::string _continueButtonText = "Continue",
-                         std::function<int(int screenWidth, int screenHeight)> _dynamicX = nullptr,
-                         std::function<int(int screenWidth, int screenHeight)> _dynamicY = nullptr);
-
-        void draw();
-        void handleClick(Vector2 mousePosition);
-        void updateBox(int screenWidth, int screenHeight);
+    struct HealthBarComponent
+    {
+        std::vector<Texture> textures;
     };
 }
