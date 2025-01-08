@@ -96,4 +96,13 @@ namespace ecs
         {INPUT_BASE_COLOR_PRESSED, {195, 122, 164, 200}},
         {INPUT_TEXT_COLOR_PRESSED, {255, 255, 255, 255}},
         {INPUT_BORDER_COLOR_PRESSED, {16, 7, 16, 200}}};
+
+    const std::unordered_map<int, std::string> nonPrintableKeyNames = {
+            {KEY_SPACE, "Space"},
+            {KEY_UP, "Up"},
+            {KEY_DOWN, "Down"},
+            {KEY_LEFT, "Left"},
+            {KEY_RIGHT, "Right"},
+            {KEY_LEFT_SHIFT, "Left Shift"}
+    };
 } // namespace ecs
