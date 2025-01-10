@@ -4,12 +4,9 @@ project(r-type_client)
 file(GLOB_RECURSE PROJECT_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_LIST_DIR}/src/*.cpp")
 file(GLOB_RECURSE PROJECT_HEADERS CONFIGURE_DEPENDS "${CMAKE_CURRENT_LIST_DIR}/include/*.hpp")
 
-set(RAYGUI_IMPLEMENTATION_FILE "${CMAKE_CURRENT_LIST_DIR}/src/raygui_impl.cpp")
-
 add_executable(${PROJECT_NAME}
         ${PROJECT_SOURCES}
         ${PROJECT_HEADERS}
-        ${RAYGUI_IMPLEMENTATION_FILE}
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC
