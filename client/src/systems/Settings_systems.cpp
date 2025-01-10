@@ -3,6 +3,7 @@
 //
 
 #include "ecs/Systems.hpp"
+#include "list"
 
 namespace ecs {
 
@@ -43,31 +44,59 @@ namespace ecs {
             int textBoxWidth = 150;
             int textBoxHeight = 30;
 
-            for (const auto &action : keyBindings.getActions()) {
-                int currentKey = keyBindings.getKey(action);
+            auto actions = keyBindings.getActions();
 
+            static std::unordered_map<std::string, bool> isFocusedMap;
+            for (const auto &action : actions) {
+                if (isFocusedMap.find(action) == isFocusedMap.end()) {
+                    isFocusedMap[action] = false;
+                }
+            }
+
+            for (const auto &action : actions) {
+                int currentKey = keyBindings.getKey(action);
                 std::string keyText = getPrintableKeyName(currentKey);
 
                 DrawText(action.c_str(), xOffset, yOffset, 20, WHITE);
 
-                char keyBuffer[32];
-                strncpy(keyBuffer, keyText.c_str(), sizeof(keyBuffer));
-
                 Rectangle textBox = {static_cast<float>(xOffset + 200), static_cast<float>(yOffset),
                                      static_cast<float>(textBoxWidth), static_cast<float>(textBoxHeight)};
-                if (GuiTextBox(textBox, keyBuffer, sizeof(keyBuffer), true)) {
-                    std::string newKeyText(keyBuffer);
+                Vector2 mousePosition = GetMousePosition();
 
-                    if (newKeyText.length() == 1) {
-                        int newKey = static_cast<int>(newKeyText[0]);
-                        std::cout << newKey << std::endl;
-                        keyBindings.setKey(action, newKey);
-                    } else {
-                        for (const auto &[key, name] : nonPrintableKeyNames) {
-                            if (newKeyText == name) {
-                                keyBindings.setKey(action, key);
-                                break;
+                static std::unordered_map<std::string, std::string> currentInputMap;
+                if (currentInputMap.find(action) == currentInputMap.end()) {
+                    currentInputMap[action] = "";
+                }
+
+                if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+                    isFocusedMap[action] = CheckCollisionPointRec(mousePosition, textBox);
+                    if (isFocusedMap[action]) {
+                        currentInputMap[action].clear();
+                    }
+                }
+
+                DrawRectangleRec(textBox, isFocusedMap[action] ? GRAY : LIGHTGRAY);
+                DrawRectangleLinesEx(textBox, 1, BLACK);
+                DrawText(currentInputMap[action].empty() ? keyText.c_str() : currentInputMap[action].c_str(),
+                         static_cast<int>(textBox.x + 5), static_cast<int>(textBox.y + 5), 20, BLACK);
+
+                if (isFocusedMap[action]) {
+                    int key = GetKeyPressed();
+                    if (key != 0) {
+                        if (key >= 32 && key <= 126) {
+                            currentInputMap[action] = std::string(1, static_cast<char>(key));
+                        } else {
+                            for (const auto &[nonPrintableKey, name] : nonPrintableKeyNames) {
+                                if (key == nonPrintableKey) {
+                                    currentInputMap[action] = name;
+                                    break;
+                                }
                             }
+                        }
+
+                        if (!currentInputMap[action].empty()) {
+                            keyBindings.setKey(action, key);
+                            isFocusedMap[action] = false;
                         }
                     }
                 }
