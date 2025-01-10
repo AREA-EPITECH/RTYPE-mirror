@@ -24,7 +24,7 @@ namespace server {
     public:
         std::vector<std::shared_ptr<network::PeerWrapper>> _clients;
 
-        explicit Room();
+        explicit Room(uint32_t id);
         bool operator==(const Room& other) const;
 
         std::vector<network::LobbyPlayer> toLobbyPlayers() const;

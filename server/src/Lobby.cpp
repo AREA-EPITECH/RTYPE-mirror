@@ -13,7 +13,7 @@
 namespace server
 {
     void lobbyAction(Server &server, std::shared_ptr<network::PeerWrapper> &peer,
-                     const struct network::LobbyActionPacket &lobby_action_packet)
+        const struct network::LobbyActionPacket &lobby_action_packet)
     {
         struct network::LobbySnapshotPacket lobby_snapshot_packet;
         switch (lobby_action_packet.actionType)
@@ -41,7 +41,7 @@ namespace server
         case network::LobbyActionType::ChangeShip:
             peer->getData<ClientData>().setShip(lobby_action_packet.shipId);
             spdlog::info("Client {} changed ship to {}", peer->getData<ClientData>().getId(),
-                         lobby_action_packet.shipId);
+                lobby_action_packet.shipId);
             break;
         case network::LobbyActionType::ChangeReady:
             peer->getData<ClientData>().setReadyState();

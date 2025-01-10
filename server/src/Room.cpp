@@ -11,7 +11,7 @@
 
 namespace server
 {
-    Room::Room() : _id(0), _state(network::LobbyGameState::Waiting) {}
+    Room::Room(const uint32_t id) : _id(id), _state(network::LobbyGameState::Waiting) {}
 
     bool Room::operator==(const Room &other) const { return this->_id == other._id; }
 

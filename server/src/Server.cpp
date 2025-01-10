@@ -78,7 +78,7 @@ namespace server
                     const uint32_t unique_id = utils::Utils::hash_pointer(event.peer);
                     ClientData data(unique_id);
                     event.peer->setData<ClientData>(std::move(data));
-                    spdlog::info("Client connected: {}", static_cast<void *>(event.peer->getPeer().get()));
+                    spdlog::info("Client connected: {}",event.peer->getData<ClientData>().getId());
                     struct network::SnapshotPacket snapshot;
                     snapshot.numEntities = 1;
                     snapshot.entities.push_back({unique_id, network::EntityType::Player, 0, 0, 0, 0});
@@ -127,16 +127,15 @@ namespace server
     void Server::checkRoomState()
     {
         this->_waiting_rooms.erase(std::remove_if(this->_waiting_rooms.begin(), this->_waiting_rooms.end(),
-                                                  [this](const std::shared_ptr<Room> &room)
-                                                  {
-                                                      if (room.get()->getClientsReadiness())
-                                                      {
-                                                          this->_playing_rooms.push_back(room);
-                                                          return true;
-                                                      }
-                                                      return false;
-                                                  }),
-                                   this->_waiting_rooms.end());
+        [this](const std::shared_ptr<Room> &room)
+        {
+            if (room.get()->getClientsReadiness())
+            {
+                this->_playing_rooms.push_back(room);
+                return true;
+            }
+            return false;
+        }),this->_waiting_rooms.end());
         // TODO: Add _playing_rooms that finished a level back to _waiting_rooms
         // this->_playing_rooms.erase(
         //     std::remove_if(
@@ -160,10 +159,8 @@ namespace server
      */
     void Server::createClientRoom(std::shared_ptr<network::PeerWrapper> &client)
     {
-        Room room;
+        Room room(this->_waiting_rooms.size() + 1);
         auto room_ptr = std::make_shared<Room>(room);
-        const uint32_t unique_id = utils::Utils::hash_pointer_2(room_ptr.get());
-        room_ptr->setId(unique_id);
         auto data = client->getData<ClientData>();
         data.setRoom(room_ptr);
         room_ptr->_clients.push_back(client);
@@ -281,7 +278,7 @@ namespace server
      * @param data
      */
     void handleClientData(Server &server, std::shared_ptr<network::PeerWrapper> &peer, const std::any &data,
-                          network::PacketType type)
+        network::PacketType type)
     {
         if (!peer->hasData())
             return;
@@ -289,13 +286,13 @@ namespace server
         {
         case network::PacketType::InputPacket:
             {
-                auto input_packet = std::any_cast<struct network::InputPacket>(data);
+                const auto input_packet = std::any_cast<struct network::InputPacket>(data);
                 gameAction(server, peer, input_packet);
                 break;
             }
         case network::PacketType::LobbyActionPacket:
             {
-                auto lobby_action_packet = std::any_cast<struct network::LobbyActionPacket>(data);
+                const auto lobby_action_packet = std::any_cast<struct network::LobbyActionPacket>(data);
                 lobbyAction(server, peer, lobby_action_packet);
                 break;
             }
