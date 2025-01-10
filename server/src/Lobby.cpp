@@ -26,10 +26,11 @@ namespace server
             break;
 
         case network::LobbyActionType::JoinRoom:
-            server.assignClientToRoom(peer, lobby_action_packet.roomId);
-            lobby_snapshot_packet.roomId = lobby_action_packet.roomId;
-            lobby_snapshot_packet.gameState = peer->getData<ClientData>().getRoom()->getState();
-            server.getServer().sendLobbyPacket(lobby_snapshot_packet, peer);
+            if (server.assignClientToRoom(peer, lobby_action_packet.roomId)) {
+                lobby_snapshot_packet.roomId = lobby_action_packet.roomId;
+                lobby_snapshot_packet.gameState = peer->getData<ClientData>().getRoom()->getState();
+                server.getServer().sendLobbyPacket(lobby_snapshot_packet, peer);
+            }
             break;
         case network::LobbyActionType::LeaveRoom:
             server.leaveClientRoom(peer, lobby_action_packet.roomId);

@@ -18,13 +18,13 @@
 namespace server {
     class Server;
     class Room {
-        uint8_t _id;
+        uint32_t _id;
         network::LobbyGameState _state;
         Registry _registry;
     public:
         std::vector<std::shared_ptr<network::PeerWrapper>> _clients;
 
-        explicit Room(uint8_t id);
+        explicit Room();
         bool operator==(const Room& other) const;
 
         std::vector<network::LobbyPlayer> toLobbyPlayers() const;
@@ -32,6 +32,7 @@ namespace server {
 
         bool getClientsReadiness() const;
         uint32_t getId() const;
+        void setId(uint32_t id);
         u_int8_t getSize() const;
         network::LobbyGameState getState() const;
         void setState(network::LobbyGameState state);

@@ -110,7 +110,7 @@ namespace server
     void Server::clientDisconnect(std::shared_ptr<network::PeerWrapper> &peer)
     {
         const auto data = peer->getData<ClientData>();
-        const uint16_t room_id = data.getRoom()->getId();
+        const uint32_t room_id = data.getRoom()->getId();
         this->leaveClientRoom(peer, room_id);
         if (data.getRoom()->getState() == network::Starting)
         {
@@ -160,14 +160,16 @@ namespace server
      */
     void Server::createClientRoom(std::shared_ptr<network::PeerWrapper> &client)
     {
-        Room room(this->_waiting_rooms.size() + 1);
+        Room room;
         auto room_ptr = std::make_shared<Room>(room);
+        const uint32_t unique_id = utils::Utils::hash_pointer_2(room_ptr.get());
+        room_ptr->setId(unique_id);
         auto data = client->getData<ClientData>();
         data.setRoom(room_ptr);
         room_ptr->_clients.push_back(client);
         client->setData<ClientData>(std::move(data));
         this->_waiting_rooms.push_back(room_ptr);
-        spdlog::info("Client {} created room {}", client->getData<ClientData>().getId(), room.getId());
+        spdlog::info("Client {} created room {}", client->getData<ClientData>().getId(), room_ptr->getId());
     }
 
     /**
@@ -175,7 +177,7 @@ namespace server
      * @param client
      * @param room_id
      */
-    void Server::assignClientToRoom(std::shared_ptr<network::PeerWrapper> &client, const uint8_t room_id)
+    bool Server::assignClientToRoom(std::shared_ptr<network::PeerWrapper> &client, const uint32_t room_id)
     {
         for (auto &room: this->_waiting_rooms) {
             if (room->getId() == room_id) {
@@ -184,10 +186,11 @@ namespace server
                 room->_clients.push_back(client);
                 client->setData<ClientData>(std::move(data));
                 spdlog::info("Client {} joined room {}", client->getData<ClientData>().getId(), room_id);
-                return;
+                return true;
             }
         }
         spdlog::error("Room doesn't exist {}", room_id);
+        return false;
     }
 
     /**
@@ -198,7 +201,7 @@ namespace server
      * @param client The client to be removed from the room.
      * @param room_id The ID of the room from which the client should be removed.
      */
-    void Server::leaveClientRoom(std::shared_ptr<network::PeerWrapper> &client, uint16_t room_id)
+    void Server::leaveClientRoom(std::shared_ptr<network::PeerWrapper> &client, uint32_t room_id)
     {
         for (auto &room: this->_waiting_rooms) {
             if (room->getId() == room_id) {
