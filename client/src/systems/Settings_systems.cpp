@@ -64,6 +64,15 @@ namespace ecs {
 
     }
 
+    void drawResolutionButton(int x, int y, int width, int height, int res_w, int res_h) {
+        Rectangle buttonBounds = {static_cast<float>(x), static_cast<float>(y),
+                                  static_cast<float>(width), static_cast<float>(height)};
+        std::string res_text = "Set Resolution " + std::to_string(res_w) + "x" + std::to_string(res_h);
+        if (GuiButton(buttonBounds, res_text.c_str())) {
+            SetWindowSize(res_w, res_h);
+        }
+    }
+
     void display_settings_system (Registry &ecs, const DisplaySettingEvent &) {
         if (GuiButton({100, 100, 200, 100},
                       "Back")) {
@@ -150,5 +159,8 @@ namespace ecs {
             }
         }
         drawSoundAndMusicSliders(ecs, 100, 600, 300, 20);
+        drawResolutionButton(100, 800, 300, 50, 2560, 1440);
+        drawResolutionButton(100, 900, 300, 50, 1920, 1080);
+        drawResolutionButton(100, 1000, 300, 50, 1600, 900);
     }
 }
