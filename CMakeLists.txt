@@ -23,7 +23,8 @@ project(r-type)
 # Enable C++17 or later
 set(CMAKE_CXX_STANDARD 17)
 
-# Add subdirectories for client, server, and shared code
+# Add subdirectories for client, server, shared code and second game
 add_subdirectory(shared)
 add_subdirectory(client)
 add_subdirectory(server)
+add_subdirectory(tower_defense)
