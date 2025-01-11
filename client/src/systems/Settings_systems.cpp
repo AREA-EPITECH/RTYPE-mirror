@@ -19,6 +19,51 @@ namespace ecs {
         return "Unknown";
     }
 
+
+    void drawSoundAndMusicSliders(Registry &ecs, int xOffset, int yOffset, int sliderWidth, int sliderHeight) {
+        Vector2 mousePosition = GetMousePosition();
+
+        auto &soundLevels = ecs.get_components<SoundComponent>();
+
+        for (auto &soundLevel : soundLevels) {
+            if (soundLevel.has_value() && soundLevel.value().type == 0) {
+                Rectangle soundBar = {static_cast<float>(xOffset), static_cast<float>(yOffset),
+                                      static_cast<float>(sliderWidth), static_cast<float>(sliderHeight)};
+                DrawRectangleRec(soundBar, LIGHTGRAY);
+                DrawRectangle(static_cast<int>(soundBar.x), static_cast<int>(soundBar.y),
+                              static_cast<int>(soundLevel.value().volume / 100.0f * sliderWidth), sliderHeight, GREEN);
+                DrawRectangleLines(static_cast<int>(soundBar.x), static_cast<int>(soundBar.y),
+                                   static_cast<int>(soundBar.width), static_cast<int>(soundBar.height), BLACK);
+                DrawText("Sound", static_cast<int>(soundBar.x - 60), static_cast<int>(soundBar.y + sliderHeight / 4), 20, WHITE);
+
+                if (IsMouseButtonDown(MOUSE_LEFT_BUTTON) && CheckCollisionPointRec(mousePosition, soundBar)) {
+                    soundLevel.value().volume = (mousePosition.x - soundBar.x) / soundBar.width * 100.0f;
+                    soundLevel.value().volume = std::clamp(soundLevel.value().volume, 0.0f, 100.0f);
+                }
+                std::string soundText = "Sound: " + std::to_string(static_cast<int>(soundLevel.value().volume)) + "%";
+                DrawText(soundText.c_str(), xOffset + sliderWidth + 20, yOffset + sliderHeight / 4, 20, WHITE);
+            }
+            if (soundLevel.has_value() && soundLevel.value().type == 1) {
+                Rectangle musicBar = {static_cast<float>(xOffset), static_cast<float>(yOffset + sliderHeight + 20),
+                                      static_cast<float>(sliderWidth), static_cast<float>(sliderHeight)};
+                DrawRectangleRec(musicBar, LIGHTGRAY);
+                DrawRectangle(static_cast<int>(musicBar.x), static_cast<int>(musicBar.y),
+                              static_cast<int>(soundLevel.value().volume / 100.0f * sliderWidth), sliderHeight, BLUE);
+                DrawRectangleLines(static_cast<int>(musicBar.x), static_cast<int>(musicBar.y),
+                                   static_cast<int>(musicBar.width), static_cast<int>(musicBar.height), BLACK);
+                DrawText("Music", static_cast<int>(musicBar.x - 60), static_cast<int>(musicBar.y + sliderHeight / 4), 20, WHITE);
+
+                if (IsMouseButtonDown(MOUSE_LEFT_BUTTON) && CheckCollisionPointRec(mousePosition, musicBar)) {
+                    soundLevel.value().volume = (mousePosition.x - musicBar.x) / musicBar.width * 100.0f;
+                    soundLevel.value().volume = std::clamp(soundLevel.value().volume, 0.0f, 100.0f);
+                }
+                std::string musicText = "Music: " + std::to_string(static_cast<int>(soundLevel.value().volume)) + "%";
+                DrawText(musicText.c_str(), xOffset + sliderWidth + 20, yOffset + sliderHeight + 20 + sliderHeight / 4, 20, WHITE);
+            }
+        }
+
+    }
+
     void display_settings_system (Registry &ecs, const DisplaySettingEvent &) {
         if (GuiButton({100, 100, 200, 100},
                       "Back")) {
@@ -104,5 +149,6 @@ namespace ecs {
                 yOffset += 50;
             }
         }
+        drawSoundAndMusicSliders(ecs, 100, 600, 300, 20);
     }
 }
