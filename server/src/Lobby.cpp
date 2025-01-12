@@ -36,7 +36,9 @@ namespace server
                     spdlog::info("Client {} changed name from ecs to {}", ecs_client->getData<ClientData>().getId(), lobby_action_packet.name);
                 }
             } else {
-                peer->getData<ClientData>().setName(lobby_action_packet.name);
+                auto data = peer->getData<ClientData>();
+                data.setName(lobby_action_packet.name);
+                peer->setData<ClientData>(std::move(data));
                 spdlog::info("Client {} changed name to {}", peer->getData<ClientData>().getId(), lobby_action_packet.name);
             }
             break;
