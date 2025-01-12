@@ -38,6 +38,7 @@ int main(const int argc, const char *argv[])
     ecs.add_component<ecs::Window>(windowEntity, {1024, 1024, "R-Type - Tower Defense"});
 
     ecs.subscribe<ecs::CreateWindowEvent>(ecs::init_window_system);
+    ecs.subscribe<ecs::ControlsEvent>(ecs::game_controls_system);
 
     ecs.run_event(ecs::CreateWindowEvent{});
     ecs.run_event(ecs::WindowOpenEvent{});

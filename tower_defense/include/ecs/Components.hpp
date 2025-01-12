@@ -20,18 +20,31 @@ namespace ecs {
         bool isOpen = false;
     };
 
+    struct Money
+    {
+        unsigned int _value;
+        Texture2D _texture;
+    };
+
+    struct GameComponent
+    {
+        unsigned int _health;
+        bool _auto_increment_money;
+        std::string _map_name;
+        Money _money;
+    };
+
     struct Tile {
         int _x;
         int _y;
         Texture2D _texture;
     };
 
-    struct PathComponent {};
-
     struct MapComponent {
         std::vector<Tile> _grass;
         std::vector<Tile> _path;
         std::vector<Tile> _decors;
+        GameComponent _game;
     };
 
     struct EnemyComponent
@@ -39,5 +52,12 @@ namespace ecs {
         Texture2D _texture{};
         bool _drawable = false;
         Tile _pos{};
+    };
+
+    struct SelectorComponent
+    {
+        Texture2D _texture;
+        Tile _pos{};
+        bool _drawable;
     };
 }

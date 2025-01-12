@@ -19,18 +19,19 @@
 
 namespace tower_defense {
     struct Game_rules {
-        unsigned int start_money;
-        unsigned int start_health;
-        bool auto_increment_money;
+        unsigned int _start_money;
+        unsigned int _start_health;
+        bool _auto_increment_money;
+        std::string _map_name;
     };
 
     struct EnemyWave
     {
-        EnemyType enemy_type;
-        float start_delay; // in seconds
-        float spawn_delay; // in seconds
-        unsigned int spawn_amount;
-        unsigned int amount;
+        EnemyType _enemy_type;
+        float _start_delay; // in seconds
+        float _spawn_delay; // in seconds
+        unsigned int _spawn_amount;
+        unsigned int _amount;
     };
 
     class Parser {

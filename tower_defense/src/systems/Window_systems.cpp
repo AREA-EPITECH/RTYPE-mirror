@@ -21,7 +21,6 @@ namespace ecs {
                 if (!win.isOpen) {
                     TraceLog(LOG_WARNING,
                              TextFormat("Initiating window %dx%d named %s.", win.width, win.height, win.title.c_str()));
-                    // SetConfigFlags(FLAG_WINDOW_RESIZABLE);
                     InitWindow(win.width, win.height, win.title.c_str());
                     SetTargetFPS(144);
                     InitAudioDevice();

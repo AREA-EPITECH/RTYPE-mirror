@@ -28,4 +28,6 @@ namespace ecs {
 
     struct WindowDrawEvent {
     };
+
+    struct ControlsEvent {};
 }

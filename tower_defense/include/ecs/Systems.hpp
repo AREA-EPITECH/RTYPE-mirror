@@ -20,4 +20,7 @@ namespace ecs {
 
     // Game
     void draw_game_system(Registry &ecs, const WindowDrawEvent &);
+
+    // Controls
+    void game_controls_system(Registry &ecs, const ControlsEvent &);
 }

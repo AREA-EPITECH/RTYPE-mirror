@@ -38,9 +38,10 @@ namespace tower_defense
         nlohmann::json data_waves = data["waves"];
 
         Game_rules games_rules{};
-        games_rules.auto_increment_money = data_params["auto_increment_money"];
-        games_rules.start_health = data_params["health"];
-        games_rules.start_money = data_params["base_money"];
+        games_rules._auto_increment_money = data_params["auto_increment_money"];
+        games_rules._start_health = data_params["health"];
+        games_rules._start_money = data_params["base_money"];
+        games_rules._map_name = data_params["name"];
 
         this->_game_rules = games_rules;
 
@@ -61,11 +62,11 @@ namespace tower_defense
 
             for (auto &enemy : wave["enemies"]) {
                 EnemyWave enemy_wave{};
-                enemy_wave.enemy_type = get_enemy_type_from_string(enemy["type"]);
-                enemy_wave.start_delay = enemy["start_delay"];
-                enemy_wave.spawn_delay = enemy["spawn_delay"];
-                enemy_wave.spawn_amount = enemy["spawn_amount"];
-                enemy_wave.amount = enemy["amount"];
+                enemy_wave._enemy_type = get_enemy_type_from_string(enemy["type"]);
+                enemy_wave._start_delay = enemy["start_delay"];
+                enemy_wave._spawn_delay = enemy["spawn_delay"];
+                enemy_wave._spawn_amount = enemy["spawn_amount"];
+                enemy_wave._amount = enemy["amount"];
 
                 enemy_waves_in_wave.emplace_back(enemy_wave);
             }
@@ -78,6 +79,11 @@ namespace tower_defense
         std::vector<ecs::Tile> map;
         std::vector<ecs::Tile> path;
         std::vector<ecs::Tile> decors;
+
+        ecs::Money money_component = {_game_rules._start_money, LoadTexture("tower_defense/assets/money.png")};
+
+        ecs::GameComponent game_component = {_game_rules._start_health,
+            _game_rules._auto_increment_money, _game_rules._map_name, money_component};
 
         for (const auto& pos : _enemy_path) {
             path.emplace_back(ecs::Tile{pos.first, pos.second,
@@ -100,11 +106,12 @@ namespace tower_defense
         }
 
         const auto map_entity = ecs.spawn_entity();
-        ecs.add_component<ecs::MapComponent>(map_entity, {map, path, decors});
+        ecs.add_component<ecs::MapComponent>(map_entity, {map, path, decors, game_component});
 
         const auto basic_slime_entity = ecs.spawn_entity();
         ecs.add_component<ecs::EnemyComponent>(basic_slime_entity,
-            ecs::EnemyComponent{LoadTexture("tower_defense/assets/enemies/spr_normal_slime.png"), false, {}});
+            ecs::EnemyComponent{LoadTexture("tower_defense/assets/enemies/spr_normal_slime.png"), false,
+                {}});
 
         const auto bat_entity = ecs.spawn_entity();
         ecs.add_component<ecs::EnemyComponent>(bat_entity,
@@ -113,6 +120,11 @@ namespace tower_defense
         const auto zombie_entity = ecs.spawn_entity();
         ecs.add_component<ecs::EnemyComponent>(zombie_entity,
             {LoadTexture("tower_defense/assets/enemies/spr_zombie.png"), false, {}});
+
+        const auto selector_entity = ecs.spawn_entity();
+        ecs.add_component<ecs::SelectorComponent>(selector_entity,
+        {LoadTexture("tower_defense/assets/selector.png"), {}, false});
+
         return ecs;
     }
 
