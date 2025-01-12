@@ -133,7 +133,7 @@ namespace server
                 return room->getId() == room_id;
             });
 
-        if (it != this->_waiting_rooms.end() && (*it)->getClientsReadiness()) {
+        if (it != this->_waiting_rooms.end()) {
             this->_playing_rooms.push_back(*it);
             this->_waiting_rooms.erase(it);
         }
@@ -150,7 +150,7 @@ namespace server
                 return room->getId() == room_id;
             });
 
-        if (it != this->_playing_rooms.end() && (*it)->getClientsReadiness()) {
+        if (it != this->_playing_rooms.end()) {
             this->_waiting_rooms.push_back(*it);
             this->_playing_rooms.erase(it);
         }
