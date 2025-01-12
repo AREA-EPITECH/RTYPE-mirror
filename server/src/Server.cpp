@@ -193,7 +193,7 @@ namespace server
                 client->setData<ClientData>(std::move(data));
                 room->addClient(client);
                 const auto ecs_client = room->getClient(client_id);
-                spdlog::info("Client {} joined room {}", ecs_client->getData<ClientData>().getId(), room_id);
+                spdlog::info("Client {} joined room {} with name {}", ecs_client->getData<ClientData>().getId(), room_id, ecs_client->getData<ClientData>().getName());
                 struct network::LobbySnapshotPacket lobby_snapshot_packet;
                 lobby_snapshot_packet.roomId = room_id;
                 lobby_snapshot_packet.gameState = room->getState();

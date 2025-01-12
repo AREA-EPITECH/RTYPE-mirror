@@ -107,15 +107,28 @@ namespace server
         }
         else
         {
+            static int count = 0;
             struct network::LobbySnapshotPacket lobby_snapshot_packet;
             lobby_snapshot_packet.roomId = this->_id;
             lobby_snapshot_packet.players = this->toLobbyPlayers();
+            if (this->getClientsReadiness()) {
+                this->_state = network::LobbyGameState::Starting;
+                count++;
+            } else {
+                count = 0;
+            }
+            if (count == 100) {
+                this->_state = network::LobbyGameState::Playing;
+            }
             lobby_snapshot_packet.gameState = this->_state;
             auto &clients = _registry.get_components<std::shared_ptr<network::PeerWrapper>>();
             for (int i = 0; i < clients.size(); i++) {
                 if (clients[i].has_value()) {
                     server.getServer().sendLobbyPacket(lobby_snapshot_packet, clients[i].value());
                 }
+            }
+            if (this->_state == network::LobbyGameState::Playing) {
+                server.changeRoomToPlaying(this->_id);
             }
         }
     }
