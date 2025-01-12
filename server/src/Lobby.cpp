@@ -44,20 +44,31 @@ namespace server
 
         case network::LobbyActionType::ChangeShip: {
             const auto client_data = peer->getData<ClientData>();
-            const auto ecs_client = client_data.getRoom()->getClient(client_data.getId());
-            if (ecs_client) {
-                ecs_client->getData<ClientData>().setShip(lobby_action_packet.shipId);
-                spdlog::info("Client {} changed ship to {}", ecs_client->getData<ClientData>().getId(),
+            if (client_data.getRoom()) {
+                const auto ecs_client = client_data.getRoom() ->getClient(client_data.getId());
+                if (ecs_client) {
+                    ecs_client->getData<ClientData>().setShip(lobby_action_packet.shipId);
+                    spdlog::info("Client {} changed ship to {}", ecs_client->getData<ClientData>().getId(),
+                    lobby_action_packet.shipId);
+                }
+            } else {
+                peer->getData<ClientData>().setShip(lobby_action_packet.shipId);
+                spdlog::info("Client {} changed ship to {}", peer->getData<ClientData>().getId(),
                     lobby_action_packet.shipId);
             }
             break;
         }
         case network::LobbyActionType::ChangeReady: {
             const auto client_data = peer->getData<ClientData>();
-            const auto ecs_client = client_data.getRoom()->getClient(client_data.getId());
-            if (ecs_client) {
-                ecs_client->getData<ClientData>().setReadyState();
-                spdlog::info("Client {} is ready to play", ecs_client->getData<ClientData>().getId());
+            if (client_data.getRoom()) {
+                const auto ecs_client = client_data.getRoom() ->getClient(client_data.getId());
+                if (ecs_client) {
+                    ecs_client->getData<ClientData>().setReadyState();
+                    spdlog::info("Client {} is ready to play", ecs_client->getData<ClientData>().getId());
+                }
+            } else {
+                peer->getData<ClientData>().setReadyState();
+                    spdlog::info("Client {} is ready to play", peer->getData<ClientData>().getId());
             }
             break;
         }
