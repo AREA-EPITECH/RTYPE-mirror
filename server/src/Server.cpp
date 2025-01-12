@@ -308,6 +308,21 @@ namespace server
         case network::PacketType::LobbyActionPacket:
             {
                 const auto lobby_action_packet = std::any_cast<struct network::LobbyActionPacket>(data);
+                if (lobby_action_packet.actionType == network::LobbyActionType::CreateRoom) {
+                    spdlog::info("New Action with type CreateRoom");
+                }
+                if (lobby_action_packet.actionType == network::LobbyActionType::JoinRoom) {
+                    spdlog::info("New Action with type JoinRoom");
+                }
+                if (lobby_action_packet.actionType == network::LobbyActionType::ChangeReady) {
+                    spdlog::info("New Action with type ChangeReady");
+                }
+                if (lobby_action_packet.actionType == network::LobbyActionType::ChangeName) {
+                    spdlog::info("New Action with type ChangeName");
+                }
+                if (lobby_action_packet.actionType == network::LobbyActionType::ChangeShip) {
+                    spdlog::info("New Action with type ChangeShip");
+                }
                 lobbyAction(server, peer, lobby_action_packet);
                 break;
             }

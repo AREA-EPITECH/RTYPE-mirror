@@ -11,11 +11,11 @@
 
 namespace server {
     class ClientData {
-        uint32_t _id;
-        std::string _name;
+        uint32_t _id = 0;
+        std::string _name = "";
         uint16_t _ship_id = 0;
         bool _is_ready = false;
-        std::shared_ptr<Room> _room;
+        std::shared_ptr<Room> _room = nullptr;
     public:
         ClientData(u_int32_t id);
         ~ClientData();
