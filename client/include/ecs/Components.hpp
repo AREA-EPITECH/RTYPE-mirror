@@ -89,12 +89,14 @@ namespace ecs {
         TextComponent name;
         Vector3 position = {0, 0, 0};
         int health = MAX_HEALTH;
+        int ship_id = 0;
 
-        VesselsComponent(Model _model, bool _drawable, std::string _path, TextComponent _name) {
+        VesselsComponent(Model _model, bool _drawable, std::string _path, TextComponent _name, int _ship_id) {
             model = _model;
             drawable = _drawable;
             path = std::move(_path);
             name = std::move(_name);
+            ship_id = _ship_id;
         }
 
         void Move(const client::Direction direction, const Camera &camera)

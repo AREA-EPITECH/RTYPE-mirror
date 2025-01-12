@@ -47,7 +47,7 @@ void init_menu_entity(Registry &ecs)
                 auto gameState = getGameState(ecs);
                 if (gameState) {
                     game::GameState::Player user = gameState->get().getUser();
-                    user.health = 100;
+                    user.health = MAX_HEALTH;
                     user.is_ready = false;
                     user.name = packet.name;
                     user.ship_id = 0;
@@ -55,6 +55,10 @@ void init_menu_entity(Registry &ecs)
                     gameState->get().setRoomId(packet.roomId);
                 }
                 packet.actionType = network::LobbyActionType::JoinRoom;
+                ecs.run_event(packet);
+                packet.actionType = network::LobbyActionType::ChangeName;
+                ecs.run_event(packet);
+                packet.actionType = network::LobbyActionType::ChangeShip;
                 ecs.run_event(packet);
                 change_window(ecs, ecs::WindowType::LOBBY);
             },
@@ -128,7 +132,7 @@ void init_menu_entity(Registry &ecs)
                 auto gameState = getGameState(ecs);
                 if (gameState) {
                     game::GameState::Player user = gameState->get().getUser();
-                    user.health = 100;
+                    user.health = MAX_HEALTH;
                     user.is_ready = false;
                     user.name = packet.name;
                     user.ship_id = 0;
@@ -136,6 +140,10 @@ void init_menu_entity(Registry &ecs)
                 }
                 packet.actionType = network::LobbyActionType::CreateRoom;
                 ecs.run_event(packet);
+                packet.actionType = network::LobbyActionType::ChangeName;
+                ecs.run_event(packet);
+                packet.actionType = network::LobbyActionType::ChangeShip;
+                //ecs.run_event(packet);
                 change_window(ecs, ecs::WindowType::LOBBY);
             },
             [buttonWidth](int screenWidth, int screenHeight) { return screenWidth / 2 - (buttonWidth / 2); },

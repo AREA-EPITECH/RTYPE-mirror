@@ -31,12 +31,12 @@ namespace game
         other_players = players;
     }
 
-    auto GameState::getGameState() -> bool {
-        return is_playing;
+    auto GameState::getGameState() -> network::LobbyGameState {
+        return game_state;
     }
 
-    auto GameState::updateGameState(bool state) -> void {
-        is_playing = state;
+    auto GameState::updateGameState(network::LobbyGameState state) -> void {
+        game_state = state;
     }
 
     auto GameState::getRoomId() -> uint32_t {

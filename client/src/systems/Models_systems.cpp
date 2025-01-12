@@ -50,7 +50,7 @@ namespace ecs {
             int posX = static_cast<int>(screenWidth * 0.66) - textWidth / 2 + 20;
 
             TextComponent vessel_name(name_str, fontSize, posX, 100, 0, {120, 0, 0, 255});
-            ecs.add_component<VesselsComponent>(ModelEntity, {models, (i == 0), vox_files[i], vessel_name});
+            ecs.add_component<VesselsComponent>(ModelEntity, {models, (i == 0), vox_files[i], vessel_name, i});
         }
     }
 

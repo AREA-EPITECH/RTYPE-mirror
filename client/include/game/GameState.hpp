@@ -21,7 +21,7 @@ namespace game
     public:
         struct Player {
             uint32_t id;
-            uint16_t health = 100;
+            uint16_t health = MAX_HEALTH;
             std::string name;
             uint16_t ship_id = 0;
             bool is_ready = false;
@@ -38,8 +38,8 @@ namespace game
         auto getOtherPlayer() -> std::vector<Player>;
         auto updateOtherPlayer(const std::vector<Player> &players) -> void;
 
-        auto getGameState() -> bool;
-        auto updateGameState(bool state) -> void;
+        auto getGameState() -> network::LobbyGameState;
+        auto updateGameState(network::LobbyGameState state) -> void;
 
         auto getRoomId() -> uint32_t;
         auto setRoomId(uint32_t _roomId) -> void;
@@ -54,7 +54,7 @@ namespace game
     private:
         Player user;
         std::vector<Player> other_players;
-        bool is_playing = false;
+        network::LobbyGameState game_state = network::LobbyGameState::Waiting;
         uint32_t roomId;
 
         entity_t textIdEntity;
