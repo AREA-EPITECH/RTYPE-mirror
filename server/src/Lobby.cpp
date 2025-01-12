@@ -29,10 +29,15 @@ namespace server
             server.leaveClientRoom(peer, lobby_action_packet.roomId);
         case network::LobbyActionType::ChangeName: {
             const auto client_data = peer->getData<ClientData>();
-            const auto ecs_client = client_data.getRoom()->getClient(client_data.getId());
-            if (ecs_client) {
-                ecs_client->getData<ClientData>().setName(lobby_action_packet.name);
-                spdlog::info("Client {} changed name to {}", ecs_client->getData<ClientData>().getId(), lobby_action_packet.name);
+            if (client_data.getRoom()) {
+                const auto ecs_client = client_data.getRoom() ->getClient(client_data.getId());
+                if (ecs_client) {
+                    ecs_client->getData<ClientData>().setName(lobby_action_packet.name);
+                    spdlog::info("Client {} changed name to {}", ecs_client->getData<ClientData>().getId(), lobby_action_packet.name);
+                }
+            } else {
+                peer->getData<ClientData>().setName(lobby_action_packet.name);
+                spdlog::info("Client {} changed name to {}", peer->getData<ClientData>().getId(), lobby_action_packet.name);
             }
             break;
         }
