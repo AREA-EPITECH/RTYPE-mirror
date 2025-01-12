@@ -6,6 +6,7 @@
 */
 
 #include "ecs/Systems.hpp"
+#include "game/GameState.hpp"
 
 namespace ecs {
 
@@ -80,6 +81,27 @@ namespace ecs {
                 EndMode3D();
                 break;
             }
+        }
+
+        auto gameState = getGameState(ecs);
+
+        if (gameState->get().getGameState() == network::LobbyGameState::Starting) {
+            int ringWidth = 400;
+            int ringHeight = 400;
+            int fontSize = 24;
+            static float startAngle = 0;
+            static float endAngle = 270;
+            startAngle += 2;
+            endAngle += 2;
+            if (startAngle >= 360) {
+                startAngle = 0;
+                endAngle = 270;
+            }
+            Color blackTransparent = {0, 48, 73, 200};
+            DrawRectangle(0, 0, screenWidth, screenHeight, blackTransparent);
+            Vector2 center = {screenWidth / 2.0f, screenHeight / 2.0f};
+            DrawText("Starting...", center.x - MeasureText("Starting...", fontSize) / 2, center.y - fontSize / 2, fontSize, BLACK);
+            DrawRing(center, 80, 190, startAngle, endAngle, 0, Fade(RED, 0.5f));
         }
 
         EndDrawing();

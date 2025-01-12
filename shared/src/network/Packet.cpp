@@ -356,7 +356,7 @@ struct network::LobbySnapshotPacket network::Packet::deserializeLobbySnapshotPac
     ensureValidOffset(offset, sizeof(numPlayers), data.size());
     std::memcpy(&numPlayers, data.data() + offset, sizeof(numPlayers));
     offset += sizeof(numPlayers);
-    packet.players.resize(numPlayers);
+    //packet.players.resize(numPlayers);
 
     // Deserialize each player
     for (uint32_t i = 0; i < numPlayers; ++i)

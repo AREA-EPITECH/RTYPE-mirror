@@ -12,15 +12,8 @@ void update_board_component(Registry &ecs, int screenWidth, int screenHeight) {
 
     auto &texts = ecs.get_components<ecs::TextComponent>();
     auto &buttons = ecs.get_components<ecs::ButtonComponent>();
-    auto &gameStateCps = ecs.get_components<game::GameState>();
+    auto gameState = getGameState(ecs);
     int players_ids = 0;
-    std::optional<std::reference_wrapper<game::GameState>> gameState;
-    for (auto &it : gameStateCps) {
-        if (it.has_value()) {
-            gameState = std::ref(*it);
-            break;
-        }
-    }
 
     game::GameState::Player user = gameState->get().getUser();
     std::vector<game::GameState::Player> other_user = gameState->get().getOtherPlayer();
@@ -31,16 +24,26 @@ void update_board_component(Registry &ecs, int screenWidth, int screenHeight) {
             text.updateText(screenWidth, screenHeight);
 
             if (text.type == 1) {
-                if (players_ids - 1 < other_user.size()) {
-                    ecs.kill_entity(i);
-                    continue;
-                }
                 int lineY = 50 + text.fontSize + 50;
                 text.posY = lineY + 50 + (100 * players_ids);
                 if (players_ids == 0) {
                     text.text = user.name;
+                    if (user.is_ready) {
+                        text.color = RED;
+                    } else {
+                        text.color = WHITE;
+                    }
                 } else {
-                    text.text = other_user[players_ids - 1].name;
+                    if (other_user.size() >= players_ids) {
+                        text.text = other_user[players_ids - 1].name;
+                        if (other_user[players_ids - 1].is_ready) {
+                            text.color = RED;
+                        } else {
+                            text.color = WHITE;
+                        }
+                    } else {
+                        text.text = "";
+                    }
                 }
                 players_ids++;
             } else if (text.type == 2) {
@@ -54,7 +57,6 @@ void update_board_component(Registry &ecs, int screenWidth, int screenHeight) {
             buttons[i].value().updateButton(screenWidth, screenHeight);
         }
     }
-
 }
 
 void display_board(Registry &ecs, int screenWidth, int screenHeight) {

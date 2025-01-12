@@ -1,6 +1,13 @@
-#include <utility>
+/*
+** EPITECH PROJECT, 2024
+** RTYPE-mirror
+** File description:
+** Controls.hpp
+*/
 
 #pragma once
+
+#include <utility>
 
 namespace ecs {
 
@@ -10,10 +17,10 @@ namespace ecs {
 
     public:
         KeyBindingComponent() {
-            key_bindings["Move Up"] = std::make_tuple(KEY_UP, KEY_UP);
-            key_bindings["Move Down"] = std::make_tuple(KEY_DOWN, KEY_DOWN);
-            key_bindings["Move Left"] = std::make_tuple(KEY_LEFT, KEY_LEFT);
-            key_bindings["Move Right"] = std::make_tuple(KEY_RIGHT, KEY_RIGHT);
+            key_bindings["Move Up"] = std::make_tuple(KEY_Z, KEY_Z);
+            key_bindings["Move Down"] = std::make_tuple(KEY_S, KEY_S);
+            key_bindings["Move Left"] = std::make_tuple(KEY_Q, KEY_Q);
+            key_bindings["Move Right"] = std::make_tuple(KEY_D, KEY_D);
             key_bindings["Basic Shoot"] = std::make_tuple(KEY_SPACE, KEY_SPACE);
             key_bindings["Special Shoot"] = std::make_tuple(KEY_LEFT_SHIFT, KEY_LEFT_SHIFT);
         }
@@ -48,10 +55,10 @@ namespace ecs {
     class SoundComponent {
     public:
         float volume;
+        int type;
 
-        SoundComponent(float initialVolume = 50.0f);
+        SoundComponent(int _type, float initialVolume = 50.0f) : type(_type), volume(initialVolume) {};
 
-        void drawVolumeSlider(int x, int y, int width);
     };
 
     class SettingsComponent {

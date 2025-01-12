@@ -43,21 +43,14 @@ namespace ecs {
             auto ModelEntity = ecs.spawn_entity();
             std::cout << "MODEL ID : " << ModelEntity << std::endl;
 
-            auto &gameStateCps = ecs.get_components<game::GameState>();
-            std::optional<std::reference_wrapper<game::GameState>> gameState;
-            for (auto &it : gameStateCps) {
-                if (it.has_value()) {
-                    gameState = std::ref(*it);
-                    break;
-                }
-            }
+            auto gameState = getGameState(ecs);
             std::string name_str = gameState->get().getUser().name;
             int fontSize = 54;
             int textWidth = MeasureText(name_str.c_str(), fontSize);
             int posX = static_cast<int>(screenWidth * 0.66) - textWidth / 2 + 20;
 
             TextComponent vessel_name(name_str, fontSize, posX, 100, 0, {120, 0, 0, 255});
-            ecs.add_component<VesselsComponent>(ModelEntity, {models, (i == 0), vox_files[i], vessel_name});
+            ecs.add_component<VesselsComponent>(ModelEntity, {models, (i == 0), vox_files[i], vessel_name, i});
         }
     }
 

@@ -6,6 +6,7 @@
 */
 
 #include "ecs/Components.hpp"
+#include <spdlog/spdlog.h>
 
 namespace ecs
 {
@@ -30,6 +31,11 @@ namespace ecs
             buttonX = dynamicX(screenWidth, screenHeight);
         if (dynamicY)
             buttonY = dynamicY(screenWidth, screenHeight);
+    }
+
+    void ButtonComponent::setText(const std::string &new_text)
+    {
+        text = new_text;
     }
 
     void ButtonComponent::drawButton(const WindowFocus _focus) const

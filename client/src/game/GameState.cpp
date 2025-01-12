@@ -31,12 +31,12 @@ namespace game
         other_players = players;
     }
 
-    auto GameState::getGameState() -> bool {
-        return is_playing;
+    auto GameState::getGameState() -> network::LobbyGameState {
+        return game_state;
     }
 
-    auto GameState::updateGameState(bool state) -> void {
-        is_playing = state;
+    auto GameState::updateGameState(network::LobbyGameState state) -> void {
+        game_state = state;
     }
 
     auto GameState::getRoomId() -> uint32_t {
@@ -71,3 +71,17 @@ namespace game
         }
     }
 } // namespace game
+
+std::optional<std::reference_wrapper<game::GameState>> getGameState(Registry &ecs) {
+    auto &gameStateCps = ecs.get_components<game::GameState>();
+    std::optional<std::reference_wrapper<game::GameState>> gameState;
+    for (auto &it : gameStateCps)
+    {
+        if (it.has_value())
+        {
+            gameState = std::ref(*it);
+            break;
+        }
+    }
+    return gameState;
+}

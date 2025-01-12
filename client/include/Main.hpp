@@ -22,4 +22,5 @@ void init_game_window (Registry& ecs);
 Registry init_ecs();
 void init_settings (Registry &ecs);
 
-
+void previous_ship(Registry &ecs);
+void next_ship(Registry &ecs);

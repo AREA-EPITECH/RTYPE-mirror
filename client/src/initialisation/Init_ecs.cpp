@@ -12,6 +12,10 @@ void init_settings(Registry &ecs)
     ecs.register_event<ecs::DisplaySettingEvent>();
 
     ecs.subscribe<ecs::DisplaySettingEvent>(ecs::display_settings_system);
+    ecs.register_component<ecs::KeyBindingComponent>();
+
+    auto keys = ecs.spawn_entity();
+    ecs.add_component<ecs::KeyBindingComponent>(keys, {});
 }
 
 /**
@@ -39,10 +43,10 @@ Registry init_ecs()
     ecs.register_component<ecs::ControllableComponent>();
     ecs.register_component<ecs::EnemyComponent>();
     ecs.register_component<ecs::FocusComponent>();
-    ecs.register_component<ecs::KeyBindingComponent>();
     ecs.register_component<ecs::ImageComponent>();
     ecs.register_component<ecs::HealthBarComponent>();
     ecs.register_component<game::GameState>();
+    ecs.register_component<ecs::SoundComponent>();
 
     ecs.register_event<ecs::CreateWindowEvent>();
     ecs.register_event<ecs::WindowOpenEvent>();
@@ -74,31 +78,31 @@ Registry init_ecs()
                     {
                         auto received_packet = std::any_cast<struct network::LobbySnapshotPacket>(event.data);
                         auto &gameStateCps = ecs.get_components<game::GameState>();
-                        std::optional<std::reference_wrapper<game::GameState>> gameState;
-                        for (auto &it : gameStateCps)
-                        {
-                            if (it.has_value())
-                            {
-                                gameState = std::ref(*it);
-                                break;
+                        auto gameState = getGameState(ecs);
+                        auto user = gameState->get().getUser();
+                        std::vector<game::GameState::Player> other_players;
+                        gameState->get().setRoomId(received_packet.roomId);
+                        for (auto player: received_packet.players) {
+                            if (player.id != user.id) {
+                                spdlog::info("USER: {}, {}, {}, {}", player.id, player.name, player.shipId, player.ready);
+                                other_players.push_back({
+                                    player.id,
+                                    MAX_HEALTH,
+                                    player.name,
+                                    player.shipId,
+                                    player.ready,
+                                    {0, 0}
+                                });
                             }
                         }
-                        gameState->get().setRoomId(received_packet.roomId);
-                        spdlog::info("Received lobby snapshot packet: {}", received_packet.header.packetId);
+                        gameState->get().updateOtherPlayer(other_players);
+                        gameState->get().updateGameState(received_packet.gameState);
+                        //spdlog::info("Received lobby snapshot packet: {}", received_packet.header.packetId);
                     }
                     else if (event.packetType == network::PacketType::SnapshotPacket)
                     {
                         auto received_packet = std::any_cast<struct network::SnapshotPacket>(event.data);
-                        auto &gameStateCps = ecs.get_components<game::GameState>();
-                        std::optional<std::reference_wrapper<game::GameState>> gameState;
-                        for (auto &it : gameStateCps)
-                        {
-                            if (it.has_value())
-                            {
-                                gameState = std::ref(*it);
-                                break;
-                            }
-                        }
+                        auto gameState = getGameState(ecs);
                         auto user = gameState->get().getUser();
                         user.id = received_packet.entities[0].entityId;
                         gameState->get().updateUser(user);
@@ -121,6 +125,12 @@ Registry init_ecs()
 
     auto gameState = ecs.spawn_entity();
     ecs.add_component<game::GameState>(gameState, {});
+
+    auto musicSound = ecs.spawn_entity();
+    ecs.add_component<ecs::SoundComponent>(musicSound, {0});
+
+    auto sound = ecs.spawn_entity();
+    ecs.add_component<ecs::SoundComponent>(sound, {1});
 
     init_settings(ecs);
     init_menu_window(ecs);

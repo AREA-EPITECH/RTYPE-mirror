@@ -43,6 +43,7 @@ namespace ecs
         BeginDrawing();
         ClearBackground(RAYWHITE);
 
+
         for (auto &background : backgrounds)
         {
             if (background.has_value())
@@ -156,8 +157,8 @@ namespace ecs
 
                                                                     std::string back_path = ASSET_FILE("backgrounds/menu/setting_back.jpg");
                                                                     ImageComponent setting_back(back_path, SETTINGS_FOCUS,
-                                                                                                [](int screenWidth, int screenHeight) {return 0;},
-                                                                                                [](int screenWidth, int screenHeight) {return 0;}, GetScreenWidth(), GetScreenHeight());
+                                                                                               [](int screenWidth, int screenHeight) {return 0;},
+                                                                                                 [](int screenWidth, int screenHeight) {return 0;}, GetScreenWidth(), GetScreenHeight());
                                                                     ecs.add_component<SettingsComponent>(settingEntity, {setting_back});
                                                                     ecs.run_event(ChangeFocusEvent{SETTINGS_FOCUS});
                                                                 }});

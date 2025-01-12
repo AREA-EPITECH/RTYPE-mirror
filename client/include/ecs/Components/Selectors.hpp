@@ -20,6 +20,7 @@ namespace ecs {
                         Color _text_color_focused = {0, 0, 0, 100}, Color _border_color_focused = {0, 0, 0, 100});
 
         void updateButton(int screenWidth, int screenHeight);
+        void setText(const std::string &new_text);
         void drawButton(WindowFocus _focus) const;
 
     private:
