@@ -123,37 +123,37 @@ namespace server
     }
 
     /**
-     * Check room state in order to update server room's vectors
-     * If all clients in _waiting_rooms room are ready, move the room to _playing_rooms vector
-     * If the current playing level has reached its end, move the room back to _waiting_rooms vector
+     * Moves a room from the waiting rooms to the playing rooms if all clients in the room are ready.
+     * @param room_id The ID of the room to be moved to the playing rooms.
      */
-    void Server::checkRoomState()
+    void Server::changeRoomToPlaying(uint32_t room_id)
     {
-        this->_waiting_rooms.erase(std::remove_if(this->_waiting_rooms.begin(), this->_waiting_rooms.end(),
-        [this](const std::shared_ptr<Room> &room)
-        {
-            if (room.get()->getClientsReadiness())
-            {
-                this->_playing_rooms.push_back(room);
-                return true;
-            }
-            return false;
-        }),this->_waiting_rooms.end());
-        // TODO: Add _playing_rooms that finished a level back to _waiting_rooms
-        // this->_playing_rooms.erase(
-        //     std::remove_if(
-        //         this->_playing_rooms.begin(),
-        //         this->_playing_rooms.end(),
-        //         [this](const std::shared_ptr<Room> &room) {
-        //             if (room.get()->getClientsReadiness()) {
-        //                 this->_waiting_rooms.push_back(room);
-        //                 return true;
-        //             }
-        //             return false;
-        //         }
-        //     ),
-        // this->_playing_rooms.end()
-        // );
+        auto it = std::find_if(this->_waiting_rooms.begin(), this->_waiting_rooms.end(),
+            [room_id](const std::shared_ptr<Room> &room) {
+                return room->getId() == room_id;
+            });
+
+        if (it != this->_waiting_rooms.end() && (*it)->getClientsReadiness()) {
+            this->_playing_rooms.push_back(*it);
+            this->_waiting_rooms.erase(it);
+        }
+    }
+
+    /**
+     * Moves a room from the playing rooms to the waiting rooms if all clients in the room are ready.
+     * @param room_id The ID of the room to be moved to the waiting rooms.
+     */
+    void Server::changeRoomToWaiting(uint32_t room_id)
+    {
+        auto it = std::find_if(this->_playing_rooms.begin(), this->_playing_rooms.end(),
+            [room_id](const std::shared_ptr<Room> &room) {
+                return room->getId() == room_id;
+            });
+
+        if (it != this->_playing_rooms.end() && (*it)->getClientsReadiness()) {
+            this->_waiting_rooms.push_back(*it);
+            this->_playing_rooms.erase(it);
+        }
     }
 
     /**
