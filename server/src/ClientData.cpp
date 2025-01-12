@@ -57,7 +57,7 @@ namespace server {
      * Setter for client ready state
      */
     void ClientData::setReadyState() {
-        this->_ship_id = !this->_ship_id;
+        this->_is_ready = !this->_is_ready;
     }
 
     /**
