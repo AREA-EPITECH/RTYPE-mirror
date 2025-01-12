@@ -27,38 +27,40 @@ namespace ecs {
 
         for (auto &soundLevel : soundLevels) {
             if (soundLevel.has_value() && soundLevel.value().type == 0) {
-                Rectangle soundBar = {static_cast<float>(xOffset), static_cast<float>(yOffset),
+                Rectangle soundBar = {static_cast<float>(xOffset), static_cast<float>(yOffset + sliderHeight + 20),
                                       static_cast<float>(sliderWidth), static_cast<float>(sliderHeight)};
                 DrawRectangleRec(soundBar, LIGHTGRAY);
                 DrawRectangle(static_cast<int>(soundBar.x), static_cast<int>(soundBar.y),
-                              static_cast<int>(soundLevel.value().volume / 100.0f * sliderWidth), sliderHeight, GREEN);
+                              static_cast<int>(soundLevel.value().volume / 100.0f * sliderWidth), sliderHeight, {148, 113, 150, 200});
                 DrawRectangleLines(static_cast<int>(soundBar.x), static_cast<int>(soundBar.y),
                                    static_cast<int>(soundBar.width), static_cast<int>(soundBar.height), BLACK);
-                DrawText("Sound", static_cast<int>(soundBar.x - 60), static_cast<int>(soundBar.y + sliderHeight / 4), 20, WHITE);
+                DrawText("Sound", static_cast<int>(soundBar.x), static_cast<int>(yOffset), 30, WHITE);
 
                 if (IsMouseButtonDown(MOUSE_LEFT_BUTTON) && CheckCollisionPointRec(mousePosition, soundBar)) {
                     soundLevel.value().volume = (mousePosition.x - soundBar.x) / soundBar.width * 100.0f;
                     soundLevel.value().volume = std::clamp(soundLevel.value().volume, 0.0f, 100.0f);
                 }
-                std::string soundText = "Sound: " + std::to_string(static_cast<int>(soundLevel.value().volume)) + "%";
-                DrawText(soundText.c_str(), xOffset + sliderWidth + 20, yOffset + sliderHeight / 4, 20, WHITE);
+                std::string soundText = std::to_string(static_cast<int>(soundLevel.value().volume)) + "%";
+                DrawText(soundText.c_str(), xOffset + sliderWidth + 20, yOffset + sliderHeight + 10, 30, WHITE);
+                yOffset += 100;
             }
             if (soundLevel.has_value() && soundLevel.value().type == 1) {
                 Rectangle musicBar = {static_cast<float>(xOffset), static_cast<float>(yOffset + sliderHeight + 20),
                                       static_cast<float>(sliderWidth), static_cast<float>(sliderHeight)};
                 DrawRectangleRec(musicBar, LIGHTGRAY);
                 DrawRectangle(static_cast<int>(musicBar.x), static_cast<int>(musicBar.y),
-                              static_cast<int>(soundLevel.value().volume / 100.0f * sliderWidth), sliderHeight, BLUE);
+                              static_cast<int>(soundLevel.value().volume / 100.0f * sliderWidth), sliderHeight, {148, 113, 150, 200});
                 DrawRectangleLines(static_cast<int>(musicBar.x), static_cast<int>(musicBar.y),
                                    static_cast<int>(musicBar.width), static_cast<int>(musicBar.height), BLACK);
-                DrawText("Music", static_cast<int>(musicBar.x - 60), static_cast<int>(musicBar.y + sliderHeight / 4), 20, WHITE);
+                DrawText("Music", static_cast<int>(musicBar.x), static_cast<int>(yOffset), 30, WHITE);
 
                 if (IsMouseButtonDown(MOUSE_LEFT_BUTTON) && CheckCollisionPointRec(mousePosition, musicBar)) {
                     soundLevel.value().volume = (mousePosition.x - musicBar.x) / musicBar.width * 100.0f;
                     soundLevel.value().volume = std::clamp(soundLevel.value().volume, 0.0f, 100.0f);
                 }
-                std::string musicText = "Music: " + std::to_string(static_cast<int>(soundLevel.value().volume)) + "%";
-                DrawText(musicText.c_str(), xOffset + sliderWidth + 20, yOffset + sliderHeight + 20 + sliderHeight / 4, 20, WHITE);
+                std::string musicText = std::to_string(static_cast<int>(soundLevel.value().volume)) + "%";
+                DrawText(musicText.c_str(), xOffset + sliderWidth + 20, yOffset + sliderHeight + 10, 30, WHITE);
+                yOffset += 100;
             }
         }
 
@@ -73,7 +75,21 @@ namespace ecs {
         }
     }
 
+    void drawDaltonianModeButton(Shader &daltonianShader, bool &isDaltonianMode) {
+        if (GuiButton({500, 100, 200, 100}, isDaltonianMode ? "Disable Daltonian Mode" : "Enable Daltonian Mode")) {
+            isDaltonianMode = !isDaltonianMode;
+        }
+
+        if (isDaltonianMode) {
+            BeginShaderMode(daltonianShader);
+        } else {
+            EndShaderMode();
+        }
+    }
+
     void display_settings_system (Registry &ecs, const DisplaySettingEvent &) {
+        int s_width = GetScreenWidth();
+        int s_height = GetScreenHeight();
         if (GuiButton({100, 100, 200, 100},
                       "Back")) {
            auto & settings = ecs.get_components<SettingsComponent>();
@@ -93,10 +109,10 @@ namespace ecs {
 
             auto &keyBindings = keyBindingsArray[i].value();
 
-            int yOffset = 250;
-            int xOffset = 100;
-            int textBoxWidth = 150;
-            int textBoxHeight = 30;
+            int yOffset = s_height / 4;
+            int xOffset = s_width / 5;
+            int textBoxWidth = 200;
+            int textBoxHeight = 50;
 
             auto actions = keyBindings.getActions();
 
@@ -111,9 +127,10 @@ namespace ecs {
                 int currentKey = keyBindings.getKey(action);
                 std::string keyText = getPrintableKeyName(currentKey);
 
-                DrawText(action.c_str(), xOffset, yOffset, 20, WHITE);
+                DrawText(action.c_str(), xOffset, yOffset, 30, WHITE);
+                yOffset += 50;
 
-                Rectangle textBox = {static_cast<float>(xOffset + 200), static_cast<float>(yOffset),
+                Rectangle textBox = {static_cast<float>(xOffset), static_cast<float>(yOffset),
                                      static_cast<float>(textBoxWidth), static_cast<float>(textBoxHeight)};
                 Vector2 mousePosition = GetMousePosition();
 
@@ -129,10 +146,10 @@ namespace ecs {
                     }
                 }
 
-                DrawRectangleRec(textBox, isFocusedMap[action] ? GRAY : LIGHTGRAY);
+                DrawRectangleRec(textBox, isFocusedMap[action] ?  Color({148, 113, 150, 200}) : Color({195, 122, 164, 200}));
                 DrawRectangleLinesEx(textBox, 1, BLACK);
                 DrawText(currentInputMap[action].empty() ? keyText.c_str() : currentInputMap[action].c_str(),
-                         static_cast<int>(textBox.x + 5), static_cast<int>(textBox.y + 5), 20, BLACK);
+                         static_cast<int>(textBox.x + 5), static_cast<int>(textBox.y + 10), 30, BLACK);
 
                 if (isFocusedMap[action]) {
                     int key = GetKeyPressed();
@@ -155,12 +172,12 @@ namespace ecs {
                     }
                 }
 
-                yOffset += 50;
+                yOffset += 70;
             }
         }
-        drawSoundAndMusicSliders(ecs, 100, 600, 300, 20);
-        drawResolutionButton(100, 800, 300, 50, 2560, 1440);
-        drawResolutionButton(100, 900, 300, 50, 1920, 1080);
-        drawResolutionButton(100, 1000, 300, 50, 1600, 900);
+        drawSoundAndMusicSliders(ecs, s_width / 2, s_height / 4 + 10, 300, 20);
+        drawResolutionButton(s_width / 2, s_height / 2, 300, 100, 2560, 1440);
+        drawResolutionButton(s_width / 2, s_height / 2 + 150, 300, 100, 1920, 1080);
+        drawResolutionButton(s_width / 2, s_height / 2 + 300, 300, 100, 1600, 900);
     }
 }
