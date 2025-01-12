@@ -8,66 +8,101 @@
 #include "Room.hpp"
 #include <ClientData.hpp>
 #include <Server.hpp>
+#include <GameData.hpp>
 
 namespace server
 {
-    Room::Room(const uint32_t id) : _id(id), _state(network::LobbyGameState::Waiting) {}
+    Room::Room(const uint32_t id) : _id(id), _state(network::LobbyGameState::Waiting) {
+        _registry.register_component<std::shared_ptr<network::PeerWrapper>>();
+        _registry.register_component<ClientData>();
+        _registry.register_component<Pos>();
+        _registry.register_component<Projectile>();
+        _registry.register_component<int>();
+    }
+
+    Room::~Room() {
+        auto &clients = _registry.get_components<std::shared_ptr<network::PeerWrapper>>();
+        for (int i = 0; i < clients.size(); i++) {
+            if (clients[i].has_value()) {
+                _registry.kill_entity(i);
+            }
+        }
+    }
+
+    void Room::addClient(std::shared_ptr<network::PeerWrapper> &peer) {
+        const auto new_player = _registry.spawn_entity();
+        auto data = peer->getData<ClientData>();
+        _registry.add_component<ClientData>(new_player, std::move(data));
+        _registry.add_component<int>(new_player, 10);
+        _registry.add_component<std::shared_ptr<network::PeerWrapper>>(new_player, std::move(peer));
+    }
+
+    std::shared_ptr<network::PeerWrapper> Room::getClient(uint32_t id) {
+        auto &clients = _registry.get_components<std::shared_ptr<network::PeerWrapper>>();
+        for (auto &client: clients) {
+            if (client.has_value()) {
+                if (client.value()->getData<ClientData>().getId() == id)
+                    return client.value();
+            }
+        }
+        return nullptr;
+    }
+
+    void Room::removeClient(uint32_t id) {
+        auto &clients = _registry.get_components<std::shared_ptr<network::PeerWrapper>>();
+        for (int i = 0; i < clients.size(); i++) {
+            if (clients[i].has_value() && clients[i].value()->getData<ClientData>().getId() == id) {
+                _registry.kill_entity(i);
+            }
+        }
+    }
 
     bool Room::operator==(const Room &other) const { return this->_id == other._id; }
 
-    /**
-     * Convert std::vector<shared_ptr<PeerWrapper>> to std::vector<network::LobbyPlayer>
-     * to be able to send paquet of type LobbySnapshotPaquet
-     * @return {std::vector<network::LobbyPlayer>}
-     */
     std::vector<network::LobbyPlayer> Room::toLobbyPlayers() const
     {
         std::vector<network::LobbyPlayer> lobby_players;
-        for (auto client : this->_clients)
-        {
-            network::LobbyPlayer temp_player;
-            ClientData data = client->getData<ClientData>();
-            temp_player.id = data.getId();
-            temp_player.name = data.getName();
-            temp_player.ready = data.getReadyState();
-            temp_player.shipId = data.getShipId();
-            lobby_players.push_back(temp_player);
+        auto &clients = _registry.get_components<std::shared_ptr<network::PeerWrapper>>();
+        for (int i = 0; i < clients.size(); i++) {
+            if (clients[i].has_value()) {
+                network::LobbyPlayer temp_player;
+                auto data = clients[i].value()->getData<ClientData>();
+                temp_player.id = data.getId();
+                temp_player.name = data.getName();
+                temp_player.ready = data.getReadyState();
+                temp_player.shipId = data.getShipId();
+                lobby_players.push_back(temp_player);
+            }
         }
         return lobby_players;
     }
 
-    /**
-     * Check if all clients are in ready state
-     * @return {bool}
-     */
     bool Room::getClientsReadiness() const
     {
-        for (const auto &client : this->_clients)
-        {
-            if (!client->getData<ClientData>().getReadyState())
-            {
-                return false;
+        auto &clients = _registry.get_components<std::shared_ptr<network::PeerWrapper>>();
+        for (int i = 0; i < clients.size(); i++) {
+            if (clients[i].has_value()) {
+                if (!clients[i].value()->getData<ClientData>().getReadyState()) {
+                    return false;
+                }
             }
         }
         return true;
     }
 
-    /**
-     * Send Packet to all clients of a room
-     * Packets are either:
-     * - LobbySnapshotPacket: rooms are in Waiting/Starting LobbyGameState
-     * - SnapshotPacket: rooms are in Playing LobbyGameState
-     * @param server - server reference
-     */
     void Room::sendUpdateRoom(Server &server)
     {
         if (this->_state == network::LobbyGameState::Playing)
         {
+            // populate snapshot_packet with entities ONCE
+            // match ECS entities with SnapshotPacket entities
+            // send everything to all players
             struct network::SnapshotPacket snapshot_packet;
-            // TODO: populate snapshot_packet.entities + fill num_entities
-            for (auto client : this->_clients)
-            {
-                server.getServer().sendSnapshotPacket(snapshot_packet, client);
+            auto &clients = _registry.get_components<std::shared_ptr<network::PeerWrapper>>();
+            for (int i = 0; i < clients.size(); i++) {
+                if (clients[i].has_value()) {
+                    server.getServer().sendSnapshotPacket(snapshot_packet, clients[i].value());
+                }
             }
         }
         else
@@ -76,40 +111,20 @@ namespace server
             lobby_snapshot_packet.roomId = this->_id;
             lobby_snapshot_packet.players = this->toLobbyPlayers();
             lobby_snapshot_packet.gameState = this->_state;
-            for (auto client : this->_clients)
-            {
-                server.getServer().sendLobbyPacket(lobby_snapshot_packet, client);
+            auto &clients = _registry.get_components<std::shared_ptr<network::PeerWrapper>>();
+            for (int i = 0; i < clients.size(); i++) {
+                if (clients[i].has_value()) {
+                    server.getServer().sendLobbyPacket(lobby_snapshot_packet, clients[i].value());
+                }
             }
         }
     }
 
-    /**
-     * Getter client ID
-     * @return {uint32_t}
-     */
     uint32_t Room::getId() const { return this->_id; }
 
-    /**
-     * Setter for the id of the room
-     * @param id : id of the room
-     */
-    void Room::setId(uint32_t id) { this->_id = id; }
+    void Room::setId(const uint32_t id) { this->_id = id; }
 
-    /**
-     * Getter for the size of the Room
-     * @return {u_int8_t}
-     */
-    u_int8_t Room::getSize() const { return this->_clients.size(); }
-
-    /**
-     * Getter for room state
-     * @return {LobbyGameState}
-     */
     network::LobbyGameState Room::getState() const { return this->_state; }
 
-    /**
-     * Setter for room state
-     * @param state
-     */
-    void Room::setState(network::LobbyGameState state) { this->_state = state; }
+    void Room::setState(const network::LobbyGameState state) { this->_state = state; }
 } // namespace server

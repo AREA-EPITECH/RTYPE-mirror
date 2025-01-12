@@ -8,12 +8,11 @@
 #include "ClientData.hpp"
 
 namespace server {
-    ClientData::ClientData(u_int32_t id): _id(id), _room(nullptr) {}
+    ClientData::ClientData(u_int32_t id): _id(id) {}
 
     ClientData::~ClientData() {
         this->_room.reset();
     }
-
     /**
      * Getter client ID
      * @return {uint32_t}
@@ -81,7 +80,7 @@ namespace server {
      * Setter room shared pointer
      * @param room - room pointer
      */
-    void ClientData::setRoom(std::shared_ptr<Room> &room) {
+    void ClientData::setRoom(const std::shared_ptr<Room> &room) {
         this->_room = room;
     }
 

@@ -22,18 +22,20 @@ namespace server {
         network::LobbyGameState _state;
         Registry _registry;
     public:
-        std::vector<std::shared_ptr<network::PeerWrapper>> _clients;
-
         explicit Room(uint32_t id);
+        ~Room();
         bool operator==(const Room& other) const;
 
         std::vector<network::LobbyPlayer> toLobbyPlayers() const;
         void sendUpdateRoom(Server &server);
 
+        void addClient(std::shared_ptr<network::PeerWrapper> &peer);
+        std::shared_ptr<network::PeerWrapper> getClient(uint32_t id);
+        void removeClient(uint32_t id);
+
         bool getClientsReadiness() const;
         uint32_t getId() const;
         void setId(uint32_t id);
-        u_int8_t getSize() const;
         network::LobbyGameState getState() const;
         void setState(network::LobbyGameState state);
     };
