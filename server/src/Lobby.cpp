@@ -13,7 +13,7 @@
 namespace server
 {
     void lobbyAction(Server &server, std::shared_ptr<network::PeerWrapper> &peer,
-                     const struct network::LobbyActionPacket &lobby_action_packet)
+        const struct network::LobbyActionPacket &lobby_action_packet)
     {
         struct network::LobbySnapshotPacket lobby_snapshot_packet;
         switch (lobby_action_packet.actionType)
@@ -26,10 +26,11 @@ namespace server
             break;
 
         case network::LobbyActionType::JoinRoom:
-            server.assignClientToRoom(peer, lobby_action_packet.roomId);
-            lobby_snapshot_packet.roomId = lobby_action_packet.roomId;
-            lobby_snapshot_packet.gameState = peer->getData<ClientData>().getRoom()->getState();
-            server.getServer().sendLobbyPacket(lobby_snapshot_packet, peer);
+            if (server.assignClientToRoom(peer, lobby_action_packet.roomId)) {
+                lobby_snapshot_packet.roomId = lobby_action_packet.roomId;
+                lobby_snapshot_packet.gameState = peer->getData<ClientData>().getRoom()->getState();
+                server.getServer().sendLobbyPacket(lobby_snapshot_packet, peer);
+            }
             break;
         case network::LobbyActionType::LeaveRoom:
             server.leaveClientRoom(peer, lobby_action_packet.roomId);
@@ -40,7 +41,7 @@ namespace server
         case network::LobbyActionType::ChangeShip:
             peer->getData<ClientData>().setShip(lobby_action_packet.shipId);
             spdlog::info("Client {} changed ship to {}", peer->getData<ClientData>().getId(),
-                         lobby_action_packet.shipId);
+                lobby_action_packet.shipId);
             break;
         case network::LobbyActionType::ChangeReady:
             peer->getData<ClientData>().setReadyState();

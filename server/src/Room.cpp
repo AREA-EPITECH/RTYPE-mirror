@@ -11,7 +11,7 @@
 
 namespace server
 {
-    Room::Room(const uint8_t id) : _id(id), _state(network::LobbyGameState::Waiting) {}
+    Room::Room(const uint32_t id) : _id(id), _state(network::LobbyGameState::Waiting) {}
 
     bool Room::operator==(const Room &other) const { return this->_id == other._id; }
 
@@ -88,6 +88,12 @@ namespace server
      * @return {uint32_t}
      */
     uint32_t Room::getId() const { return this->_id; }
+
+    /**
+     * Setter for the id of the room
+     * @param id : id of the room
+     */
+    void Room::setId(uint32_t id) { this->_id = id; }
 
     /**
      * Getter for the size of the Room

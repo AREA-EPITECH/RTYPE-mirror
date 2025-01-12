@@ -78,7 +78,7 @@ namespace server
                     const uint32_t unique_id = utils::Utils::hash_pointer(event.peer);
                     ClientData data(unique_id);
                     event.peer->setData<ClientData>(std::move(data));
-                    spdlog::info("Client connected: {}", static_cast<void *>(event.peer->getPeer().get()));
+                    spdlog::info("Client connected: {}",event.peer->getData<ClientData>().getId());
                     struct network::SnapshotPacket snapshot;
                     snapshot.numEntities = 1;
                     snapshot.entities.push_back({unique_id, network::EntityType::Player, 0, 0, 0, 0});
@@ -110,7 +110,7 @@ namespace server
     void Server::clientDisconnect(std::shared_ptr<network::PeerWrapper> &peer)
     {
         const auto data = peer->getData<ClientData>();
-        const uint16_t room_id = data.getRoom()->getId();
+        const uint32_t room_id = data.getRoom()->getId();
         this->leaveClientRoom(peer, room_id);
         if (data.getRoom()->getState() == network::Starting)
         {
@@ -127,16 +127,15 @@ namespace server
     void Server::checkRoomState()
     {
         this->_waiting_rooms.erase(std::remove_if(this->_waiting_rooms.begin(), this->_waiting_rooms.end(),
-                                                  [this](const std::shared_ptr<Room> &room)
-                                                  {
-                                                      if (room.get()->getClientsReadiness())
-                                                      {
-                                                          this->_playing_rooms.push_back(room);
-                                                          return true;
-                                                      }
-                                                      return false;
-                                                  }),
-                                   this->_waiting_rooms.end());
+        [this](const std::shared_ptr<Room> &room)
+        {
+            if (room.get()->getClientsReadiness())
+            {
+                this->_playing_rooms.push_back(room);
+                return true;
+            }
+            return false;
+        }),this->_waiting_rooms.end());
         // TODO: Add _playing_rooms that finished a level back to _waiting_rooms
         // this->_playing_rooms.erase(
         //     std::remove_if(
@@ -167,7 +166,7 @@ namespace server
         room_ptr->_clients.push_back(client);
         client->setData<ClientData>(std::move(data));
         this->_waiting_rooms.push_back(room_ptr);
-        spdlog::info("Client {} created room {}", client->getData<ClientData>().getId(), room.getId());
+        spdlog::info("Client {} created room {}", client->getData<ClientData>().getId(), room_ptr->getId());
     }
 
     /**
@@ -175,7 +174,7 @@ namespace server
      * @param client
      * @param room_id
      */
-    void Server::assignClientToRoom(std::shared_ptr<network::PeerWrapper> &client, const uint8_t room_id)
+    bool Server::assignClientToRoom(std::shared_ptr<network::PeerWrapper> &client, const uint32_t room_id)
     {
         for (auto &room: this->_waiting_rooms) {
             if (room->getId() == room_id) {
@@ -184,10 +183,11 @@ namespace server
                 room->_clients.push_back(client);
                 client->setData<ClientData>(std::move(data));
                 spdlog::info("Client {} joined room {}", client->getData<ClientData>().getId(), room_id);
-                return;
+                return true;
             }
         }
         spdlog::error("Room doesn't exist {}", room_id);
+        return false;
     }
 
     /**
@@ -198,7 +198,7 @@ namespace server
      * @param client The client to be removed from the room.
      * @param room_id The ID of the room from which the client should be removed.
      */
-    void Server::leaveClientRoom(std::shared_ptr<network::PeerWrapper> &client, uint16_t room_id)
+    void Server::leaveClientRoom(std::shared_ptr<network::PeerWrapper> &client, uint32_t room_id)
     {
         for (auto &room: this->_waiting_rooms) {
             if (room->getId() == room_id) {
@@ -278,7 +278,7 @@ namespace server
      * @param data
      */
     void handleClientData(Server &server, std::shared_ptr<network::PeerWrapper> &peer, const std::any &data,
-                          network::PacketType type)
+        network::PacketType type)
     {
         if (!peer->hasData())
             return;
@@ -286,13 +286,13 @@ namespace server
         {
         case network::PacketType::InputPacket:
             {
-                auto input_packet = std::any_cast<struct network::InputPacket>(data);
+                const auto input_packet = std::any_cast<struct network::InputPacket>(data);
                 gameAction(server, peer, input_packet);
                 break;
             }
         case network::PacketType::LobbyActionPacket:
             {
-                auto lobby_action_packet = std::any_cast<struct network::LobbyActionPacket>(data);
+                const auto lobby_action_packet = std::any_cast<struct network::LobbyActionPacket>(data);
                 lobbyAction(server, peer, lobby_action_packet);
                 break;
             }

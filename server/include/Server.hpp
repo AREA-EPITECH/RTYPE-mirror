@@ -49,8 +49,8 @@ namespace server
 
         void clientDisconnect(std::shared_ptr<network::PeerWrapper> &peer);
         void createClientRoom(std::shared_ptr<network::PeerWrapper> &client);
-        void assignClientToRoom(std::shared_ptr<network::PeerWrapper> &client, uint8_t room_id);
-        void leaveClientRoom(std::shared_ptr<network::PeerWrapper> &client, uint16_t room_id);
+        bool assignClientToRoom(std::shared_ptr<network::PeerWrapper> &client, uint32_t room_id);
+        void leaveClientRoom(std::shared_ptr<network::PeerWrapper> &client, uint32_t room_id);
 
         std::vector<std::shared_ptr<Room>> getWaitingRooms();
         std::vector<std::shared_ptr<Room>> getPlayingRooms();

@@ -18,4 +18,15 @@ namespace utils {
         address = address ^ (address >> 16);
         return static_cast<uint32_t>(address);
     }
+
+    uint32_t Utils::hash_pointer_2(const void *ptr) {
+        uintptr_t address = reinterpret_cast<uintptr_t>(ptr);
+        address = ~address + (address << 15);
+        address = address ^ (address >> 12);
+        address = address + (address << 2);
+        address = address ^ (address >> 4);
+        address = address * 2057;
+        address = address ^ (address >> 16);
+        return static_cast<uint32_t>(address);
+    }
 }
