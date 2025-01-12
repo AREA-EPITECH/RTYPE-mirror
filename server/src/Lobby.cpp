@@ -64,11 +64,13 @@ namespace server
                 const auto ecs_client = client_data.getRoom() ->getClient(client_data.getId());
                 if (ecs_client) {
                     ecs_client->getData<ClientData>().setReadyState();
-                    spdlog::info("Client {} is ready to play", ecs_client->getData<ClientData>().getId());
+                    spdlog::info("Client {} is {} to play", ecs_client->getData<ClientData>().getId(),
+                        (ecs_client->getData<ClientData>().getReadyState()) ? "ready" : "not ready");
                 }
             } else {
                 peer->getData<ClientData>().setReadyState();
-                    spdlog::info("Client {} is ready to play", peer->getData<ClientData>().getId());
+                    spdlog::info("Client {} is {} to play", peer->getData<ClientData>().getId(),
+                        (peer->getData<ClientData>().getReadyState()) ? "ready" : "not ready");
             }
             break;
         }
