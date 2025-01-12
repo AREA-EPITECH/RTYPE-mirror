@@ -74,6 +74,7 @@ namespace ecs {
 
 // Settings
     void display_settings_system (Registry &ecs, const DisplaySettingEvent &);
+    std::string getPrintableKeyName(int key);
 
 // HealthBar
     void create_health_bar_system(Registry &ecs, const HealthBarEvent &event);

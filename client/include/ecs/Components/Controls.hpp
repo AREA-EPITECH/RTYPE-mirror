@@ -55,10 +55,10 @@ namespace ecs {
     class SoundComponent {
     public:
         float volume;
+        int type;
 
-        SoundComponent(float initialVolume = 50.0f);
+        SoundComponent(int _type, float initialVolume = 50.0f) : type(_type), volume(initialVolume) {};
 
-        void drawVolumeSlider(int x, int y, int width);
     };
 
     class SettingsComponent {

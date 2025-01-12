@@ -43,6 +43,7 @@ namespace ecs
         BeginDrawing();
         ClearBackground(RAYWHITE);
 
+
         for (auto &background : backgrounds)
         {
             if (background.has_value())
