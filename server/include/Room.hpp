@@ -19,8 +19,10 @@
 #include <fstream>
 
 namespace server {
-#define MIN_MAP 0
-#define MAX_MAP 192
+#define MINX_MAP 0
+#define MAXX_MAP 350
+#define MINY_MAP 0
+#define MAXY_MAP 332
     class Server;
     class Room {
         uint32_t _id;
@@ -39,8 +41,11 @@ namespace server {
         std::shared_ptr<network::PeerWrapper> getClient(uint32_t id);
         void removeClient(uint32_t id);
 
-        void updatePos(uint32_t client_id, network::MoveDirection type);
-        void updateProjectile(uint32_t client_id, network::FireType type);
+        void addPos(uint32_t client_id, network::MoveDirection type);
+        void addProjectile(uint32_t client_id, network::FireType type);
+
+        void updateProjectile();
+
         bool getClientsReadiness() const;
         uint32_t getId() const;
         void setId(uint32_t id);

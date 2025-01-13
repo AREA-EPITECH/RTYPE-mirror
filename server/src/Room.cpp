@@ -105,6 +105,7 @@ namespace server
         {
             struct network::SnapshotPacket snapshot_packet;
             snapshot_packet.numEntities = 0;
+
             auto &clients = _registry.get_components<std::shared_ptr<network::PeerWrapper>>();
             auto &pos = _registry.get_components<Pos>();
             for (int i = 0; i < clients.size(); i++) {
@@ -120,6 +121,28 @@ namespace server
                     snapshot_packet.numEntities += 1;
                 }
             }
+
+            auto &proj = _registry.get_components<Projectile>();
+            for (int i = 0; i < proj.size(); i++) {
+                if (proj[i].has_value()) {
+                    network::EntityUpdate entity_update;
+                    if (proj[i].value().type == network::NormalFire) {
+                        entity_update.type = network::Rocket;
+                    } else if (proj[i].value().type == network::ChargedFire) {
+                        entity_update.type = network::ChargedRocket;
+                    } else {
+                        continue;
+                    }
+                    entity_update.entityId = i;
+                    entity_update.posX = proj[i].value().pos.x;
+                    entity_update.posY = proj[i].value().pos.y;
+                    entity_update.velocityX = proj[i].value().acceleration.x;
+                    entity_update.velocityY = proj[i].value().acceleration.y;
+                    snapshot_packet.entities.push_back(entity_update);
+                    snapshot_packet.numEntities += 1;
+                }
+            }
+
             for (int i = 0; i < clients.size(); i++) {
                 if (clients[i].has_value()) {
                     server.getServer().sendSnapshotPacket(snapshot_packet, clients[i].value());
@@ -167,7 +190,7 @@ namespace server
         }
     }
 
-    void Room::updatePos(const uint32_t client_id, network::MoveDirection type) {
+    void Room::addPos(const uint32_t client_id, network::MoveDirection type) {
         auto &clients = _registry.get_components<std::shared_ptr<network::PeerWrapper>>();
         for (int i = 0; i < clients.size(); i++) {
             if (clients[i].has_value() && clients[i].value()->getData<ClientData>().getId() == client_id) {
@@ -176,28 +199,28 @@ namespace server
                     switch (type)
                     {
                         case network::MoveDirection::DownDirection: {
-                            if (client_pos[i].value().y + 1 > MAX_MAP) {
+                            if (client_pos[i].value().y + 1 > MAXY_MAP) {
                                 break;
                             }
                             client_pos[i].value().y += 1;
                         }
                             break;
                         case network::MoveDirection::UpDirection: {
-                            if (client_pos[i].value().y - 1 < MIN_MAP) {
+                            if (client_pos[i].value().y - 1 < MINY_MAP) {
                                 break;
                             }
                             client_pos[i].value().y -= 1;
                         }
                             break;
                         case network::MoveDirection::LeftDirection: {
-                            if (client_pos[i].value().x - 1 < MIN_MAP) {
+                            if (client_pos[i].value().x - 1 < MINX_MAP) {
                                 break;
                             }
                             client_pos[i].value().x -= 1;
                         }
                         break;
                         case network::MoveDirection::RightDirection: {
-                            if (client_pos[i].value().x + 1 > MAX_MAP) {
+                            if (client_pos[i].value().x + 1 > MAXX_MAP) {
                                 break;
                             }
                             client_pos[i].value().x += 1;
@@ -212,7 +235,7 @@ namespace server
         }
     }
 
-    void Room::updateProjectile(const uint32_t client_id, network::FireType type) {
+    void Room::addProjectile(const uint32_t client_id, network::FireType type) {
         auto &clients = _registry.get_components<std::shared_ptr<network::PeerWrapper>>();
         Pos pos_client{};
         for (int i = 0; i < clients.size(); i++) {
@@ -245,6 +268,19 @@ namespace server
         }
         const auto new_proj = _registry.spawn_entity();
         _registry.add_component<Projectile>(new_proj, {pos_client.x, pos_client.y, acc.x, acc.y, proj_type});
+    }
+
+    void Room::updateProjectile() {
+        auto &projectiles = _registry.get_components<Projectile>();
+        for (int i = 0; i < projectiles.size(); i++) {
+            if (projectiles[i].has_value() && projectiles[i].value().type != network::FireType::NoneFire) {
+                if (projectiles[i].value().pos.x + 1 * projectiles[i].value().acceleration.x > MAXX_MAP) {
+                    _registry.kill_entity(i);
+                } else {
+                    projectiles[i].value().pos.x += 1 * projectiles[i].value().acceleration.x;
+                }
+            }
+        }
     }
 
 
