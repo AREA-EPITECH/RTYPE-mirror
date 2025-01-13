@@ -47,6 +47,7 @@ Registry init_ecs()
     ecs.register_component<ecs::HealthBarComponent>();
     ecs.register_component<game::GameState>();
     ecs.register_component<ecs::SoundComponent>();
+    ecs.register_component<ecs::MusicComponent>();
 
     ecs.register_event<ecs::CreateWindowEvent>();
     ecs.register_event<ecs::WindowOpenEvent>();
@@ -125,12 +126,6 @@ Registry init_ecs()
 
     auto gameState = ecs.spawn_entity();
     ecs.add_component<game::GameState>(gameState, {});
-
-    auto musicSound = ecs.spawn_entity();
-    ecs.add_component<ecs::SoundComponent>(musicSound, {0});
-
-    auto sound = ecs.spawn_entity();
-    ecs.add_component<ecs::SoundComponent>(sound, {1});
 
     init_settings(ecs);
     init_menu_window(ecs);

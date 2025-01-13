@@ -24,6 +24,11 @@ namespace ecs {
                     InitWindow(win.width, win.height, win.title.c_str());
                     SetTargetFPS(144);
                     InitAudioDevice();
+                    auto musicSound = ecs.spawn_entity();
+                    ecs.add_component<ecs::MusicComponent>(musicSound, {"./client/assets/sound/menu_music.wav"});
+
+                    auto sound = ecs.spawn_entity();
+                    ecs.add_component<ecs::SoundComponent>(sound, {"./client/assets/sound/shoot.wav"});
                     win.isOpen = true;
                     break;
                 }

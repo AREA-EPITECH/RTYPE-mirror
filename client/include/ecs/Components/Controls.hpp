@@ -55,10 +55,80 @@ namespace ecs {
     class SoundComponent {
     public:
         float volume;
-        int type;
+        Sound sound;
 
-        SoundComponent(int _type, float initialVolume = 50.0f) : type(_type), volume(initialVolume) {};
+        SoundComponent(const std::string &filePath, float initialVolume = 50.0f)
+                : volume(initialVolume) {
+            sound = LoadSound(filePath.c_str());
+            SetSoundVolume(sound, volume / 100.0f);
+        }
 
+        void play() {
+            PlaySound(sound);
+        }
+
+        void stop() {
+            StopSound(sound);
+        }
+
+        void pause() {
+            PauseSound(sound);
+        }
+
+        void resume() {
+            ResumeSound(sound);
+        }
+
+        bool isPlaying() const {
+            return IsSoundPlaying(sound);
+        }
+
+        void setVolume(float newVolume) {
+            volume = newVolume;
+            SetSoundVolume(sound, volume / 100.0f);
+        }
+
+    };
+
+    class MusicComponent {
+    public:
+        float volume;
+        Music sound;
+
+        MusicComponent(const std::string &filePath, float initialVolume = 50.0f)
+                :  volume(initialVolume) {
+            sound = LoadMusicStream(filePath.c_str());
+            SetMusicVolume(sound, volume / 100.0f);
+        }
+
+        void play() {
+            PlayMusicStream(sound);
+        }
+
+        void stop() {
+            StopMusicStream(sound);
+        }
+
+        void pause() {
+            PauseMusicStream(sound);
+        }
+
+        void update() {
+            UpdateMusicStream(sound);
+        }
+
+        void resume() {
+            ResumeMusicStream(sound);
+        }
+
+        bool isPlaying() const {
+            return IsMusicStreamPlaying(sound);
+        }
+
+        void setVolume(float newVolume) {
+            volume = newVolume;
+            SetMusicVolume(sound, volume / 100.0f);
+        }
     };
 
     class SettingsComponent {
