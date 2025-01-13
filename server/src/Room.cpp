@@ -118,6 +118,7 @@ namespace server
                 this->_state = network::LobbyGameState::Starting;
                 count++;
             } else {
+                this->_state = network::LobbyGameState::Waiting;
                 count = 0;
             }
             if (count == 100) {
