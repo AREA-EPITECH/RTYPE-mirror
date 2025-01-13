@@ -106,6 +106,9 @@ namespace ecs
      */
     void game_controls_system(Registry &ecs, const ControlsEvent &)
     {
+        struct network::InputPacket input_packet;
+        input_packet.move = network::MoveDirection::NoneDirection;
+        input_packet.fire = network::FireType::NoneFire;
         auto &cameras = ecs.get_components<CameraComponent>();
         auto &models = ecs.get_components<VesselsComponent>();
         auto &controllables = ecs.get_components<ControllableComponent>();
@@ -181,18 +184,22 @@ namespace ecs
                 if (Kbd_IsKeyPressed(KBD_Layout::FR, move_left) || Kbd_IsKeyDown(KBD_Layout::FR, move_left))
                 {
                     modelComponent->Move(client::Direction::LEFT, cameraComponent->camera);
+                    input_packet.move = network::MoveDirection::LeftDirection;
                 }
                 if (Kbd_IsKeyPressed(KBD_Layout::FR, move_right) || Kbd_IsKeyDown(KBD_Layout::FR, move_right))
                 {
                     modelComponent->Move(client::Direction::RIGHT, cameraComponent->camera);
+                    input_packet.move = network::MoveDirection::RightDirection;
                 }
                 if (Kbd_IsKeyPressed(KBD_Layout::FR, move_up) || Kbd_IsKeyDown(KBD_Layout::FR, move_up))
                 {
                     modelComponent->Move(client::Direction::UP, cameraComponent->camera);
+                    input_packet.move = network::MoveDirection::UpDirection;
                 }
                 if (Kbd_IsKeyPressed(KBD_Layout::FR, move_down) || Kbd_IsKeyDown(KBD_Layout::FR, move_down))
                 {
                     modelComponent->Move(client::Direction::DOWN, cameraComponent->camera);
+                    input_packet.move = network::MoveDirection::DownDirection;
                 }
 
                 if (Kbd_IsKeyPressed(KBD_Layout::FR, key.value().getKey("Basic Shoot")))
@@ -219,8 +226,10 @@ namespace ecs
                             }
                         }
                     }
+                    input_packet.fire = network::FireType::NormalFire;
                 }
             }
         }
+        ecs.run_event(input_packet);
     }
 } // namespace ecs

@@ -5,6 +5,11 @@
 #include "Main.hpp"
 #include "game/GameState.hpp"
 
+float map_value(float x, float in_min, float in_max, float out_min, float out_max)
+{
+    return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}
+
 void init_settings(Registry &ecs)
 {
     ecs.register_component<ecs::SettingsComponent>();
@@ -110,10 +115,23 @@ Registry init_ecs()
                             auto user = gameState->get().getUser();
                             user.id = received_packet.entities[0].entityId;
                             gameState->get().updateUser(user);
+                            return;
                         }
+                        auto &cameras = ecs.get_components<ecs::CameraComponent>();
+                        auto &vessels = ecs.get_components<ecs::VesselsComponent>();
+                        auto user = gameState->get().getUser();
                         for (auto &entity: received_packet.entities) {
                             if (entity.type == network::EntityType::Player) {
-                                spdlog::info("Entity player of id: {}", entity.entityId);
+                                if (entity.entityId == user.id) {
+                                    float posX = map_value(entity.posX, 0, 350, -27.30, 7.79);
+                                    float posY = map_value(entity.posY, 0, 332, -16.60, 16.60);
+                                    user.position = {posX, posY};
+                                    if (vessels[user.entity].has_value()) {
+                                        vessels[user.entity]->position = {posX, posY, 0};
+                                    }
+                                    gameState->get().updateUser(user);
+                                    spdlog::info("Entity player of id: {} pos x: {} pos y", entity.entityId, entity.posX, entity.posY);
+                                }
                             }
                         }
                         //spdlog::info("Snapshot packet: {}", received_packet.header.packetId);

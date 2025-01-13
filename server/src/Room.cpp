@@ -158,8 +158,8 @@ namespace server
 
     void Room::initPlaying() {
         auto &clients = _registry.get_components<std::shared_ptr<network::PeerWrapper>>();
-        auto map = _registry.spawn_entity();
-        _registry.add_component<MapComponent>(map, {"./server/levels/map1.json"});
+        //auto map = _registry.spawn_entity();
+        //_registry.add_component<MapComponent>(map, {"./server/levels/map1.json"});
         for (int i = 0; i < clients.size(); i++) {
             if (clients[i].has_value()) {
                 _registry.add_component<Pos>(i, {0, 0});

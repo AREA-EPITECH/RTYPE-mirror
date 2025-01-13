@@ -20,7 +20,7 @@
 
 namespace server {
 #define MIN_MAP 0
-#define MAX_MAP 10
+#define MAX_MAP 192
     class Server;
     class Room {
         uint32_t _id;
