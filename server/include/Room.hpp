@@ -74,12 +74,6 @@ namespace server {
                 enemy.score = enemyData.at("score").get<int>();
                 enemies.push_back(enemy);
             }
-
-            std::cout << name << std::endl;
-            std::cout << win_score << std::endl;
-            std::cout << enemies[0].type << std::endl;
-            std::cout << enemies[0].spawn_rate << std::endl;
-            std::cout << enemies[0].score << std::endl;
         }
     };
 } // namespace server
