@@ -14,6 +14,8 @@
 #include <network/PeerWrapper.hpp>
 #include <network/packet/ServerPacket.hpp>
 #include <Registry.hpp>
+#include <nlohmann/json.hpp>
+#include <fstream>
 
 namespace server {
     class Server;
@@ -38,5 +40,39 @@ namespace server {
         void setId(uint32_t id);
         network::LobbyGameState getState() const;
         void setState(network::LobbyGameState state);
+    };
+
+    struct Enemy {
+        std::string type;
+        int spawn_rate;
+        int score;
+    };
+
+    class MapComponent {
+    public:
+        std::string name;
+        int win_score;
+        std::vector<Enemy> enemies;
+
+        MapComponent(const std::string &filePath) {
+            std::ifstream file(filePath);
+            if (!file.is_open()) {
+                throw std::runtime_error("Unable to open file: " + filePath);
+            }
+
+            nlohmann::json jsonData;
+            file >> jsonData;
+
+            name = jsonData.at("name").get<std::string>();
+            win_score = jsonData.at("win_score").get<int>();
+
+            for (const auto &enemyData : jsonData.at("enemies")) {
+                Enemy enemy;
+                enemy.type = enemyData.at("type").get<std::string>();
+                enemy.spawn_rate = enemyData.at("spawn_rate").get<int>();
+                enemy.score = enemyData.at("score").get<int>();
+                enemies.push_back(enemy);
+            }
+        }
     };
 } // namespace server

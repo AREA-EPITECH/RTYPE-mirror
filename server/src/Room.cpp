@@ -17,6 +17,7 @@ namespace server
         _registry.register_component<ClientData>();
         _registry.register_component<Pos>();
         _registry.register_component<Projectile>();
+        _registry.register_component<MapComponent>();
         _registry.register_component<int>();
     }
 
