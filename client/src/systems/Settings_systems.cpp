@@ -26,7 +26,7 @@ namespace ecs {
         auto &soundLevels = ecs.get_components<SoundComponent>();
 
         for (auto &soundLevel : soundLevels) {
-            if (soundLevel.has_value() && soundLevel.value().type == 0) {
+            if (soundLevel.has_value()) {
                 Rectangle soundBar = {static_cast<float>(xOffset), static_cast<float>(yOffset + sliderHeight + 20),
                                       static_cast<float>(sliderWidth), static_cast<float>(sliderHeight)};
                 DrawRectangleRec(soundBar, LIGHTGRAY);
@@ -44,21 +44,30 @@ namespace ecs {
                 DrawText(soundText.c_str(), xOffset + sliderWidth + 20, yOffset + sliderHeight + 10, 30, WHITE);
                 yOffset += 100;
             }
-            if (soundLevel.has_value() && soundLevel.value().type == 1) {
+        }
+
+        auto &musicsLevel = ecs.get_components<MusicComponent>();
+
+        for (auto &soundLevel : musicsLevel) {
+            if (soundLevel.has_value()) {
+                auto &musicComponent = soundLevel.value();
+
                 Rectangle musicBar = {static_cast<float>(xOffset), static_cast<float>(yOffset + sliderHeight + 20),
                                       static_cast<float>(sliderWidth), static_cast<float>(sliderHeight)};
                 DrawRectangleRec(musicBar, LIGHTGRAY);
                 DrawRectangle(static_cast<int>(musicBar.x), static_cast<int>(musicBar.y),
-                              static_cast<int>(soundLevel.value().volume / 100.0f * sliderWidth), sliderHeight, {148, 113, 150, 200});
+                              static_cast<int>(musicComponent.volume / 100.0f * sliderWidth), sliderHeight, {148, 113, 150, 200});
                 DrawRectangleLines(static_cast<int>(musicBar.x), static_cast<int>(musicBar.y),
                                    static_cast<int>(musicBar.width), static_cast<int>(musicBar.height), BLACK);
                 DrawText("Music", static_cast<int>(musicBar.x), static_cast<int>(yOffset), 30, WHITE);
 
                 if (IsMouseButtonDown(MOUSE_LEFT_BUTTON) && CheckCollisionPointRec(mousePosition, musicBar)) {
-                    soundLevel.value().volume = (mousePosition.x - musicBar.x) / musicBar.width * 100.0f;
-                    soundLevel.value().volume = std::clamp(soundLevel.value().volume, 0.0f, 100.0f);
+                    float newVolume = (mousePosition.x - musicBar.x) / musicBar.width * 100.0f;
+                    newVolume = std::clamp(newVolume, 0.0f, 100.0f);
+                    musicComponent.setVolume(newVolume);
                 }
-                std::string musicText = std::to_string(static_cast<int>(soundLevel.value().volume)) + "%";
+
+                std::string musicText = std::to_string(static_cast<int>(musicComponent.volume)) + "%";
                 DrawText(musicText.c_str(), xOffset + sliderWidth + 20, yOffset + sliderHeight + 10, 30, WHITE);
                 yOffset += 100;
             }

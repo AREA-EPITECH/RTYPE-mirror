@@ -17,6 +17,7 @@ namespace server
         _registry.register_component<ClientData>();
         _registry.register_component<Pos>();
         _registry.register_component<Projectile>();
+        _registry.register_component<MapComponent>();
         _registry.register_component<int>();
     }
 
@@ -138,6 +139,8 @@ namespace server
 
     void Room::initPlaying() {
         auto &clients = _registry.get_components<std::shared_ptr<network::PeerWrapper>>();
+        //auto map = _registry.spawn_entity();
+        //_registry.add_component<MapComponent>(map, {"./server/levels/map1.json"});
         for (int i = 0; i < clients.size(); i++) {
             if (clients[i].has_value()) {
                 _registry.add_component<Pos>(i, {0, 0});
