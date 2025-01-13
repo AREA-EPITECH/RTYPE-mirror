@@ -30,6 +30,7 @@ namespace server {
 
         std::vector<network::LobbyPlayer> toLobbyPlayers() const;
         void sendUpdateRoom(Server &server);
+        void initPlaying();
 
         void addClient(std::shared_ptr<network::PeerWrapper> &peer);
         std::shared_ptr<network::PeerWrapper> getClient(uint32_t id);

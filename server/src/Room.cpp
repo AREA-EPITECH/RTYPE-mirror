@@ -25,6 +25,8 @@ namespace server
         auto &clients = _registry.get_components<std::shared_ptr<network::PeerWrapper>>();
         for (int i = 0; i < clients.size(); i++) {
             if (clients[i].has_value()) {
+                clients[i].value()->getData<ClientData>().unsetRoom();
+                clients[i].value().reset();
                 _registry.kill_entity(i);
             }
         }
@@ -130,6 +132,16 @@ namespace server
             }
             if (this->_state == network::LobbyGameState::Playing) {
                 server.changeRoomToPlaying(this->_id);
+            }
+        }
+    }
+
+    void Room::initPlaying() {
+        auto &clients = _registry.get_components<std::shared_ptr<network::PeerWrapper>>();
+        for (int i = 0; i < clients.size(); i++) {
+            if (clients[i].has_value()) {
+                _registry.add_component<Pos>(i, {0, 0});
+                _registry.add_component<Projectile>(i, {0, 0, 0, 0, network::FireType::NoneFire});
             }
         }
     }

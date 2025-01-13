@@ -29,7 +29,7 @@ void update_board_component(Registry &ecs, int screenWidth, int screenHeight) {
                 if (players_ids == 0) {
                     text.text = user.name;
                     if (user.is_ready) {
-                        text.color = RED;
+                        text.color = GREEN;
                     } else {
                         text.color = WHITE;
                     }
@@ -37,7 +37,7 @@ void update_board_component(Registry &ecs, int screenWidth, int screenHeight) {
                     if (other_user.size() >= players_ids) {
                         text.text = other_user[players_ids - 1].name;
                         if (other_user[players_ids - 1].is_ready) {
-                            text.color = RED;
+                            text.color = GREEN;
                         } else {
                             text.color = WHITE;
                         }
