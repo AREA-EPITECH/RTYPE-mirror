@@ -131,6 +131,7 @@ namespace server
             }
             if (this->_state == network::LobbyGameState::Playing) {
                 server.changeRoomToPlaying(this->_id);
+                this->initPlaying();
             }
         }
     }
@@ -140,7 +141,7 @@ namespace server
         for (int i = 0; i < clients.size(); i++) {
             if (clients[i].has_value()) {
                 _registry.add_component<Pos>(i, {0, 0});
-                _registry.add_component<Projectile>(i, {0, 0, 0, 0, network::FireType::NoneFire});
+                //_registry.add_component<Projectile>(i, {0, 0, 0, 0, network::FireType::NoneFire});
             }
         }
     }
