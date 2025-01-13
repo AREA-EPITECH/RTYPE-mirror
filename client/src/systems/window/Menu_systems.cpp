@@ -21,7 +21,7 @@ namespace ecs
 
         for (auto &music : musics) {
             if (music.has_value()) {
-                music.value().update();
+                music.value().update("menu_music");
             }
         }
 
@@ -179,7 +179,7 @@ namespace ecs
         for (auto &music : musics) {
             if (music.has_value()) {
                 std::cout << "ICI PLAY MUSIC\n";
-                music.value().play();
+                music.value().play("menu_music");
                 break;
             }
         }

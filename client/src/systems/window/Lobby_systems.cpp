@@ -22,7 +22,7 @@ namespace ecs {
 
         for (auto &music : musics) {
             if (music.has_value()) {
-                music.value().update();
+                music.value().update("menu_music");
             }
         }
 
@@ -172,7 +172,7 @@ namespace ecs {
 
         for (int i = 0; i < musics.size();i++) {
             if (musics[i].has_value()) {
-                musics[i].value().stop();
+                musics[i].value().stop("menu_music");
                 ecs.kill_entity(i);
             }
         }
