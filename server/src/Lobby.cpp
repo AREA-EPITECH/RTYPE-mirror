@@ -15,8 +15,6 @@ namespace server
     void lobbyAction(Server &server, std::shared_ptr<network::PeerWrapper> &peer,
         const struct network::LobbyActionPacket &lobby_action_packet)
     {
-
-
         switch (lobby_action_packet.actionType)
         {
         case network::LobbyActionType::CreateRoom:
@@ -27,8 +25,9 @@ namespace server
             break;
         case network::LobbyActionType::LeaveRoom:
             server.leaveClientRoom(peer, lobby_action_packet.roomId);
+            break;
         case network::LobbyActionType::ChangeName: {
-            const auto client_data = peer->getData<ClientData>();
+            const auto &client_data = peer->getData<ClientData>();
             if (client_data.getRoom()) {
                 const auto ecs_client = client_data.getRoom()->getClient(client_data.getId());
                 if (ecs_client) {
@@ -36,7 +35,7 @@ namespace server
                     spdlog::info("Client {} changed name from ecs to {}", ecs_client->getData<ClientData>().getId(), lobby_action_packet.name);
                 }
             } else {
-                auto data = peer->getData<ClientData>();
+                auto &data = peer->getData<ClientData>();
                 data.setName(lobby_action_packet.name);
                 peer->setData<ClientData>(std::move(data));
                 spdlog::info("Client {} changed name to {}", peer->getData<ClientData>().getId(), lobby_action_packet.name);
@@ -45,7 +44,7 @@ namespace server
         }
 
         case network::LobbyActionType::ChangeShip: {
-            const auto client_data = peer->getData<ClientData>();
+            const auto &client_data = peer->getData<ClientData>();
             if (client_data.getRoom()) {
                 const auto ecs_client = client_data.getRoom() ->getClient(client_data.getId());
                 if (ecs_client) {
@@ -61,9 +60,9 @@ namespace server
             break;
         }
         case network::LobbyActionType::ChangeReady: {
-            const auto client_data = peer->getData<ClientData>();
+            const auto &client_data = peer->getData<ClientData>();
             if (client_data.getRoom()) {
-                const auto ecs_client = client_data.getRoom() ->getClient(client_data.getId());
+                const auto ecs_client = client_data.getRoom()->getClient(client_data.getId());
                 if (ecs_client) {
                     ecs_client->getData<ClientData>().setReadyState();
                     spdlog::info("Client {} is {} to play", ecs_client->getData<ClientData>().getId(),

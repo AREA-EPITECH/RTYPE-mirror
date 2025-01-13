@@ -89,4 +89,13 @@ void init_lobby_entity(Registry &ecs)
             ecs::ButtonStyleColors.at(ecs::BUTTON_BASE_COLOR_FOCUSED),
             ecs::ButtonStyleColors.at(ecs::BUTTON_TEXT_COLOR_FOCUSED),
             ecs::ButtonStyleColors.at(ecs::BUTTON_BORDER_COLOR_FOCUSED)));
+    struct network::LobbyActionPacket packet;
+    game::GameState::Player user = gameState->get().getUser();
+    packet.name = user.name;
+    packet.shipId = user.ship_id;
+    packet.readyState = user.is_ready;
+    packet.actionType = network::LobbyActionType::ChangeName;
+    ecs.run_event(packet);
+    packet.actionType = network::LobbyActionType::ChangeShip;
+    ecs.run_event(packet);
 }

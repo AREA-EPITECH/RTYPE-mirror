@@ -92,13 +92,13 @@ namespace server
                     break;
                 }
             case network::ServerEventType::DataReceive:
-                this->_thread_pool.enqueueTask(
+                /*this->_thread_pool.enqueueTask(
                     [server = this, &peer = event.peer, data = std::move(event.data), dataType = event.packetType]
-                    { handleClientData(*server, peer, data, dataType); });
+                    { handleClientData(*server, peer, data, dataType); });*/
+                handleClientData(*this, event.peer, std::move(event.data), event.packetType);
                 break;
             }
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
 
     /**
@@ -107,7 +107,7 @@ namespace server
      */
     void Server::clientDisconnect(std::shared_ptr<network::PeerWrapper> &peer)
     {
-        const auto data = peer->getData<ClientData>();
+        const auto &data = peer->getData<ClientData>();
         auto client_id = peer->getData<ClientData>().getId();
         for (auto &room: this->getAllRooms()) {
             if (room->getClient(client_id)) {
@@ -164,7 +164,7 @@ namespace server
     {
         Room room(this->_waiting_rooms.size() + 1);
         const auto room_ptr = std::make_shared<Room>(room);
-        auto data = client->getData<ClientData>();
+        auto &data = client->getData<ClientData>();
         data.setRoom(room_ptr);
         const auto client_id = data.getId();
         client->setData<ClientData>(std::move(data));
@@ -187,7 +187,7 @@ namespace server
     {
         for (auto &room: this->_waiting_rooms) {
             if (room->getId() == room_id) {
-                auto data = client->getData<ClientData>();
+                auto &data = client->getData<ClientData>();
                 data.setRoom(room);
                 const auto client_id = data.getId();
                 client->setData<ClientData>(std::move(data));
@@ -220,7 +220,7 @@ namespace server
                 auto client_id = client->getData<ClientData>().getId();
                 const auto ecs_client = room->getClient(client_id);
                 if (ecs_client) {
-                    auto data = client->getData<ClientData>();
+                    auto &data = client->getData<ClientData>();
                     data.unsetRoom();
                     client->setData<ClientData>(std::move(data));
                     room->removeClient(client_id);

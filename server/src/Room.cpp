@@ -31,7 +31,7 @@ namespace server
 
     void Room::addClient(std::shared_ptr<network::PeerWrapper> &peer) {
         const auto new_player = _registry.spawn_entity();
-        auto data = peer->getData<ClientData>();
+        auto &data = peer->getData<ClientData>();
         _registry.add_component<ClientData>(new_player, std::move(data));
         _registry.add_component<int>(new_player, 10);
         _registry.add_component<std::shared_ptr<network::PeerWrapper>>(new_player, std::move(peer));
@@ -66,7 +66,7 @@ namespace server
         for (int i = 0; i < clients.size(); i++) {
             if (clients[i].has_value()) {
                 network::LobbyPlayer temp_player;
-                auto data = clients[i].value()->getData<ClientData>();
+                auto &data = clients[i].value()->getData<ClientData>();
                 temp_player.id = data.getId();
                 temp_player.name = data.getName();
                 temp_player.ready = data.getReadyState();
