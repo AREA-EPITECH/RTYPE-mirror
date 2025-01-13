@@ -83,11 +83,17 @@ namespace ecs {
         }
 
         void stop(const std::string &key) {
-            if (sounds.find(key) == sounds.end()) {
+            auto it = sounds.find(key);
+            if (it == sounds.end()) {
                 throw std::runtime_error("Sound key not found: " + key);
             }
-            StopSound(sounds[key]);
+
+            StopSound(it->second);
+            UnloadSound(it->second);
+
+            sounds.erase(it);
         }
+
 
         void pause(const std::string &key) {
             if (sounds.find(key) == sounds.end()) {
@@ -150,11 +156,15 @@ namespace ecs {
         }
 
         void stop(const std::string &key) {
-            if (musics.find(key) == musics.end()) {
+            auto it = musics.find(key);
+            if (it == musics.end()) {
                 throw std::runtime_error("Music key not found: " + key);
             }
-            StopMusicStream(musics[key]);
-            UnloadMusicStream(musics[key]);
+
+            StopMusicStream(it->second);
+            UnloadMusicStream(it->second);
+
+            musics.erase(it);
         }
 
         void pause(const std::string &key) {

@@ -178,7 +178,7 @@ namespace ecs
         auto &musics = ecs.get_components<ecs::MusicComponent>();
         for (auto &music : musics) {
             if (music.has_value()) {
-                std::cout << "ICI PLAY MUSIC\n";
+                music.value().addMusic("menu_music", "./client/assets/sound/menu_music.wav");
                 music.value().play("menu_music");
                 break;
             }

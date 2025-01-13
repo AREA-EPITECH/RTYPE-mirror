@@ -235,6 +235,14 @@ namespace ecs {
                 }
             }
         }
+
+        auto &sounds = ecs.get_components<ecs::SoundComponent>();
+        for (auto &sound : sounds) {
+            if (sound.has_value()) {
+                sound.value().addSound("shoot", "./client/assets/sound/shoot.wav");
+            }
+        }
+
     }
 
     /**
@@ -282,6 +290,14 @@ namespace ecs {
             if (decors[i].has_value()) {
                 UnloadTexture(decors[i]->texture);
                 ecs.kill_entity(i);
+            }
+        }
+
+        auto &musics = ecs.get_components<SoundComponent>();
+
+        for (int i = 0; i < musics.size();i++) {
+            if (musics[i].has_value()) {
+                musics[i].value().stop("shoot");
             }
         }
     }
