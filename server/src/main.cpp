@@ -39,7 +39,6 @@ static void runMainLoop(server::Server &server)
             std::chrono::duration_cast<std::chrono::milliseconds>(current_time - last_lobby_snapshot).count();
         if (elapsed_time >= 100)
         {
-            server.checkRoomState();
             for (auto room : server.getWaitingRooms())
             {
                 room->sendUpdateRoom(server);
@@ -55,6 +54,7 @@ static void runMainLoop(server::Server &server)
             }
             last_snapshot = current_time;
         }
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
 }
 

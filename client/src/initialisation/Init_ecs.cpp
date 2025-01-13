@@ -85,7 +85,6 @@ Registry init_ecs()
                         gameState->get().setRoomId(received_packet.roomId);
                         for (auto player: received_packet.players) {
                             if (player.id != user.id) {
-                                spdlog::info("USER: {}, {}, {}, {}", player.id, player.name, player.shipId, player.ready);
                                 other_players.push_back({
                                     player.id,
                                     MAX_HEALTH,
@@ -98,15 +97,17 @@ Registry init_ecs()
                         }
                         gameState->get().updateOtherPlayer(other_players);
                         gameState->get().updateGameState(received_packet.gameState);
-                        //spdlog::info("Received lobby snapshot packet: {}", received_packet.header.packetId);
                     }
                     else if (event.packetType == network::PacketType::SnapshotPacket)
                     {
                         auto received_packet = std::any_cast<struct network::SnapshotPacket>(event.data);
                         auto gameState = getGameState(ecs);
-                        auto user = gameState->get().getUser();
-                        user.id = received_packet.entities[0].entityId;
-                        gameState->get().updateUser(user);
+                        if (gameState->get().getGameState() == network::LobbyGameState::Waiting) {
+                            auto user = gameState->get().getUser();
+                            user.id = received_packet.entities[0].entityId;
+                            gameState->get().updateUser(user);
+                        }
+                        spdlog::info("Snapshot packet: {}", received_packet.header.packetId);
                     }
                     else
                     {

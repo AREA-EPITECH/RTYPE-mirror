@@ -44,8 +44,10 @@ namespace server
         void stopServer();
 
         void pollEvent();
-        void checkRoomState();
         void updateRooms();
+
+        void changeRoomToPlaying(uint32_t room_id);
+        void changeRoomToWaiting(uint32_t room_id);
 
         void clientDisconnect(std::shared_ptr<network::PeerWrapper> &peer);
         void createClientRoom(std::shared_ptr<network::PeerWrapper> &client);

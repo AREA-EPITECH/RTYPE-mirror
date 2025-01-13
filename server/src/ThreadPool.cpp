@@ -10,7 +10,7 @@
 #include <functional>
 #include <mutex>
 #include <cstddef>
-
+#include <spdlog/spdlog.h>
 
 namespace server {
     ThreadPool::ThreadPool(size_t thread_count) : _stop(false) {
@@ -26,13 +26,15 @@ namespace server {
         }
         _condition.notify_all();
         for (auto& worker : _workers) {
-            worker.join();
+            if (worker.joinable()) {
+                worker.join();
+            }
         }
     }
 
     void ThreadPool::enqueueTask(std::function<void()> task) {
         {
-            std::lock_guard const lock(_queue_mutex);
+            std::lock_guard<std::mutex> lock(_queue_mutex);
             _tasks.push(std::move(task));
         }
         _condition.notify_one();
@@ -50,7 +52,13 @@ namespace server {
                 task = std::move(_tasks.front());
                 _tasks.pop();
             }
-            task();
+            try {
+                task();
+            } catch (const std::exception &e) {
+                spdlog::error("Exception in task: {}", e.what());
+            } catch (...) {
+                spdlog::error("Unknown exception in task.");
+            }
         }
     }
 } // namespace server

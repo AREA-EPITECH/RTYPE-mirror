@@ -56,10 +56,10 @@ void init_menu_entity(Registry &ecs)
                 }
                 packet.actionType = network::LobbyActionType::JoinRoom;
                 ecs.run_event(packet);
-                packet.actionType = network::LobbyActionType::ChangeName;
-                ecs.run_event(packet);
-                packet.actionType = network::LobbyActionType::ChangeShip;
-                ecs.run_event(packet);
+                //packet.actionType = network::LobbyActionType::ChangeName;
+                //ecs.run_event(packet);
+                //packet.actionType = network::LobbyActionType::ChangeShip;
+                //ecs.run_event(packet);
                 change_window(ecs, ecs::WindowType::LOBBY);
             },
             [&ecs]() {ecs.run_event(ecs::ChangeFocusEvent{ecs::MENU_FOCUS}); }));
@@ -140,9 +140,9 @@ void init_menu_entity(Registry &ecs)
                 }
                 packet.actionType = network::LobbyActionType::CreateRoom;
                 ecs.run_event(packet);
-                packet.actionType = network::LobbyActionType::ChangeName;
-                ecs.run_event(packet);
-                packet.actionType = network::LobbyActionType::ChangeShip;
+                //packet.actionType = network::LobbyActionType::ChangeName;
+                //ecs.run_event(packet);
+                //packet.actionType = network::LobbyActionType::ChangeShip;
                 //ecs.run_event(packet);
                 change_window(ecs, ecs::WindowType::LOBBY);
             },
