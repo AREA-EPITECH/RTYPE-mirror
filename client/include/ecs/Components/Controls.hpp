@@ -107,6 +107,7 @@ namespace ecs {
 
         void stop() {
             StopMusicStream(sound);
+            UnloadMusicStream(sound);
         }
 
         void pause() {

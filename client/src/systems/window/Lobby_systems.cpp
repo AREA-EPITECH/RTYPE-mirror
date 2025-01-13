@@ -18,6 +18,13 @@ namespace ecs {
         ecs.run_event(ControlsEvent{});
         auto &backgrounds = ecs.get_components<BackgroundComponent>();
         auto &decors = ecs.get_components<DecorElementComponent>();
+        auto &musics = ecs.get_components<MusicComponent>();
+
+        for (auto &music : musics) {
+            if (music.has_value()) {
+                music.value().update();
+            }
+        }
 
         for (auto & background : backgrounds) {
             if (background.has_value()) {
@@ -160,5 +167,14 @@ namespace ecs {
         kill_entities_with_component<LightComponent>(ecs);
         kill_entities_with_component<TextComponent>(ecs);
         kill_entities_with_component<ButtonComponent>(ecs);
+
+        auto &musics = ecs.get_components<MusicComponent>();
+
+        for (int i = 0; i < musics.size();i++) {
+            if (musics[i].has_value()) {
+                musics[i].value().stop();
+                ecs.kill_entity(i);
+            }
+        }
     }
 }
