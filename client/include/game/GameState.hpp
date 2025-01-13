@@ -21,6 +21,7 @@ namespace game
     public:
         struct Player {
             uint32_t id;
+            entity_t entity;
             uint16_t health = MAX_HEALTH;
             std::string name;
             uint16_t ship_id = 0;

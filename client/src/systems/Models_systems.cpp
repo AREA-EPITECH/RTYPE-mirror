@@ -54,12 +54,84 @@ namespace ecs {
         }
     }
 
+    void load_vessels_for_game(Registry &ecs)
+    {
+        auto &vessels = ecs.get_components<VesselsComponent>();
+        std::vector<std::string> vox_files;
+        auto gameState = getGameState(ecs);
+        const int screenWidth = GetScreenWidth();
+        for (std::size_t i = 0; i < vessels.size(); i++) {
+            if (vessels[i].has_value()) {
+                UnloadModel(vessels[i].value().model);
+                ecs.kill_entity(i);
+            }
+        }
+        for (const auto &entry: std::filesystem::directory_iterator("client/assets/voxels/player/spaceship")) {
+            if (std::string file = entry.path().c_str(); file.find(".vox") != std::string::npos)
+                vox_files.emplace_back(file);
+        }
+        auto user = gameState->get().getUser();
+        user.entity = ecs.spawn_entity();
+
+        const double t0 = GetTime() * 1000.0;
+        TraceLog(LOG_WARNING, TextFormat("Trying to load file %s...", vox_files[user.ship_id].c_str()));
+        Model model = LoadModel(vox_files[user.ship_id].c_str());
+        const double t1 = GetTime() * 1000.0;
+        TraceLog(LOG_WARNING, TextFormat("Loaded file %s in %f ms.", vox_files[user.ship_id].c_str(), t1 - t0));
+        std::string name_str = user.name;
+        int fontSize = 54;
+        int textWidth = MeasureText(name_str.c_str(), fontSize);
+        int posX = static_cast<int>(screenWidth * 0.66) - textWidth / 2 + 20;
+
+        TextComponent vessel_name(name_str, fontSize, posX, 100, 0, {120, 0, 0, 255});
+
+        auto [min, max] = GetModelBoundingBox(model);
+        Vector3 center = {};
+        center.x = min.x + (max.x - min.x) / 2;
+        center.z = min.z + (max.z - min.z) / 2;
+
+        const Matrix matTranslate = MatrixTranslate(-center.x, 0, -center.z);
+        const Matrix matRotate = MatrixRotateY(DEG2RAD * 90.0f);
+        model.transform = MatrixMultiply(matTranslate, matRotate);
+
+        ecs.add_component<VesselsComponent>(user.entity, {model, true, vox_files[user.ship_id], vessel_name, user.ship_id});
+        ecs.add_component<ControllableComponent>(user.entity, {});
+
+        auto players = gameState->get().getOtherPlayer();
+        for (std::size_t i = 0; i < players.size(); i++) {
+            players[i].entity = ecs.spawn_entity();
+            const double t_0 = GetTime() * 1000.0;
+            TraceLog(LOG_WARNING, TextFormat("Trying to load file %s...", vox_files[players[i].ship_id].c_str()));
+            model = LoadModel(vox_files[players[i].ship_id].c_str());
+            const double t_1 = GetTime() * 1000.0;
+            TraceLog(LOG_WARNING, TextFormat("Loaded file %s in %f ms.", vox_files[players[i].ship_id].c_str(), t_1 - t_0));
+            std::string name_str = players[i].name;
+            int fontSize = 54;
+            int textWidth = MeasureText(name_str.c_str(), fontSize);
+            int posX = static_cast<int>(screenWidth * 0.66) - textWidth / 2 + 20;
+
+            TextComponent vessel_name(name_str, fontSize, posX, 100, 0, {120, 0, 0, 255});
+
+            auto [min, max] = GetModelBoundingBox(model);
+            Vector3 center = {};
+            center.x = min.x + (max.x - min.x) / 2;
+            center.z = min.z + (max.z - min.z) / 2;
+
+            const Matrix matTranslate = MatrixTranslate(-center.x, 0, -center.z);
+            const Matrix matRotate = MatrixRotateY(DEG2RAD * 90.0f);
+            model.transform = MatrixMultiply(matTranslate, matRotate);
+            ecs.add_component<VesselsComponent>(players[i].entity, {model, true, vox_files[players[i].ship_id], vessel_name, players[i].ship_id});
+        }
+    }
+
     /**
     * Load vessels by filepath
     * @param ecs
     */
     void load_model_from_file_system(Registry &ecs, const InitModelEvent &) {
         auto &vessels = ecs.get_components<VesselsComponent>();
+        auto gameState = getGameState(ecs);
+        int ship_id = gameState->get().getUser().ship_id;
         for (std::size_t i = 0; i < vessels.size(); ++i) {
             if (vessels[i].has_value()) {
                 auto &modelComponent = vessels[i].value();
@@ -86,11 +158,15 @@ namespace ecs {
                 const Matrix matRotate = MatrixRotateY(DEG2RAD * 90.0f);
                 modelComponent.model.transform = MatrixMultiply(matTranslate, matRotate);
 
-                ecs.add_component<ControllableComponent>(i, {});
+                if (vessels[i].value().ship_id == ship_id) {
+                    ecs.add_component<ControllableComponent>(i, {});
+                }
                 TraceLog(LOG_INFO, TextFormat("Model reloaded and centered from %s", modelComponent.path.c_str()));
             }
         }
     }
+
+
 
     /**
     * Load shaders by filepath

@@ -117,20 +117,13 @@ namespace ecs
         auto &controls = ecs.get_components<KeyBindingComponent>();
 
         VesselsComponent *modelComponent = nullptr;
-        for (auto &model : models)
-        {
-            for (auto &controllable : controllables)
-            {
-                if (controllable.has_value())
-                {
-                    if (model.has_value())
-                    {
-                        modelComponent = &model.value();
-                        break;
-                    }
-                }
+        for (int i = 0; i < models.size(); i++) {
+            if (models[i].has_value() && controllables[i].has_value()) {
+                modelComponent = &models[i].value();
+                break;
             }
         }
+
         CameraComponent *cameraComponent = nullptr;
         for (auto &camera : cameras)
         {

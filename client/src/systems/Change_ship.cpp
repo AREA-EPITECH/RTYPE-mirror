@@ -18,7 +18,9 @@ static void send_update_to_server(Registry &ecs, int ship_id)
     packet.shipId = ship_id;
     packet.roomId = gameState->get().getRoomId();
     packet.readyState = false;
-    spdlog::info("Change ship to {}", ship_id);
+    auto user = gameState->get().getUser();
+    user.ship_id = ship_id;
+    gameState->get().updateUser(user);
     ecs.run_event(packet);
 }
 

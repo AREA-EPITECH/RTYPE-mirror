@@ -12,7 +12,7 @@
  * Init the menu window
  * @param ecs
  */
-void init_menu_window (Registry& ecs) {
+void init_menu_window(Registry& ecs) {
     ecs.unsubscribe_all<ecs::InitCameraEvent>();
     ecs.unsubscribe_all<ecs::InitModelEvent>();
     ecs.unsubscribe_all<ecs::InitShaderEvent>();
@@ -47,7 +47,7 @@ void init_menu_window (Registry& ecs) {
  * Init the lobby window
  * @param ecs
  */
-void init_lobby_window (Registry& ecs) {
+void init_lobby_window(Registry& ecs) {
     ecs.unsubscribe_all<ecs::InitModelEvent>();
     ecs.unsubscribe_all<ecs::InitShaderEvent>();
     ecs.unsubscribe_all<ecs::InitLightEvent>();
@@ -77,7 +77,7 @@ void init_lobby_window (Registry& ecs) {
  * Init the game window
  * @param ecs
  */
-void init_game_window (Registry& ecs) {
+void init_game_window(Registry& ecs) {
     ecs.unsubscribe_all<ecs::InitModelEvent>();
     ecs.unsubscribe_all<ecs::InitLightEvent>();
     ecs.unsubscribe_all<ecs::InitShaderEvent>();
@@ -90,7 +90,8 @@ void init_game_window (Registry& ecs) {
         apply_shader_system(ecs, event);
     });
     ecs.subscribe<ecs::InitModelEvent>([](Registry& e, const ecs::InitModelEvent& event) {
-        load_model_from_file_system(e, event);
+        //load_model_from_file_system(e, event);
+        ecs::load_vessels_for_game(e);
         load_projectiles_models(e, event);
     });
 

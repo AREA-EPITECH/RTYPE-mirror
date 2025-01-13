@@ -86,6 +86,7 @@ Registry init_ecs()
                             if (player.id != user.id) {
                                 other_players.push_back({
                                     player.id,
+                                    0,
                                     MAX_HEALTH,
                                     player.name,
                                     player.shipId,
@@ -96,6 +97,9 @@ Registry init_ecs()
                         }
                         gameState->get().updateOtherPlayer(other_players);
                         gameState->get().updateGameState(received_packet.gameState);
+                        if (received_packet.gameState == network::LobbyGameState::Playing) {
+                            ecs::change_window(ecs, ecs::WindowType::GAME);
+                        }
                     }
                     else if (event.packetType == network::PacketType::SnapshotPacket)
                     {
@@ -106,7 +110,12 @@ Registry init_ecs()
                             user.id = received_packet.entities[0].entityId;
                             gameState->get().updateUser(user);
                         }
-                        spdlog::info("Snapshot packet: {}", received_packet.header.packetId);
+                        for (auto &entity: received_packet.entities) {
+                            if (entity.type == network::EntityType::Player) {
+                                spdlog::info("Entity player of id: {}", entity.entityId);
+                            }
+                        }
+                        //spdlog::info("Snapshot packet: {}", received_packet.header.packetId);
                     }
                     else
                     {
