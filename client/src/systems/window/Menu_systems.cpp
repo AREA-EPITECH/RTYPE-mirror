@@ -17,6 +17,13 @@ namespace ecs
         ecs.run_event(ControlsEvent{});
         auto &backgrounds = ecs.get_components<BackgroundComponent>();
         auto &decors = ecs.get_components<DecorElementComponent>();
+        auto &musics = ecs.get_components<MusicComponent>();
+
+        for (auto &music : musics) {
+            if (music.has_value()) {
+                music.value().update("menu_music");
+            }
+        }
 
         for (auto &background : backgrounds)
         {
@@ -167,6 +174,16 @@ namespace ecs
         ecs.run_event(InitDecorElementEvent{"client/assets/backgrounds/game/space_midground.png", 1, 75});
         ecs.run_event(InitDecorElementEvent{"client/assets/backgrounds/game/space_midground_2.png", 2, 100});
         ecs.run_event(InitDecorElementEvent{"client/assets/backgrounds/game/space_foreground.png", 3, 125});
+
+        auto &musics = ecs.get_components<ecs::MusicComponent>();
+        for (auto &music : musics) {
+            if (music.has_value()) {
+                std::cout << "ICI PLAY MUSIC\n";
+                music.value().play("menu_music");
+                break;
+            }
+        }
+
     }
 
     void close_menu_system(Registry &ecs, const WindowCloseEvent &)
