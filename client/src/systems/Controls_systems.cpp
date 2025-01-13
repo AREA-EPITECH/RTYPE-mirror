@@ -204,6 +204,14 @@ namespace ecs
 
                 if (Kbd_IsKeyPressed(KBD_Layout::FR, key.value().getKey("Basic Shoot")))
                 {
+                    auto &sounds = ecs.get_components<SoundComponent>();
+
+                    for (auto &sound : sounds) {
+                        if (sound.has_value()) {
+                            sound.value().play("shoot");
+                        }
+                    }
+
                     auto &projectiles = ecs.get_components<ProjectilesComponent>();
                     for (auto &projectile : projectiles)
                     {
