@@ -103,6 +103,7 @@ namespace server
     {
         if (this->_state == network::LobbyGameState::Playing)
         {
+            this->updateProjectile();
             struct network::SnapshotPacket snapshot_packet;
             snapshot_packet.numEntities = 0;
 
