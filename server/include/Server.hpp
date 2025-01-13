@@ -33,7 +33,6 @@ namespace server
         std::vector<std::shared_ptr<Room>> _waiting_rooms;
         std::vector<std::shared_ptr<Room>> _playing_rooms;
         ThreadPool _thread_pool;
-
     public:
         explicit Server(char *argv[]);
         Server(const Server &other) = delete;
@@ -70,5 +69,5 @@ namespace server
         };
     };
     void handleClientData(Server &server, std::shared_ptr<network::PeerWrapper> &peer, const std::any &data,
-                          network::PacketType type);
+        network::PacketType type);
 } // namespace server
