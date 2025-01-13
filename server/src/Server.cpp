@@ -232,6 +232,25 @@ namespace server
         spdlog::error("Room doesn't exist {}", room_id);
     }
 
+    void Server::moveActionRoom(uint32_t client_id, uint32_t room_id, network::MoveDirection type) {
+        for (const auto &room: this->_playing_rooms) {
+            if (room->getId() == room_id) {
+                room->updatePos(client_id, type);
+            }
+        }
+    }
+
+    void Server::fireActionRoom(uint32_t client_id, uint32_t room_id, network::FireType type) {
+        for (const auto &room: this->_playing_rooms) {
+            if (room->getId() == room_id) {
+                room->updateProjectile(client_id, type);
+            }
+        }
+    }
+
+
+
+
     /**
      * Stop server
      */

@@ -13,11 +13,14 @@
 #include <vector>
 #include <network/PeerWrapper.hpp>
 #include <network/packet/ServerPacket.hpp>
+#include <network/packet/ClientPacket.hpp>
 #include <Registry.hpp>
 #include <nlohmann/json.hpp>
 #include <fstream>
 
 namespace server {
+#define MIN_MAP 0
+#define MAX_MAP 10
     class Server;
     class Room {
         uint32_t _id;
@@ -36,6 +39,8 @@ namespace server {
         std::shared_ptr<network::PeerWrapper> getClient(uint32_t id);
         void removeClient(uint32_t id);
 
+        void updatePos(uint32_t client_id, network::MoveDirection type);
+        void updateProjectile(uint32_t client_id, network::FireType type);
         bool getClientsReadiness() const;
         uint32_t getId() const;
         void setId(uint32_t id);

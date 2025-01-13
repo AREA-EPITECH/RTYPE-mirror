@@ -93,15 +93,33 @@ namespace server
         return true;
     }
 
+    /**
+     * populate snapshot_packet with entities ONCE
+     * match ECS entities with SnapshotPacket entities
+     * send everything to all players
+     * @param server : server reference
+     */
     void Room::sendUpdateRoom(Server &server)
     {
         if (this->_state == network::LobbyGameState::Playing)
         {
-            // populate snapshot_packet with entities ONCE
-            // match ECS entities with SnapshotPacket entities
-            // send everything to all players
             struct network::SnapshotPacket snapshot_packet;
+            snapshot_packet.numEntities = 0;
             auto &clients = _registry.get_components<std::shared_ptr<network::PeerWrapper>>();
+            auto &pos = _registry.get_components<Pos>();
+            for (int i = 0; i < clients.size(); i++) {
+                if (clients[i].has_value()) {
+                    network::EntityUpdate entity_update;
+                    entity_update.type = network::Player;
+                    entity_update.entityId = clients[i].value()->getData<ClientData>().getId();
+                    if (pos[i].has_value()) {
+                        entity_update.posX = pos[i].value().x;
+                        entity_update.posY = pos[i].value().y;
+                    }
+                    snapshot_packet.entities.push_back(entity_update);
+                    snapshot_packet.numEntities += 1;
+                }
+            }
             for (int i = 0; i < clients.size(); i++) {
                 if (clients[i].has_value()) {
                     server.getServer().sendSnapshotPacket(snapshot_packet, clients[i].value());
@@ -140,15 +158,95 @@ namespace server
 
     void Room::initPlaying() {
         auto &clients = _registry.get_components<std::shared_ptr<network::PeerWrapper>>();
-        //auto map = _registry.spawn_entity();
-        //_registry.add_component<MapComponent>(map, {"./server/levels/map1.json"});
+        auto map = _registry.spawn_entity();
+        _registry.add_component<MapComponent>(map, {"./server/levels/map1.json"});
         for (int i = 0; i < clients.size(); i++) {
             if (clients[i].has_value()) {
                 _registry.add_component<Pos>(i, {0, 0});
-                //_registry.add_component<Projectile>(i, {0, 0, 0, 0, network::FireType::NoneFire});
             }
         }
     }
+
+    void Room::updatePos(const uint32_t client_id, network::MoveDirection type) {
+        auto &clients = _registry.get_components<std::shared_ptr<network::PeerWrapper>>();
+        for (int i = 0; i < clients.size(); i++) {
+            if (clients[i].has_value() && clients[i].value()->getData<ClientData>().getId() == client_id) {
+                auto &client_pos = _registry.get_components<Pos>();
+                if (client_pos[i].has_value()) {
+                    switch (type)
+                    {
+                        case network::MoveDirection::DownDirection: {
+                            if (client_pos[i].value().y + 1 > MAX_MAP) {
+                                break;
+                            }
+                            client_pos[i].value().y += 1;
+                        }
+                            break;
+                        case network::MoveDirection::UpDirection: {
+                            if (client_pos[i].value().y - 1 < MIN_MAP) {
+                                break;
+                            }
+                            client_pos[i].value().y -= 1;
+                        }
+                            break;
+                        case network::MoveDirection::LeftDirection: {
+                            if (client_pos[i].value().x - 1 < MIN_MAP) {
+                                break;
+                            }
+                            client_pos[i].value().x -= 1;
+                        }
+                        break;
+                        case network::MoveDirection::RightDirection: {
+                            if (client_pos[i].value().x + 1 > MAX_MAP) {
+                                break;
+                            }
+                            client_pos[i].value().x += 1;
+                        }
+                            break;
+                        case network::MoveDirection::NoneDirection:
+                            default:
+                                break;
+                    }
+                }
+            }
+        }
+    }
+
+    void Room::updateProjectile(const uint32_t client_id, network::FireType type) {
+        auto &clients = _registry.get_components<std::shared_ptr<network::PeerWrapper>>();
+        Pos pos_client{};
+        for (int i = 0; i < clients.size(); i++) {
+            if (clients[i].has_value() && clients[i].value()->getData<ClientData>().getId() == client_id) {
+                auto &client_pos = _registry.get_components<Pos>();
+                if (client_pos[i].has_value()) {
+                    pos_client.x = client_pos[i].value().x;
+                    pos_client.y = client_pos[i].value().y;
+                }
+            }
+        }
+        Acceleration acc{};
+        network::FireType proj_type;
+        switch (type)
+        {
+            case network::FireType::ChargedFire:
+                acc.x = 2;
+                acc.y = 2;
+                proj_type = network::FireType::ChargedFire;
+                break;
+            case network::FireType::NormalFire:
+                acc.x = 1;
+                acc.y = 1;
+                proj_type = network::FireType::NormalFire;
+            break;
+            case network::FireType::NoneFire:
+                default:
+                proj_type = network::FireType::NoneFire;
+                break;
+        }
+        const auto new_proj = _registry.spawn_entity();
+        _registry.add_component<Projectile>(new_proj, {pos_client.x, pos_client.y, acc.x, acc.y, proj_type});
+    }
+
 
     uint32_t Room::getId() const { return this->_id; }
 

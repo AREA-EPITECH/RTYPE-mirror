@@ -16,6 +16,7 @@
 #include <network/PeerWrapper.hpp>
 #include <network/Server.hpp>
 #include <network/packet/PacketHeader.hpp>
+#include <network/packet/ClientPacket.hpp>
 #include <string>
 #include <sys/types.h>
 #include <vector>
@@ -52,6 +53,9 @@ namespace server
         void createClientRoom(std::shared_ptr<network::PeerWrapper> &client);
         bool assignClientToRoom(std::shared_ptr<network::PeerWrapper> &client, uint32_t room_id);
         void leaveClientRoom(std::shared_ptr<network::PeerWrapper> &client, uint32_t room_id);
+
+        void moveActionRoom(uint32_t client_id, uint32_t room_id, network::MoveDirection type);
+        void fireActionRoom(uint32_t client_id, uint32_t room_id, network::FireType type);
 
         std::vector<std::shared_ptr<Room>> getWaitingRooms();
         std::vector<std::shared_ptr<Room>> getPlayingRooms();
