@@ -26,13 +26,9 @@ namespace ecs {
                     InitAudioDevice();
                     auto musicSound = ecs.spawn_entity();
                     ecs.add_component<ecs::MusicComponent>(musicSound, {});
-                    auto &musics = ecs.get_components<ecs::MusicComponent>();
-                    musics[musicSound].value().addMusic("menu_music", "./client/assets/sound/menu_music.wav");
 
                     auto sound = ecs.spawn_entity();
                     ecs.add_component<ecs::SoundComponent>(sound, {});
-                    auto &sounds = ecs.get_components<ecs::SoundComponent>();
-                    sounds[sound].value().addSound("shoot", "./client/assets/sound/shoot.wav");
                     win.isOpen = true;
                     break;
                 }

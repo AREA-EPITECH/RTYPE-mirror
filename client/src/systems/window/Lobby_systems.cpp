@@ -173,7 +173,6 @@ namespace ecs {
         for (int i = 0; i < musics.size();i++) {
             if (musics[i].has_value()) {
                 musics[i].value().stop("menu_music");
-                ecs.kill_entity(i);
             }
         }
     }
