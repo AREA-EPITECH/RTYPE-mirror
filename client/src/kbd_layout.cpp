@@ -223,7 +223,7 @@ int Kbd_GetKeyPressed(KBD_Layout layout)
 	int c = GetKeyPressed();
     bool shift = IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT);
     bool alt = IsKeyDown(KEY_LEFT_ALT) || IsKeyDown(KEY_RIGHT_ALT);
-    if(c>255) return 0;
+    if (c>255) return c;
     for(int i=0;i<MAX_KEY;i++)
     {
         if(KBD_LAYOUT[layout][i][0]==c)
