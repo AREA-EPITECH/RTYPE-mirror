@@ -71,3 +71,4 @@ html
 latex
 
 # Tower defense maps
+*.json
