@@ -3,7 +3,6 @@
 //
 
 #include "ecs/Systems.hpp"
-#include "list"
 #include "raylib/kbd_layout.h"
 
 namespace ecs {
@@ -137,7 +136,7 @@ namespace ecs {
                 int currentKey = keyBindings.getKey(action);
                 std::string keyText = getPrintableKeyName(currentKey);
 
-                DrawText(action.c_str(), xOffset, yOffset, 30, WHITE);
+                          DrawText(action.c_str(), xOffset, yOffset, 30, WHITE);
                 yOffset += 50;
 
                 Rectangle textBox = {static_cast<float>(xOffset), static_cast<float>(yOffset),

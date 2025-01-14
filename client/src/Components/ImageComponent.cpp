@@ -37,7 +37,6 @@ namespace ecs {
 
         Rectangle imageRect = {x, y, width, height};
         if (CheckCollisionPointRec(mousePosition, imageRect) && onClick && focus == _focus) {
-            std::cout << "CLICKED IMAGE\n";
             onClick();
         }
     }

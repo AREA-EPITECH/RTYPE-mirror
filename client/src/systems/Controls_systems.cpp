@@ -245,4 +245,5 @@ namespace ecs
         }
         ecs.run_event(input_packet);
     }
+
 } // namespace ecs
