@@ -1,0 +1,21 @@
+{
+  "name" : "level 1",
+  "win_score" : 500,
+  "enemies" : [
+    {
+      "type" : "easy",
+      "spawn_rate": 1,
+      "score" : 10
+    },
+    {
+      "type" : "medium",
+      "spawn_rate": 3,
+      "score" : 50
+    },
+    {
+      "type" : "hard",
+      "spawn_rate": 5,
+      "score" : 100
+    }
+  ]
+}
