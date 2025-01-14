@@ -34,7 +34,14 @@ namespace tower_defense
         exit(84);
     }
 
-#define ASSETS_PATH "client/assets/"
-#define ASSET_FILE(file) ASSETS_PATH file
-
+    enum TileType
+    {
+        GRASS = 0,
+        PATH,
+        DECOR,
+        ARCHER,
+        BAT,
+        BASIC_SLIME,
+        ZOMBIE
+    };
 } // namespace tower_defense

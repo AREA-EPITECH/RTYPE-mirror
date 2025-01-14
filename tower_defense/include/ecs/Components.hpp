@@ -6,13 +6,50 @@
 */
 
 #pragma once
+
 #include <cstring>
 #include <utility>
 #include "Events.hpp"
-
 #include "DataType.hpp"
+#include <random>
 
 namespace ecs {
+    class TextureManager
+    {
+    private:
+        std::map<tower_defense::TileType, std::shared_ptr<Texture2D>> _textures;
+        std::vector<std::shared_ptr<Texture2D>> _decors_textures;
+
+    public:
+        TextureManager() = default;
+        ~TextureManager() = default;
+
+        void add_texture(const tower_defense::TileType type, const std::string &path)
+        {
+            if (_textures.find(type) != _textures.end())
+                return;
+            if (type == tower_defense::DECOR)
+            {
+                _decors_textures.emplace_back(std::make_shared<Texture2D>(LoadTexture(path.c_str())));
+                return;
+            }
+            _textures[type] = std::make_shared<Texture2D>(LoadTexture(path.c_str()));
+        }
+
+        std::shared_ptr<Texture2D> get_texture(const tower_defense::TileType type)
+        {
+            if (type == tower_defense::DECOR)
+            {
+                std::random_device rd;
+                std::mt19937 gen(rd());
+                std::uniform_int_distribution<> dis(0, static_cast<int>(_decors_textures.size() - 1));
+
+                return _decors_textures[dis(gen)];
+            }
+            return _textures[type];
+        }
+    };
+
     struct Window {
         int width;
         int height;
@@ -37,7 +74,8 @@ namespace ecs {
     struct Tile {
         int _x;
         int _y;
-        Texture2D _texture;
+        tower_defense::TileType _type;
+        std::shared_ptr<Texture2D> _texture;
     };
 
     struct MapComponent {
@@ -47,17 +85,33 @@ namespace ecs {
         GameComponent _game;
     };
 
-    struct EnemyComponent
+    struct Type
     {
-        Texture2D _texture{};
-        bool _drawable = false;
-        Tile _pos{};
+        tower_defense::TileType _type;
     };
 
     struct SelectorComponent
     {
-        Texture2D _texture;
+        Texture2D _texture{};
         Tile _pos{};
-        bool _drawable;
+        bool _drawable{};
+    };
+
+    struct Tower
+    {
+        unsigned int _range;
+        unsigned int _damage;
+        unsigned int _fire_rate;
+        unsigned int _cost;
+        std::string _name;
+        std::shared_ptr<Texture2D> _texture;
+        int _frame;
+        tower_defense::TileType _tower_type;
+    };
+
+    struct Shop
+    {
+        std::vector<Tower> _towers;
+        bool _open;
     };
 }
