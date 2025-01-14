@@ -275,7 +275,7 @@ namespace server
         auto &projectiles = _registry.get_components<Projectile>();
         for (int i = 0; i < projectiles.size(); i++) {
             if (projectiles[i].has_value() && projectiles[i].value().type != network::FireType::NoneFire) {
-                if (projectiles[i].value().pos.x + 1 * projectiles[i].value().acceleration.x > MAXX_MAP) {
+                if (projectiles[i].value().pos.x + 1 * projectiles[i].value().acceleration.x > ENDX_MAP) {
                     _registry.kill_entity(i);
                 } else {
                     projectiles[i].value().pos.x += 1 * projectiles[i].value().acceleration.x;

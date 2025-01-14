@@ -21,6 +21,7 @@
 namespace server {
 #define MINX_MAP 0
 #define MAXX_MAP 350
+#define ENDX_MAP 500
 #define MINY_MAP 0
 #define MAXY_MAP 332
     class Server;
