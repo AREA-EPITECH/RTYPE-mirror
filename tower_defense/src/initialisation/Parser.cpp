@@ -9,22 +9,6 @@
 
 namespace tower_defense
 {
-    std::string getRandomFile(const std::string& folderPath) {
-        std::vector<std::string> files;
-
-        for (const auto& entry : std::filesystem::directory_iterator(folderPath)) {
-            if (entry.is_regular_file()) {
-                files.push_back(entry.path().string());
-            }
-        }
-
-        std::random_device rd;
-        std::mt19937 gen(rd());
-        std::uniform_int_distribution<> dis(0, files.size() - 1);
-
-        return files[dis(gen)];
-    }
-
     void Parser::parse_filemap(const std::string &map_filename)
     {
         std::ifstream ifs (map_filename);
@@ -76,6 +60,21 @@ namespace tower_defense
 
     Registry &Parser::fill_ecs(Registry &ecs)
     {
+        ecs::TextureManager texture_manager;
+
+        texture_manager.add_texture(GRASS, "tower_defense/assets/maps/grass.png");
+        texture_manager.add_texture(PATH, "tower_defense/assets/maps/path.png");
+        texture_manager.add_texture(DECOR, "tower_defense/assets/maps/decors/rock_1.png");
+        texture_manager.add_texture(DECOR, "tower_defense/assets/maps/decors/rock_2.png");
+        texture_manager.add_texture(DECOR, "tower_defense/assets/maps/decors/rock_3.png");
+        texture_manager.add_texture(ARCHER, "tower_defense/assets/towers/archer.png");
+        texture_manager.add_texture(BASIC_SLIME, "tower_defense/assets/enemies/spr_normal_slime.png");
+        texture_manager.add_texture(BAT, "tower_defense/assets/enemies/spr_bat.png");
+        texture_manager.add_texture(ZOMBIE, "tower_defense/assets/enemies/spr_zombie.png");
+
+        const auto texture_manager_entity = ecs.spawn_entity();
+        ecs.add_component<ecs::TextureManager>(texture_manager_entity, std::move(texture_manager));
+
         std::vector<ecs::Tile> map;
         std::vector<ecs::Tile> path;
         std::vector<ecs::Tile> decors;
@@ -86,44 +85,33 @@ namespace tower_defense
             _game_rules._auto_increment_money, _game_rules._map_name, money_component};
 
         for (const auto& pos : _enemy_path) {
-            path.emplace_back(ecs::Tile{pos.first, pos.second,
-                LoadTexture("tower_defense/assets/maps/path.png")});
+            path.emplace_back(ecs::Tile{pos.first, pos.second, PATH, texture_manager.get_texture(PATH)});
         }
 
         for (const auto& pos : _decorations) {
-            spdlog::info("Decor: " + std::to_string(pos.first) + " " + std::to_string(pos.second));
-            std::string filename = getRandomFile("tower_defense/assets/maps/decors/");
-            path.emplace_back(ecs::Tile{pos.first, pos.second,
-                LoadTexture(filename.c_str())});
+            decors.emplace_back(ecs::Tile{pos.first, pos.second, DECOR, texture_manager.get_texture(DECOR)});
         }
 
         for (int y = 0; y < 8; y++)
         {
             for (int x = 0; x < 8; x++)
             {
-                map.emplace_back(ecs::Tile{x, y, LoadTexture("tower_defense/assets/maps/grass.png")});
+                map.emplace_back(ecs::Tile{x, y, GRASS, texture_manager.get_texture(GRASS)});
             }
         }
 
         const auto map_entity = ecs.spawn_entity();
         ecs.add_component<ecs::MapComponent>(map_entity, {map, path, decors, game_component});
 
-        const auto basic_slime_entity = ecs.spawn_entity();
-        ecs.add_component<ecs::EnemyComponent>(basic_slime_entity,
-            ecs::EnemyComponent{LoadTexture("tower_defense/assets/enemies/spr_normal_slime.png"), false,
-                {}});
-
-        const auto bat_entity = ecs.spawn_entity();
-        ecs.add_component<ecs::EnemyComponent>(bat_entity,
-            {LoadTexture("tower_defense/assets/enemies/bat_normal_slime.png"), false, {}});
-
-        const auto zombie_entity = ecs.spawn_entity();
-        ecs.add_component<ecs::EnemyComponent>(zombie_entity,
-            {LoadTexture("tower_defense/assets/enemies/spr_zombie.png"), false, {}});
-
         const auto selector_entity = ecs.spawn_entity();
         ecs.add_component<ecs::SelectorComponent>(selector_entity,
         {LoadTexture("tower_defense/assets/selector.png"), {}, false});
+
+        ecs::Tower tower = {2, 1, 1, 100, "Archer",
+            texture_manager.get_texture(ARCHER), ARCHER};
+
+        const auto shop_entity = ecs.spawn_entity();
+        ecs.add_component<ecs::Shop>(shop_entity, {std::vector<ecs::Tower>{tower}, false});
 
         return ecs;
     }

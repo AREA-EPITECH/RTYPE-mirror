@@ -18,9 +18,11 @@ Registry init_ecs()
     ecs.register_component<ecs::GameComponent>();
     ecs.register_component<ecs::MapComponent>();
     ecs.register_component<ecs::Tile>();
-    ecs.register_component<ecs::EnemyComponent>();
     ecs.register_component<ecs::Money>();
     ecs.register_component<ecs::SelectorComponent>();
+    ecs.register_component<ecs::Tower>();
+    ecs.register_component<ecs::Shop>();
+    ecs.register_component<ecs::TextureManager>();
 
     ecs.register_event<ecs::CreateWindowEvent>();
     ecs.register_event<ecs::WindowOpenEvent>();

@@ -28,9 +28,16 @@ namespace ecs
                     int scale = 4;
 
                     Vector2 mouse_pos =  GetMousePosition();
-                    s._pos._x = static_cast<int>(mouse_pos.x) / (32 * scale);
-                    s._pos._y = static_cast<int>(mouse_pos.y) / (32 * scale);
-                    s._drawable = true;
+                    if (s._pos._x == static_cast<int>(mouse_pos.x) / (32 * scale) &&
+                        s._pos._y == static_cast<int>(mouse_pos.y) / (32 * scale) && s._drawable)
+                    {
+                        s._drawable = false;
+                    } else
+                    {
+                        s._pos._x = static_cast<int>(mouse_pos.x) / (32 * scale);
+                        s._pos._y = static_cast<int>(mouse_pos.y) / (32 * scale);
+                        s._drawable = true;
+                    }
                 }
             }
         }
