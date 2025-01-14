@@ -59,8 +59,15 @@ namespace server {
         void setState(network::LobbyGameState state);
     };
 
+    enum EnemyType
+    {
+        Easy = 0,
+        Medium = 1,
+        Hard = 2,
+    };
+
     struct Enemy {
-        std::string type;
+        EnemyType type;
         int spawn_rate;
         int score;
     };
@@ -85,7 +92,7 @@ namespace server {
 
             for (const auto &enemyData : jsonData.at("enemies")) {
                 Enemy enemy;
-                enemy.type = enemyData.at("type").get<std::string>();
+                enemy.type = enemyData.at("type").get<EnemyType>();
                 enemy.spawn_rate = enemyData.at("spawn_rate").get<int>();
                 enemy.score = enemyData.at("score").get<int>();
                 enemies.push_back(enemy);

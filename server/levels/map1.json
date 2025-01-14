@@ -3,17 +3,17 @@
   "win_score" : 500,
   "enemies" : [
     {
-      "type" : "easy",
+      "type" : 1,
       "spawn_rate": 1,
       "score" : 10
     },
     {
-      "type" : "medium",
+      "type" : 2,
       "spawn_rate": 3,
       "score" : 50
     },
     {
-      "type" : "hard",
+      "type" : 3,
       "spawn_rate": 5,
       "score" : 100
     }

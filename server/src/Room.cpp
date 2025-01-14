@@ -9,6 +9,7 @@
 #include <ClientData.hpp>
 #include <Server.hpp>
 #include <GameData.hpp>
+#include <spdlog/spdlog.h>
 
 namespace server
 {
@@ -154,7 +155,7 @@ namespace server
                     } else {
                         continue;
                     }
-                    entity_update.entityId = i;
+                    entity_update.entityId = i + 1;
                     entity_update.posX = proj[i].value().pos.x;
                     entity_update.posY = proj[i].value().pos.y;
                     entity_update.velocityX = proj[i].value().acceleration.x;
@@ -202,12 +203,16 @@ namespace server
 
     void Room::initPlaying() {
         auto &clients = _registry.get_components<std::shared_ptr<network::PeerWrapper>>();
-        //auto map = _registry.spawn_entity();
-        //_registry.add_component<MapComponent>(map, {"./server/levels/map1.json"});
         for (int i = 0; i < clients.size(); i++) {
             if (clients[i].has_value()) {
                 _registry.add_component<Pos>(i, {0, 0});
             }
+        }
+
+        MapComponent map("./server/levels/map1.json");
+        for (int i = 0; i < map.enemies.size(); i++) {
+            auto ennemy = _registry.spawn_entity();
+            _registry.add_component<Enemy>(ennemy, {map.enemies[i].type, map.enemies[i].spawn_rate, map.enemies[i].score});
         }
     }
 
@@ -276,16 +281,19 @@ namespace server
                 acc.x = 2;
                 acc.y = 2;
                 proj_type = network::FireType::ChargedFire;
+                spdlog::info("Client {} shot a Charged Fire", client_id);
                 break;
             case network::FireType::NormalFire:
                 acc.x = 1;
                 acc.y = 1;
                 proj_type = network::FireType::NormalFire;
+                spdlog::info("Client {} shot a Normal Fire", client_id);
             break;
             case network::FireType::NoneFire:
                 default:
                 proj_type = network::FireType::NoneFire;
-                break;
+                spdlog::info("Client {} didn't shot", client_id);
+            break;
         }
         const auto new_proj = _registry.spawn_entity();
         _registry.add_component<Projectile>(new_proj, {pos_client.x, pos_client.y, acc.x, acc.y, proj_type});
