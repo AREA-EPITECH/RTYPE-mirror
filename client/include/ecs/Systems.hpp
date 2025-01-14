@@ -46,7 +46,7 @@ namespace ecs {
 // Models
     void load_models_system(Registry &ecs, const InitModelEvent &);
     void load_model_from_file_system(Registry &ecs, const InitModelEvent &event);
-    void load_vessels_for_game(Registry &ecs);
+    void load_vessels_for_game(Registry &ecs, const InitModelEvent &);
     void load_title_menu(Registry &ecs, const InitModelEvent &);
     void load_projectiles_models(Registry &ecs, const InitModelEvent &);
 

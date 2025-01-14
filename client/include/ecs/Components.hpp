@@ -16,6 +16,7 @@
 #include "Components/Controls.hpp"
 #include "core/ParticleSystem.hpp"
 #include <cstring>
+#include <spdlog/spdlog.h>
 
 namespace ecs {
     struct Window {
@@ -213,7 +214,7 @@ namespace ecs {
             if (x + static_cast<float>(texture.width) * (static_cast<float>(screen_height) /
                 static_cast<float>(texture.height)) < 0) {
                 ResetPosition(screen_width, screen_height);
-                }
+            }
         }
 
         void DrawDecorElement(const int screen_width, const int screen_height) const
@@ -252,11 +253,11 @@ namespace ecs {
             light->UpdateLightValues(_shader);
         }
 
-        void ApplyVelocity() {
-            position.x += velocity.x;
-            position.y += velocity.y;
-            light->_position.x += velocity.x;
-            light->_position.y += velocity.y;
+        void ApplyVelocity(const float deltaTime) {
+            position.x += velocity.x * deltaTime;
+            position.y += velocity.y * deltaTime;
+            light->_position.x += velocity.x * deltaTime;
+            light->_position.y += velocity.y * deltaTime;
         }
 
         [[nodiscard]] bool IsAlive(const Camera &camera) const {

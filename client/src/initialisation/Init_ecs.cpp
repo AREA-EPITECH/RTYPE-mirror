@@ -117,7 +117,6 @@ Registry init_ecs()
                             gameState->get().updateUser(user);
                             return;
                         }
-                        auto &cameras = ecs.get_components<ecs::CameraComponent>();
                         auto &vessels = ecs.get_components<ecs::VesselsComponent>();
                         auto &sounds = ecs.get_components<ecs::SoundComponent>();
                         auto &projectiles = ecs.get_components<ecs::ProjectilesComponent>();
@@ -148,7 +147,7 @@ Registry init_ecs()
                             }
                         }
 
-                        for (auto &projectile : projectiles)
+                        for (auto &projectile: projectiles)
                         {
                             if (projectile.has_value())
                             {
@@ -158,7 +157,8 @@ Registry init_ecs()
                                 }
                             }
                         }
-                        //std::vector<uint32_t> actual_projectiles;
+                        std::vector<uint32_t> actual_projectiles;
+                        actual_projectiles.push_back(0);
                         for (auto &entity: received_packet.entities) {
                             if (entity.type == network::EntityType::Player) {
                                 if (entity.entityId == user.id) {
@@ -186,25 +186,21 @@ Registry init_ecs()
                             }
                             if (entity.type == network::EntityType::Rocket) {
                                 bool newShoot = true;
-                                spdlog::info("Projectile with id: {} pos: {} {}", entity.entityId, entity.posX, entity.posY);
-                                //actual_projectiles.push_back(entity.entityId);
-
-                                for (auto &projectile : projectiles) {
-                                    if (projectile.has_value()) {
-                                        if (projectile->id == entity.entityId) {
-                                            spdlog::info("Existing projectile with id: {}", entity.entityId);
+                                actual_projectiles.push_back(entity.entityId);
+                                for (int i = 0; i < projectiles.size(); i++) {
+                                    if (projectiles[i].has_value()) {
+                                        if (projectiles[i]->id == entity.entityId) {
                                             newShoot = false;
                                             float posX = map_value(entity.posX, 0, 500, -27.30, 7.79);
                                             float posY = map_value(entity.posY, 0, 332, 16.60, -16.60);
-                                            projectile->position = {posX, posY, 0};
-                                            projectile->drawable = true;
+                                            projectiles[i]->position = {posX, posY, 0};
+                                            projectiles[i]->drawable = true;
                                             break;
                                         }
                                     }
                                 }
 
                                 if (newShoot) {
-                                    spdlog::info("New projectile with id: {}", entity.entityId);
                                     for (auto &sound : sounds) {
                                         if (sound.has_value()) {
                                             sound.value().play("shoot");
@@ -221,11 +217,29 @@ Registry init_ecs()
                                                 float posY = map_value(entity.posY, 0, 332, 16.60, -16.60);
                                                 ecs::create_player_basic_projectile(
                                                     ecs, entity.entityId, projectile->model,
-                                                    {posX, posY, 0}, {0.5, 0, 0},
+                                                    {posX, posY, 0}, {35, 0, 0},
                                                     true, projectile->path, Vector3Zero(), nb_lights, shader);
                                             }
                                         }
                                     }
+                                }
+                            }
+                            if (entity.type == network::EntityType::Opponent) {
+                                
+                            }
+                        }
+
+                        for (int i = 0; i < projectiles.size(); i++) {
+                            if (projectiles[i].has_value()) {
+                                bool found = false;
+                                for (auto &actual_projectile: actual_projectiles) {
+                                    if (projectiles[i]->id == actual_projectile) {
+                                        found = true;
+                                    }
+                                }
+                                if (!found) {
+                                    projectiles[i]->light->UpdateLightValues(shader, false);
+                                    ecs.kill_entity(i);
                                 }
                             }
                         }

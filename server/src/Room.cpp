@@ -158,7 +158,6 @@ namespace server
                     entity_update.entityId = i + 1;
                     entity_update.posX = proj[i].value().pos.x;
                     entity_update.posY = proj[i].value().pos.y;
-                    spdlog::info("Projectile with id: {} pos: {} {}", entity_update.entityId, entity_update.posX, entity_update.posY);
                     entity_update.velocityX = proj[i].value().acceleration.x;
                     entity_update.velocityY = proj[i].value().acceleration.y;
                     snapshot_packet.entities.push_back(entity_update);
@@ -285,15 +284,14 @@ namespace server
                 spdlog::info("Client {} shot a Charged Fire", client_id);
                 break;
             case network::FireType::NormalFire:
-                acc.x = 1;
-                acc.y = 1;
+                acc.x = 75;
+                acc.y = 75;
                 proj_type = network::FireType::NormalFire;
                 spdlog::info("Client {} shot a Normal Fire", client_id);
             break;
             case network::FireType::NoneFire:
                 default:
                 proj_type = network::FireType::NoneFire;
-                spdlog::info("Client {} didn't shot", client_id);
             break;
         }
         const auto new_proj = _registry.spawn_entity();
@@ -301,11 +299,9 @@ namespace server
     }
 
     void Room::updateProjectile() {
-        spdlog::info("Start updateProjectile");
         auto &projectiles = _registry.get_components<Projectile>();
         for (int i = 0; i < projectiles.size(); i++) {
             if (projectiles[i].has_value() && projectiles[i].value().type != network::FireType::NoneFire) {
-                spdlog::info("Move projectile id: {}", i+1);
                 if (projectiles[i].value().pos.x > ENDX_MAP) {
                     _registry.kill_entity(i);
                 } else {

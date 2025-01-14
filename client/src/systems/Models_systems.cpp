@@ -54,7 +54,7 @@ namespace ecs {
         }
     }
 
-    void load_vessels_for_game(Registry &ecs)
+    void load_vessels_for_game(Registry &ecs, const InitModelEvent &)
     {
         auto &vessels = ecs.get_components<VesselsComponent>();
         std::vector<std::string> vox_files;
