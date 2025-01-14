@@ -36,8 +36,12 @@ namespace ecs {
         float y = dynamicY ? static_cast<float>(dynamicY(GetScreenWidth(), GetScreenHeight())) : 0.0f;
 
         Rectangle imageRect = {x, y, width, height};
-
+        std::cout << x << std::endl;
+        std::cout << y << std::endl;
+        std::cout << mousePosition.x << std::endl;
+        std::cout << mousePosition.y << std::endl;
         if (CheckCollisionPointRec(mousePosition, imageRect) && onClick && focus == _focus) {
+            std::cout << "CLICKED IMAGE\n";
             onClick();
         }
     }

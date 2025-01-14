@@ -155,6 +155,25 @@ namespace ecs {
 
         DrawText(TextFormat("FPS: %d", GetFPS()), 10, 10, 20, DARKGRAY);
 
+        auto &images = ecs.get_components<ecs::ImageComponent>();
+        auto &settings = ecs.get_components<ecs::SettingsComponent>();
+
+        for (auto & image : images) {
+            if (image.has_value()) {
+                image.value().draw(GetScreenWidth(), GetScreenHeight());
+            }
+        }
+
+        for (auto & setting : settings) {
+            if (setting.has_value()) {
+                setting.value().background.width = (float)GetScreenWidth();
+                setting.value().background.height = (float)GetScreenHeight();
+                DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), Fade(BLACK, 0.9f));
+                ecs.run_event(ecs::DisplaySettingEvent{});
+            }
+        }
+
+
         EndDrawing();
 
         if (WindowShouldClose()) {
@@ -235,6 +254,26 @@ namespace ecs {
                 }
             }
         }
+
+        auto settingsIcons = ecs.spawn_entity();
+        std::string icon_path = ASSET_FILE("images/settings.png");
+        float width = 100.0f;
+        float height = 100.0f;
+
+        ecs.add_component<ecs::ImageComponent>(settingsIcons, {icon_path, GAME_FOCUS,
+                                                               [width](int screenWidth, int screenHeight) { return screenWidth - 50 - width; },
+                                                               [](int screenWidth, int screenHeight) { return  50; },
+                                                               width, height, [&ecs]() {
+                    auto settingEntity = ecs.spawn_entity();
+
+                    std::string back_path = ASSET_FILE("backgrounds/menu/setting_back.jpg");
+                    ImageComponent setting_back(back_path, SETTINGS_FOCUS,
+                                                [](int screenWidth, int screenHeight) {return 0;},
+                                                [](int screenWidth, int screenHeight) {return 0;}, GetScreenWidth(), GetScreenHeight());
+                    ecs.add_component<SettingsComponent>(settingEntity, {setting_back});
+                    ecs.run_event(ChangeFocusEvent{SETTINGS_FOCUS});
+                }});
+        // Init background
 
         auto &sounds = ecs.get_components<ecs::SoundComponent>();
         for (auto &sound : sounds) {

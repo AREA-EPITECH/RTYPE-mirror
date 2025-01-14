@@ -116,6 +116,19 @@ namespace ecs
 
         auto &controls = ecs.get_components<KeyBindingComponent>();
 
+        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+        {
+            auto &images = ecs.get_components<ImageComponent>();
+            Vector2 mousePosition = GetMousePosition();
+            for (auto &image : images)
+            {
+                if (image.has_value())
+                {
+                    image.value().handleClick(mousePosition, get_focus(ecs));
+                }
+            }
+        }
+
         VesselsComponent *modelComponent = nullptr;
         for (int i = 0; i < models.size(); i++) {
             if (models[i].has_value() && controllables[i].has_value()) {
