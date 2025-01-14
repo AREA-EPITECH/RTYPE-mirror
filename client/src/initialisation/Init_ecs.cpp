@@ -186,7 +186,7 @@ Registry init_ecs()
                             }
                             if (entity.type == network::EntityType::Rocket) {
                                 bool newShoot = true;
-                                spdlog::info("Projectile with id: {}", entity.entityId);
+                                spdlog::info("Projectile with id: {} pos: {} {}", entity.entityId, entity.posX, entity.posY);
                                 //actual_projectiles.push_back(entity.entityId);
 
                                 for (auto &projectile : projectiles) {
