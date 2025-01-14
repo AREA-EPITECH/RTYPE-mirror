@@ -141,7 +141,7 @@ namespace ecs {
 
         void addMusic(const std::string &key, const std::string &filePath) {
             if (musics.find(key) != musics.end()) {
-                throw std::runtime_error("Music key already exists: " + key);
+                throw std::runtime_error("add : Music key already exists: " + key);
             }
             Music music = LoadMusicStream(filePath.c_str());
             SetMusicVolume(music, volume / 100.0f);
@@ -150,7 +150,7 @@ namespace ecs {
 
         void play(const std::string &key) {
             if (musics.find(key) == musics.end()) {
-                throw std::runtime_error("Music key not found: " + key);
+                throw std::runtime_error("play : Music key not found: " + key);
             }
             PlayMusicStream(musics[key]);
         }
@@ -158,7 +158,7 @@ namespace ecs {
         void stop(const std::string &key) {
             auto it = musics.find(key);
             if (it == musics.end()) {
-                throw std::runtime_error("Music key not found: " + key);
+                throw std::runtime_error("stop : Music key not found: " + key);
             }
 
             StopMusicStream(it->second);
@@ -169,28 +169,28 @@ namespace ecs {
 
         void pause(const std::string &key) {
             if (musics.find(key) == musics.end()) {
-                throw std::runtime_error("Music key not found: " + key);
+                throw std::runtime_error("pause : Music key not found: " + key);
             }
             PauseMusicStream(musics[key]);
         }
 
         void resume(const std::string &key) {
             if (musics.find(key) == musics.end()) {
-                throw std::runtime_error("Music key not found: " + key);
+                throw std::runtime_error("resume : Music key not found: " + key);
             }
             ResumeMusicStream(musics[key]);
         }
 
         void update(const std::string &key) {
             if (musics.find(key) == musics.end()) {
-                throw std::runtime_error("Music key not found: " + key);
+                return;
             }
             UpdateMusicStream(musics[key]);
         }
 
         bool isPlaying(const std::string &key) const {
             if (musics.find(key) == musics.end()) {
-                throw std::runtime_error("Music key not found: " + key);
+                throw std::runtime_error("isPlaying : Music key not found: " + key);
             }
             return IsMusicStreamPlaying(musics.at(key));
         }

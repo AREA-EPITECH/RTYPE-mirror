@@ -310,6 +310,16 @@ namespace ecs {
         auto &shaders = ecs.get_components<ShaderComponent>();
         auto &backgrounds = ecs.get_components<BackgroundComponent>();
         auto &decors = ecs.get_components<DecorElementComponent>();
+        auto &images = ecs.get_components<ImageComponent>();
+
+        for (std::size_t i = 0; i < images.size(); ++i)
+        {
+            if (images[i].has_value())
+            {
+                UnloadTexture(images[i]->texture);
+                ecs.kill_entity(i);
+            }
+        }
 
         for (std::size_t i = 0; i < vessels_models.size(); ++i) {
             if (vessels_models[i].has_value()) {
