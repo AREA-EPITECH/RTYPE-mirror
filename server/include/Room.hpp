@@ -29,10 +29,13 @@ namespace server {
         uint32_t _id;
         network::LobbyGameState _state;
         Registry _registry;
+        long _accumulated_time = 0;
     public:
         explicit Room(uint32_t id);
         ~Room();
         bool operator==(const Room& other) const;
+
+        void run(long elapsed_time);
 
         std::vector<network::LobbyPlayer> toLobbyPlayers() const;
         void sendUpdateRoom(Server &server);
@@ -45,6 +48,8 @@ namespace server {
         void addPos(uint32_t client_id, network::MoveDirection type);
         void addProjectile(uint32_t client_id, network::FireType type);
 
+        void spawnEnnemy();
+        void updateEnnemy();
         void updateProjectile();
 
         bool getClientsReadiness() const;
