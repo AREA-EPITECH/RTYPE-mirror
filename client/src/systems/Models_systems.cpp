@@ -182,7 +182,7 @@ namespace ecs {
                 std::string vs_file = shader_component.vs_file;
                 std::string fs_file = shader_component.fs_file;
 
-                UnloadShader(shader_component.shader);
+                UnloadShader(*shader_component.shader);
 
                 TraceLog(LOG_WARNING, TextFormat("Trying to load shader from files %s and %s.",
                     shader_component.vs_file.c_str(), shader_component.fs_file.c_str()));
@@ -194,14 +194,14 @@ namespace ecs {
                 }
 
                 const double t0 = GetTime() * 1000.0;
-                shader_component.shader = LoadShader(vs_file.c_str(),
-                    fs_file.c_str());
+                shader_component.shader = std::make_shared<Shader>(LoadShader(vs_file.c_str(),
+                    fs_file.c_str()));
                 const double t1 = GetTime() * 1000.0;
                 TraceLog(LOG_WARNING, TextFormat("Reloaded shader in %f ms.", t1 - t0));
-                shader_component.shader.locs[SHADER_LOC_VECTOR_VIEW] = GetShaderLocation(shader_component.shader,
+                shader_component.shader->locs[SHADER_LOC_VECTOR_VIEW] = GetShaderLocation(*shader_component.shader,
                 "viewPos");
-                int ambientLoc = GetShaderLocation(shader_component.shader, "ambient");
-                SetShaderValue(shader_component.shader, ambientLoc, (float[4]) {0.1f, 0.1f, 0.1f, 1.0f},
+                int ambientLoc = GetShaderLocation(*shader_component.shader, "ambient");
+                SetShaderValue(*shader_component.shader, ambientLoc, (float[4]) {0.1f, 0.1f, 0.1f, 1.0f},
                 SHADER_UNIFORM_VEC4);
             }
         }
@@ -271,7 +271,7 @@ namespace ecs {
         SetShaderValue(shader, ambientLoc, (float[4]) {0.1f, 0.1f, 0.1f, 1.0f}, SHADER_UNIFORM_VEC4);
 
         auto entity = ecs.spawn_entity();
-        ecs.add_component<ShaderComponent>(entity, {shader, event.vs_file, event.fs_file});
+        ecs.add_component<ShaderComponent>(entity, {std::make_shared<Shader>(shader), event.vs_file, event.fs_file});
     }
 
     /**
@@ -284,7 +284,7 @@ namespace ecs {
         Shader shader = {};
         for (std::size_t i = 0; i < shaders.size(); ++i) {
             if (shaders[i].has_value()) {
-                shader = shaders[i]->shader;
+                shader = *shaders[i]->shader;
                 break;
             }
         }
@@ -300,8 +300,6 @@ namespace ecs {
 
         float camera_pos[3] = {camera.position.x, camera.position.y, camera.position.z};
         SetShaderValue(shader, shader.locs[SHADER_LOC_VECTOR_VIEW], camera_pos, SHADER_UNIFORM_VEC3);
-        SetShaderValue(shader, shader.locs[SHADER_LOC_VECTOR_VIEW], camera_pos, SHADER_UNIFORM_VEC3);
-        SetShaderValue(shader, shader.locs[SHADER_LOC_VECTOR_VIEW], camera_pos, SHADER_UNIFORM_VEC3);
     }
 
     /**
@@ -316,7 +314,7 @@ namespace ecs {
         Shader shader = {};
         for (std::size_t i = 0; i < shaders.size(); ++i) {
             if (shaders[i].has_value()) {
-                shader = shaders[i]->shader;
+                shader = *shaders[i]->shader;
                 break;
             }
         }
@@ -357,9 +355,11 @@ namespace ecs {
      */
     void create_light_system(Registry &ecs, const InitLightEvent &event)
     {
-        const client::Light light{event.type, event.position, event.target, event.color, event.nb};
         auto entity = ecs.spawn_entity();
-        ecs.add_component<LightComponent>(entity, {std::make_shared<client::Light>(light)});
+        ecs.add_component<LightComponent>(
+            entity,
+            {std::make_shared<client::Light>(event.type, event.position, event.target, event.color, event.nb)}
+        );
     }
 
     /**

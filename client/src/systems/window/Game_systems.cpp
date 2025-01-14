@@ -33,7 +33,7 @@ namespace ecs {
         Shader shader = {};
         for (auto & shader_i : shaders) {
             if (shader_i.has_value()) {
-                shader = shader_i->shader;
+                shader = *shader_i->shader;
                 break;
             }
         }
@@ -206,7 +206,7 @@ namespace ecs {
         Shader shader = {};
         for (auto & shader_i : shaders) {
             if (shader_i.has_value()) {
-                shader = shader_i->shader;
+                shader = *shader_i->shader;
                 break;
             }
         }
@@ -293,7 +293,7 @@ namespace ecs {
         kill_entities_with_component<LightComponent>(ecs);
         for (std::size_t i = 0; i < shaders.size(); ++i) {
             if (shaders[i].has_value()) {
-                UnloadShader(shaders[i]->shader);
+                UnloadShader(*shaders[i]->shader);
                 ecs.kill_entity(i);
             }
         }

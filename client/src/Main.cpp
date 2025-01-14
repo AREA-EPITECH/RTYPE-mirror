@@ -37,7 +37,7 @@ void empty_ecs(Registry &ecs)
     {
         if (shaders[i].has_value())
         {
-            UnloadShader(shaders[i]->shader);
+            UnloadShader(*shaders[i]->shader);
             ecs.kill_entity(i);
         }
     }

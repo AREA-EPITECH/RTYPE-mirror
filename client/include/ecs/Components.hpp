@@ -31,7 +31,7 @@ namespace ecs {
     };
 
     struct ShaderComponent {
-        Shader shader;
+        std::shared_ptr<Shader> shader;
         std::string vs_file;
         std::string fs_file;
     };

@@ -142,7 +142,7 @@ namespace ecs
         {
             if (shader_i.has_value())
             {
-                shader = shader_i->shader;
+                shader = *shader_i->shader;
                 break;
             }
         }
