@@ -134,7 +134,7 @@ Registry init_ecs()
                         {
                             if (shader_i.has_value())
                             {
-                                shader = shader_i->shader;
+                                shader = *shader_i->shader;
                                 break;
                             }
                         }
@@ -225,7 +225,7 @@ Registry init_ecs()
                                 }
                             }
                             if (entity.type == network::EntityType::Opponent) {
-                                
+
                             }
                         }
 
