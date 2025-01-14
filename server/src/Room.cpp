@@ -62,6 +62,10 @@ namespace server
 
     bool Room::operator==(const Room &other) const { return this->_id == other._id; }
 
+    /**
+     * Convert Clients to a vector of LobbyPlayer in order to send them in a LobbySnapshotPaquet
+     * @return {std::vector<network::LobbyPlayer>}
+     */
     std::vector<network::LobbyPlayer> Room::toLobbyPlayers() const
     {
         std::vector<network::LobbyPlayer> lobby_players;
@@ -80,6 +84,10 @@ namespace server
         return lobby_players;
     }
 
+    /**
+     * Check if Clients all are ready in the room
+     * @return {bool}
+     */
     bool Room::getClientsReadiness() const
     {
         auto &clients = _registry.get_components<std::shared_ptr<network::PeerWrapper>>();
@@ -94,16 +102,28 @@ namespace server
     }
 
     /**
-     * populate snapshot_packet with entities ONCE
-     * match ECS entities with SnapshotPacket entities
-     * send everything to all players
+     * Call updateProjectile every 100ms
+     * @param elapsed_time time from runMainLoop
+     */
+    void Room::run(const long elapsed_time) {
+        _accumulated_time += elapsed_time;
+        if (_accumulated_time >= 100) {
+            updateProjectile();
+            _accumulated_time = 0;
+        }
+    }
+
+    /**
+     * Populate snapshot_packet with entities ONCE
+     * Match ECS entities with SnapshotPacket entities
+     * Send everything to all players
+     * Send Paquet according to LobbyGameState
      * @param server : server reference
      */
     void Room::sendUpdateRoom(Server &server)
     {
         if (this->_state == network::LobbyGameState::Playing)
         {
-            this->updateProjectile();
             struct network::SnapshotPacket snapshot_packet;
             snapshot_packet.numEntities = 0;
 
@@ -275,7 +295,7 @@ namespace server
         auto &projectiles = _registry.get_components<Projectile>();
         for (int i = 0; i < projectiles.size(); i++) {
             if (projectiles[i].has_value() && projectiles[i].value().type != network::FireType::NoneFire) {
-                if (projectiles[i].value().pos.x + 1 * projectiles[i].value().acceleration.x > MAXX_MAP) {
+                if (projectiles[i].value().pos.x + 1 * projectiles[i].value().acceleration.x > ENDX_MAP) {
                     _registry.kill_entity(i);
                 } else {
                     projectiles[i].value().pos.x += 1 * projectiles[i].value().acceleration.x;
