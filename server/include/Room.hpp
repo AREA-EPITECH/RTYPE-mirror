@@ -17,6 +17,8 @@
 #include <Registry.hpp>
 #include <nlohmann/json.hpp>
 #include <fstream>
+#include <cstdlib>
+#include <GameData.hpp>
 
 namespace server {
 #define MINX_MAP 0
@@ -24,12 +26,16 @@ namespace server {
 #define ENDX_MAP 500
 #define MINY_MAP 0
 #define MAXY_MAP 332
+#define RAY 100
     class Server;
+    struct Enemy;
     class Room {
         uint32_t _id;
         network::LobbyGameState _state;
         Registry _registry;
         long _accumulated_time = 0;
+        long _enemy_accumulated_time = 0;
+        std::vector<Enemy> _enemies;
     public:
         explicit Room(uint32_t id);
         ~Room();
@@ -69,34 +75,22 @@ namespace server {
     struct Enemy {
         EnemyType type;
         int spawn_rate;
+        long clock;
         int score;
+        Pos hitbox;
+        Pos init_pos;
+        std::function<int (int)> moveFunction;
+    };
+
+    struct Level {
+        std::string name;
+        int win_score;
     };
 
     class MapComponent {
     public:
-        std::string name;
-        int win_score;
+        Level level;
         std::vector<Enemy> enemies;
-
-        MapComponent(const std::string &filePath) {
-            std::ifstream file(filePath);
-            if (!file.is_open()) {
-                throw std::runtime_error("Unable to open file: " + filePath);
-            }
-
-            nlohmann::json jsonData;
-            file >> jsonData;
-
-            name = jsonData.at("name").get<std::string>();
-            win_score = jsonData.at("win_score").get<int>();
-
-            for (const auto &enemyData : jsonData.at("enemies")) {
-                Enemy enemy;
-                enemy.type = enemyData.at("type").get<EnemyType>();
-                enemy.spawn_rate = enemyData.at("spawn_rate").get<int>();
-                enemy.score = enemyData.at("score").get<int>();
-                enemies.push_back(enemy);
-            }
-        }
+        MapComponent(const std::string &filePath);
     };
 } // namespace server
