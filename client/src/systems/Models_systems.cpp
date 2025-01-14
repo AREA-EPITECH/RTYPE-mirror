@@ -426,7 +426,7 @@ namespace ecs {
             auto ModelEntity = ecs.spawn_entity();
             std::cout << "MODEL ID : " << ModelEntity << std::endl;
 
-            ecs.add_component<ProjectilesComponent>(ModelEntity, {models, false, vox_files_enemy[i],
+            ecs.add_component<ProjectilesComponent>(ModelEntity, {0, models, false, vox_files_enemy[i],
                 {}, false, {}, {}, {}, 0, {}});
         }
 
@@ -450,7 +450,7 @@ namespace ecs {
             auto ModelEntity = ecs.spawn_entity();
             std::cout << "MODEL ID : " << ModelEntity << std::endl;
 
-            ecs.add_component<ProjectilesComponent>(ModelEntity, {models, false, vox_files_player[i],
+            ecs.add_component<ProjectilesComponent>(ModelEntity, {0, models, false, vox_files_player[i],
                 {}, true, {}, {}, {}, 0, {}});
         }
     }

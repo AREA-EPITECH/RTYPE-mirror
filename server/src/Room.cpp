@@ -163,7 +163,7 @@ namespace server
                 this->_state = network::LobbyGameState::Waiting;
                 count = 0;
             }
-            if (count == 100) {
+            if (count == 80) {
                 this->_state = network::LobbyGameState::Playing;
             }
             lobby_snapshot_packet.gameState = this->_state;

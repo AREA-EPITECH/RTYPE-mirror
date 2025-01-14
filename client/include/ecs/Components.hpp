@@ -230,6 +230,7 @@ namespace ecs {
 
     class ProjectilesComponent {
     public:
+        uint32_t id;
         Model model{};
         bool drawable;
         std::string path;
@@ -238,8 +239,9 @@ namespace ecs {
         Vector3 velocity{};
         std::shared_ptr<client::Light> light;
 
-        ProjectilesComponent(Model _model, bool _drawable, std::string _path, Vector3 _position, bool _player,
+        ProjectilesComponent(uint32_t _id, Model _model, bool _drawable, std::string _path, Vector3 _position, bool _player,
             Vector3 _velocity, Vector3 _target, Color _color, int _nb, Shader _shader) {
+            id = _id;
             model = _model;
             drawable = _drawable;
             path = std::move(_path);

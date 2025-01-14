@@ -92,12 +92,12 @@ namespace ecs
      * @param nb
      * @param shader
      */
-    void create_player_basic_projectile(Registry &ecs, Model model, Vector3 position, Vector3 velocity, bool player,
+    void create_player_basic_projectile(Registry &ecs, uint32_t id, Model model, Vector3 position, Vector3 velocity, bool player,
                                         std::string &path, Vector3 target, int nb, Shader shader)
     {
         auto entity = ecs.spawn_entity();
         ecs.add_component<ProjectilesComponent>(
-            entity, {model, true, path, position, player, velocity, target, DARKBLUE, nb, shader});
+            entity, {id, model, true, path, position, player, velocity, target, DARKBLUE, nb, shader});
     }
 
     /**
@@ -204,7 +204,7 @@ namespace ecs
 
                 if (Kbd_IsKeyPressed(KBD_Layout::FR, key.value().getKey("Basic Shoot")))
                 {
-                    auto &sounds = ecs.get_components<SoundComponent>();
+                    /*auto &sounds = ecs.get_components<SoundComponent>();
 
                     for (auto &sound : sounds) {
                         if (sound.has_value()) {
@@ -220,12 +220,12 @@ namespace ecs
                             if (projectile->player && !projectile->drawable)
                             {
                                 create_player_basic_projectile(
-                                    ecs, projectile->model,
+                                    ecs, 0, projectile->model,
                                     {modelComponent->position.x + 10, modelComponent->position.y + 2, 0}, {0.5, 0, 0},
                                     true, projectile->path, Vector3Zero(), nb_lights, shader);
                             }
                         }
-                    }
+                    }*/
                     input_packet.fire = network::FireType::NormalFire;
                 }
             }
