@@ -28,7 +28,6 @@ namespace client
         float _attenuation{};
         std::string _name;
         int _nb;
-        bool _enabled;
 
         // Shader location
         int _enabledLoc{};
@@ -39,6 +38,7 @@ namespace client
         int _attenuationLoc{};
 
     public:
+        bool _enabled;
         Vector3 _position{};
         Color _color{};
 
