@@ -13,20 +13,29 @@
 #include <vector>
 #include <network/PeerWrapper.hpp>
 #include <network/packet/ServerPacket.hpp>
+#include <network/packet/ClientPacket.hpp>
 #include <Registry.hpp>
 #include <nlohmann/json.hpp>
 #include <fstream>
 
 namespace server {
+#define MINX_MAP 0
+#define MAXX_MAP 350
+#define ENDX_MAP 500
+#define MINY_MAP 0
+#define MAXY_MAP 332
     class Server;
     class Room {
         uint32_t _id;
         network::LobbyGameState _state;
         Registry _registry;
+        long _accumulated_time = 0;
     public:
         explicit Room(uint32_t id);
         ~Room();
         bool operator==(const Room& other) const;
+
+        void run(long elapsed_time);
 
         std::vector<network::LobbyPlayer> toLobbyPlayers() const;
         void sendUpdateRoom(Server &server);
@@ -36,6 +45,13 @@ namespace server {
         std::shared_ptr<network::PeerWrapper> getClient(uint32_t id);
         void removeClient(uint32_t id);
 
+        void addPos(uint32_t client_id, network::MoveDirection type);
+        void addProjectile(uint32_t client_id, network::FireType type);
+
+        void spawnEnnemy();
+        void updateEnnemy();
+        void updateProjectile();
+
         bool getClientsReadiness() const;
         uint32_t getId() const;
         void setId(uint32_t id);
@@ -43,8 +59,15 @@ namespace server {
         void setState(network::LobbyGameState state);
     };
 
+    enum EnemyType
+    {
+        Easy = 0,
+        Medium = 1,
+        Hard = 2,
+    };
+
     struct Enemy {
-        std::string type;
+        EnemyType type;
         int spawn_rate;
         int score;
     };
@@ -69,7 +92,7 @@ namespace server {
 
             for (const auto &enemyData : jsonData.at("enemies")) {
                 Enemy enemy;
-                enemy.type = enemyData.at("type").get<std::string>();
+                enemy.type = enemyData.at("type").get<EnemyType>();
                 enemy.spawn_rate = enemyData.at("spawn_rate").get<int>();
                 enemy.score = enemyData.at("score").get<int>();
                 enemies.push_back(enemy);

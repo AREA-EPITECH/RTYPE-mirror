@@ -22,6 +22,13 @@ namespace ecs {
         auto &health_bars = ecs.get_components<HealthBarComponent>();
         auto &vessels = ecs.get_components<VesselsComponent>();
         auto &cameras = ecs.get_components<CameraComponent>();
+        auto &musics = ecs.get_components<MusicComponent>();
+
+        for (auto &music : musics) {
+            if (music.has_value()) {
+                music.value().update("game_music");
+            }
+        }
 
         Shader shader = {};
         for (auto & shader_i : shaders) {
@@ -282,6 +289,15 @@ namespace ecs {
             }
         }
 
+        auto &musics = ecs.get_components<ecs::MusicComponent>();
+        for (auto &music : musics) {
+            if (music.has_value()) {
+                music.value().addMusic("game_music", "./client/assets/sound/ingame_music.wav");
+                music.value().play("game_music");
+                break;
+            }
+        }
+
     }
 
     /**
@@ -332,11 +348,19 @@ namespace ecs {
             }
         }
 
-        auto &musics = ecs.get_components<SoundComponent>();
+        auto &sounds = ecs.get_components<SoundComponent>();
+
+        for (int i = 0; i < sounds.size();i++) {
+            if (sounds[i].has_value()) {
+                sounds[i].value().stop("shoot");
+            }
+        }
+
+        auto &musics = ecs.get_components<MusicComponent>();
 
         for (int i = 0; i < musics.size();i++) {
             if (musics[i].has_value()) {
-                musics[i].value().stop("shoot");
+                musics[i].value().stop("game_music");
             }
         }
     }

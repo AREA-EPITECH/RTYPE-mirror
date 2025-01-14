@@ -50,6 +50,7 @@ static void runMainLoop(server::Server &server)
         {
             for (auto room : server.getPlayingRooms())
             {
+                room->run(elapsed_time);
                 room->sendUpdateRoom(server);
             }
             last_snapshot = current_time;

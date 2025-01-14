@@ -14,30 +14,13 @@ namespace server
 {
     void gameAction(Server &server, std::shared_ptr<network::PeerWrapper> &peer,
         const struct network::InputPacket &input_packet) {
-        switch (input_packet.move)
-        {
-            case network::MoveDirection::DownDirection:
-                break;
-            case network::MoveDirection::UpDirection:
-                break;
-            case network::MoveDirection::LeftDirection:
-                break;
-            case network::MoveDirection::RightDirection:
-                break;
-            case network::MoveDirection::NoneDirection:
-            default:
-                break;
+        const auto client_id = peer->getData<ClientData>().getId();
+        const auto ecs_client = peer->getData<ClientData>().getRoom()->getClient(client_id);
+        if (!ecs_client) {
+            spdlog::error("Error client {} not in ecs", client_id);
+            return;
         }
-
-        switch (input_packet.fire)
-        {
-            case network::FireType::ChargedFire:
-                break;
-            case network::FireType::NormalFire:
-                break;
-            case network::FireType::NoneFire:
-            default:
-                break;
-        }
+        server.moveActionRoom(client_id, ecs_client->getData<ClientData>().getRoom()->getId(), input_packet.move);
+        server.fireActionRoom(client_id, ecs_client->getData<ClientData>().getRoom()->getId(), input_packet.fire);
     }
 } // namespace server

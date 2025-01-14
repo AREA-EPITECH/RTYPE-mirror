@@ -143,20 +143,6 @@ void handle_network_event(
                     using T = std::decay_t<decltype(arg)>;
                     if constexpr (std::is_same_v<T, struct network::LobbyActionPacket>)
                     {
-                        switch (arg.actionType)
-                        {
-                        case network::LobbyActionType::CreateRoom:
-                            spdlog::info("CreateRoom");
-                            break;
-                        case network::LobbyActionType::ChangeName:
-                            spdlog::info("ChangeName");
-                            break;
-                        case network::LobbyActionType::ChangeShip:
-                            spdlog::info("ChangeShip");
-                            break;
-                        default:
-                            break;
-                        }
                         network_client.sendLobbyPacket(arg);
                     }
                     else if constexpr (std::is_same_v<T, struct network::InputPacket>)

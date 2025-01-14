@@ -56,6 +56,9 @@ bool network::NetworkServer::start(uint16_t port)
 void network::NetworkServer::stop()
 {
     host.reset();
+    for (auto &peer: peerMap) {
+        peer.second.reset();
+    }
     peerMap.clear();
 }
 
@@ -191,6 +194,7 @@ bool network::NetworkServer::pollEvent(network::ServerEvent &event)
                     event.peer = it->second;
                     event.packetType = PacketType::NoPacket;
                     event.data = nullptr;
+                    it->second.reset();
                     peerMap.erase(it);
                 }
                 break;

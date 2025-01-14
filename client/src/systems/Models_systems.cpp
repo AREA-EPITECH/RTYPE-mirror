@@ -97,6 +97,7 @@ namespace ecs {
         ecs.add_component<VesselsComponent>(user.entity, {model, true, vox_files[user.ship_id], vessel_name, user.ship_id});
         ecs.add_component<ControllableComponent>(user.entity, {});
 
+        gameState->get().updateUser(user);
         auto players = gameState->get().getOtherPlayer();
         for (std::size_t i = 0; i < players.size(); i++) {
             players[i].entity = ecs.spawn_entity();
@@ -122,6 +123,7 @@ namespace ecs {
             model.transform = MatrixMultiply(matTranslate, matRotate);
             ecs.add_component<VesselsComponent>(players[i].entity, {model, true, vox_files[players[i].ship_id], vessel_name, players[i].ship_id});
         }
+        gameState->get().updateOtherPlayer(players);
     }
 
     /**
