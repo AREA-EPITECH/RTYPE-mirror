@@ -60,6 +60,8 @@ namespace ecs {
     void lobby_controls_system(Registry &ecs, const ControlsEvent &);
     void menu_controls_system(Registry &ecs, const ControlsEvent &);
     void game_controls_system(Registry &ecs, const ControlsEvent &);
+    void create_player_basic_projectile(Registry &ecs, uint32_t id, Model model, Vector3 position, Vector3 velocity, bool player,
+                                        std::string &path, Vector3 target, int nb, Shader shader);
 
 // Particles
     void particles_system(Registry &ecs, const ParticleSystemEvent &);

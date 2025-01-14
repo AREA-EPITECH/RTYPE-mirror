@@ -119,22 +119,117 @@ Registry init_ecs()
                         }
                         auto &cameras = ecs.get_components<ecs::CameraComponent>();
                         auto &vessels = ecs.get_components<ecs::VesselsComponent>();
+                        auto &sounds = ecs.get_components<ecs::SoundComponent>();
+                        auto &projectiles = ecs.get_components<ecs::ProjectilesComponent>();
+                        auto &lights = ecs.get_components<ecs::LightComponent>();
+                        auto &shaders = ecs.get_components<ecs::ShaderComponent>();
                         auto user = gameState->get().getUser();
+                        auto players = gameState->get().getOtherPlayer();
+                        for (auto &player: players) {
+                            if (vessels[player.entity].has_value()) {
+                                vessels[player.entity]->drawable = false;
+                            }
+                        }
+                        Shader shader = {};
+                        for (auto &shader_i : shaders)
+                        {
+                            if (shader_i.has_value())
+                            {
+                                shader = shader_i->shader;
+                                break;
+                            }
+                        }
+                        int nb_lights = 0;
+                        for (auto &light : lights)
+                        {
+                            if (light.has_value())
+                            {
+                                nb_lights += 1;
+                            }
+                        }
+
+                        for (auto &projectile : projectiles)
+                        {
+                            if (projectile.has_value())
+                            {
+                                if (projectile->drawable)
+                                {
+                                    nb_lights += 1;
+                                }
+                            }
+                        }
+                        //std::vector<uint32_t> actual_projectiles;
                         for (auto &entity: received_packet.entities) {
                             if (entity.type == network::EntityType::Player) {
                                 if (entity.entityId == user.id) {
                                     float posX = map_value(entity.posX, 0, 350, -27.30, 7.79);
-                                    float posY = map_value(entity.posY, 0, 332, -16.60, 16.60);
+                                    float posY = map_value(entity.posY, 0, 332, 16.60, -16.60);
                                     user.position = {posX, posY};
                                     if (vessels[user.entity].has_value()) {
                                         vessels[user.entity]->position = {posX, posY, 0};
                                     }
                                     gameState->get().updateUser(user);
-                                    spdlog::info("Entity player of id: {} pos x: {} pos y", entity.entityId, entity.posX, entity.posY);
+                                } else {
+                                    float posX = map_value(entity.posX, 0, 350, -27.30, 7.79);
+                                    float posY = map_value(entity.posY, 0, 332, 16.60, -16.60);
+                                    for (auto &player: players) {
+                                        if (player.id == entity.entityId) {
+                                            player.position = {posX, posY};
+                                            if (vessels[player.entity].has_value()) {
+                                                vessels[player.entity]->position = {posX, posY, 0};
+                                                vessels[player.entity]->drawable = true;
+                                            }
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                            if (entity.type == network::EntityType::Rocket) {
+                                bool newShoot = true;
+                                spdlog::info("Projectile with id: {} pos: {} {}", entity.entityId, entity.posX, entity.posY);
+                                //actual_projectiles.push_back(entity.entityId);
+
+                                for (auto &projectile : projectiles) {
+                                    if (projectile.has_value()) {
+                                        if (projectile->id == entity.entityId) {
+                                            spdlog::info("Existing projectile with id: {}", entity.entityId);
+                                            newShoot = false;
+                                            float posX = map_value(entity.posX, 0, 500, -27.30, 7.79);
+                                            float posY = map_value(entity.posY, 0, 332, 16.60, -16.60);
+                                            projectile->position = {posX, posY, 0};
+                                            projectile->drawable = true;
+                                            break;
+                                        }
+                                    }
+                                }
+
+                                if (newShoot) {
+                                    spdlog::info("New projectile with id: {}", entity.entityId);
+                                    for (auto &sound : sounds) {
+                                        if (sound.has_value()) {
+                                            sound.value().play("shoot");
+                                        }
+                                    }
+
+                                    for (auto &projectile : projectiles)
+                                    {
+                                        if (projectile.has_value())
+                                        {
+                                            if (projectile->player && !projectile->drawable)
+                                            {
+                                                float posX = map_value(entity.posX, 0, 500, -27.30, 7.79);
+                                                float posY = map_value(entity.posY, 0, 332, 16.60, -16.60);
+                                                ecs::create_player_basic_projectile(
+                                                    ecs, entity.entityId, projectile->model,
+                                                    {posX, posY, 0}, {0.5, 0, 0},
+                                                    true, projectile->path, Vector3Zero(), nb_lights, shader);
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
-                        //spdlog::info("Snapshot packet: {}", received_packet.header.packetId);
+                        gameState->get().updateOtherPlayer(players);
                     }
                     else
                     {

@@ -131,7 +131,7 @@ namespace ecs {
                     if (projectiles[i].has_value()) {
                         ProjectilesComponent *projectile = &projectiles[i].value();
                         if (projectile->drawable) {
-                            projectile->ApplyVelocity();
+                            //projectile->ApplyVelocity();
                             if (projectile->IsAlive(camera))
                             {
                                 DrawModel(projectile->model, projectile->position, 1.0f, WHITE);
@@ -142,6 +142,9 @@ namespace ecs {
                                 projectile->light->UpdateLightValues(shader, false);
                                 ecs.kill_entity(i);
                             }
+                        } else {
+                            projectile->light->UpdateLightValues(shader, false);
+                            ecs.kill_entity(i);
                         }
                     }
                 }
