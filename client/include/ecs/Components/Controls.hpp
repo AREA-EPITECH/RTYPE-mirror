@@ -68,7 +68,7 @@ namespace ecs {
 
         void addSound(const std::string &key, const std::string &filePath) {
             if (sounds.find(key) != sounds.end()) {
-                throw std::runtime_error("Sound key already exists: " + key);
+                throw std::runtime_error("add : Sound key already exists: " + key);
             }
             Sound sound = LoadSound(filePath.c_str());
             SetSoundVolume(sound, volume / 100.0f);
@@ -77,7 +77,7 @@ namespace ecs {
 
         void play(const std::string &key) {
             if (sounds.find(key) == sounds.end()) {
-                throw std::runtime_error("Sound key not found: " + key);
+                return;
             }
             PlaySound(sounds[key]);
         }
@@ -85,7 +85,7 @@ namespace ecs {
         void stop(const std::string &key) {
             auto it = sounds.find(key);
             if (it == sounds.end()) {
-                throw std::runtime_error("Sound key not found: " + key);
+                return;
             }
 
             StopSound(it->second);
@@ -97,21 +97,21 @@ namespace ecs {
 
         void pause(const std::string &key) {
             if (sounds.find(key) == sounds.end()) {
-                throw std::runtime_error("Sound key not found: " + key);
+                return;
             }
             PauseSound(sounds[key]);
         }
 
         void resume(const std::string &key) {
             if (sounds.find(key) == sounds.end()) {
-                throw std::runtime_error("Sound key not found: " + key);
+                return;
             }
             ResumeSound(sounds[key]);
         }
 
         bool isPlaying(const std::string &key) const {
             if (sounds.find(key) == sounds.end()) {
-                throw std::runtime_error("Sound key not found: " + key);
+                throw std::runtime_error("isplaying : Sound key not found: " + key);
             }
             return IsSoundPlaying(sounds.at(key));
         }
@@ -141,7 +141,7 @@ namespace ecs {
 
         void addMusic(const std::string &key, const std::string &filePath) {
             if (musics.find(key) != musics.end()) {
-                throw std::runtime_error("add : Music key already exists: " + key);
+                return;
             }
             Music music = LoadMusicStream(filePath.c_str());
             SetMusicVolume(music, volume / 100.0f);
@@ -150,7 +150,7 @@ namespace ecs {
 
         void play(const std::string &key) {
             if (musics.find(key) == musics.end()) {
-                throw std::runtime_error("play : Music key not found: " + key);
+                return;
             }
             PlayMusicStream(musics[key]);
         }
@@ -158,7 +158,7 @@ namespace ecs {
         void stop(const std::string &key) {
             auto it = musics.find(key);
             if (it == musics.end()) {
-                throw std::runtime_error("stop : Music key not found: " + key);
+                return;
             }
 
             StopMusicStream(it->second);
@@ -169,14 +169,14 @@ namespace ecs {
 
         void pause(const std::string &key) {
             if (musics.find(key) == musics.end()) {
-                throw std::runtime_error("pause : Music key not found: " + key);
+                return;
             }
             PauseMusicStream(musics[key]);
         }
 
         void resume(const std::string &key) {
             if (musics.find(key) == musics.end()) {
-                throw std::runtime_error("resume : Music key not found: " + key);
+                return;
             }
             ResumeMusicStream(musics[key]);
         }

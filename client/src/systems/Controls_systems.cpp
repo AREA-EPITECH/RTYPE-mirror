@@ -38,7 +38,12 @@ namespace ecs
         case GAME:
             init_game_window(ecs);
             break;
+
+        case END_GAME:
+            init_end_game_window(ecs);
+            break;
         }
+
 
         ecs.run_event(WindowOpenEvent{});
     }
@@ -217,6 +222,13 @@ namespace ecs
 
                 if (Kbd_IsKeyPressed(KBD_Layout::FR, key.value().getKey("Basic Shoot")))
                 {
+                    auto &scores = ecs.get_components<ScoreComponent>();
+
+                    for (auto &score : scores) {
+                        if (score.has_value()) {
+                            score.value().score += 100;
+                        }
+                    }
                     /*auto &sounds = ecs.get_components<SoundComponent>();
 
                     for (auto &sound : sounds) {

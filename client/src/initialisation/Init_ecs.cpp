@@ -39,6 +39,7 @@ Registry init_ecs()
     ecs.register_component<ecs::ImageComponent>();
     ecs.register_component<ecs::HealthBarComponent>();
     ecs.register_component<game::GameState>();
+    ecs.register_component<ecs::ScoreComponent>();
 
     ecs.register_event<ecs::CreateWindowEvent>();
     ecs.register_event<ecs::WindowOpenEvent>();

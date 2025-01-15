@@ -271,4 +271,15 @@ namespace ecs {
     {
         std::vector<Texture> textures;
     };
+
+    class ScoreComponent {
+    public:
+        int win_score;
+        int score;
+
+        ScoreComponent(int _win_score = 0, int _score = 0) : win_score(_win_score), score(_score) {};
+
+        void draw_ingame();
+    };
+
 }
