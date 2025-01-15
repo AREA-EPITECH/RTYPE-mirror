@@ -36,10 +36,13 @@ namespace server {
         long _accumulated_time = 0;
         long _enemy_accumulated_time = 0;
         std::vector<Enemy> _enemies;
+        int level = 1;
     public:
         explicit Room(uint32_t id);
         ~Room();
         bool operator==(const Room& other) const;
+
+        void kill_entities();
 
         void run(long elapsed_time);
 
@@ -54,13 +57,18 @@ namespace server {
         void addPos(uint32_t client_id, network::MoveDirection type);
         void addProjectile(uint32_t client_id, network::FireType type);
 
+        void addProjectileEnemy(const Enemy &enemy, const Pos &pos);
         void spawnEnemy();
+        void spawnEnemyProjectile();
         void updateEnemy();
         void updateProjectile();
 
         bool getClientsReadiness() const;
         uint32_t getId() const;
         void setId(uint32_t id);
+        int getLevel() const;
+        void setLevel(int level);
+        bool isClientinsideRoom();
         network::LobbyGameState getState() const;
         void setState(network::LobbyGameState state);
     };

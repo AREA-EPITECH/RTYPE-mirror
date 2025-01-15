@@ -39,7 +39,7 @@ static void runMainLoop(server::Server &server)
             std::chrono::duration_cast<std::chrono::milliseconds>(current_time - last_lobby_snapshot).count();
         if (elapsed_time >= 100)
         {
-            for (auto room : server.getWaitingRooms())
+            for (auto &room : server.getWaitingRooms())
             {
                 room->sendUpdateRoom(server);
             }
@@ -48,10 +48,15 @@ static void runMainLoop(server::Server &server)
         elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(current_time - last_snapshot).count();
         if (elapsed_time >= 20)
         {
-            for (auto room : server.getPlayingRooms())
-            {
-                room->run(elapsed_time);
-                room->sendUpdateRoom(server);
+            for (auto it = server.getPlayingRooms().begin(); it != server.getPlayingRooms().end(); ) {
+                if (!(*it)->isClientinsideRoom()) {
+                    it->reset();
+                    it = server.getPlayingRooms().erase(it);
+                } else {
+                    (*it)->run(elapsed_time);
+                    (*it)->sendUpdateRoom(server);
+                    ++it;
+                }
             }
             last_snapshot = current_time;
         }
