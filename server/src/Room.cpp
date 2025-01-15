@@ -403,7 +403,7 @@ namespace server
                 }
                 enemy.init_pos.y = random_y;
                 enemy.init_pos.x = ENDX_MAP;
-                _registry.add_component<Enemy>(new_enemy, {enemy.type, enemy.spawn_rate, enemy.clock, enemy.score, enemy.hitbox, enemy.init_pos, enemy.moveFunction});
+                _registry.add_component<Enemy>(new_enemy, {enemy.type, enemy.spawn_rate, enemy.clock, enemy.score, enemy.hitbox, enemy.acc, enemy.init_pos, enemy.moveFunction});
                 _registry.add_component<Pos>(new_enemy, {ENDX_MAP, random_y});
                 this->addProjectileEnemy(enemy, enemy.init_pos);
                 spdlog::info("Spawned enemy of type {} with spawn rate {} at [{};{}]", static_cast<int>(enemy.type), enemy.spawn_rate, enemy.init_pos.x, random_y);
@@ -452,8 +452,8 @@ namespace server
         for (int i = 0; i < enemies.size(); i++) {
             if (enemies[i].has_value()) {
                 if (pos[i].has_value()) {
-                    pos[i].value().x -= 1;
-                    pos[i].value().y = enemies[i].value().init_pos.y + enemies[i].value().moveFunction(pos[i].value().x);
+                    pos[i].value().x -= 1 * enemies[i].value().acc.x;
+                    pos[i].value().y = (enemies[i].value().init_pos.y + enemies[i].value().moveFunction(pos[i].value().x)) * enemies[i].value().acc.y;
                     if (pos[i].value().x < MINX_MAP) {
                         _registry.kill_entity(i);
                     }
@@ -501,25 +501,27 @@ namespace server
             enemy.type = enemyData.at("type").get<EnemyType>();
             enemy.spawn_rate = enemyData.at("spawn_rate").get<int>();
             enemy.score = enemyData.at("score").get<int>();
+            enemy.acc.x = enemyData.at("acc").get<int>();
+            enemy.acc.y = enemyData.at("acc").get<int>();
             enemy.clock = 0;
             switch (enemy.type) {
                 case Easy:
                     enemy.hitbox.x = 60;
-                    enemy.hitbox.y = 60;
+                    enemy.hitbox.y = 80;
                     enemy.moveFunction = [](int x) {
                         return 0;
                     };
                     break;
                 case Medium:
                     enemy.hitbox.x = 60;
-                    enemy.hitbox.y = 60;
+                    enemy.hitbox.y = 100;
                     enemy.moveFunction = [](int x) {
                         return (MAXX_MAP / 2.5) * sin(x * 0.01);
                     };
                     break;
                 case Hard:
                     enemy.hitbox.x = 60;
-                    enemy.hitbox.y = 80;
+                    enemy.hitbox.y = 120;
                     enemy.moveFunction = [](int x) {
                         double T = 800;
                         double A = 200;

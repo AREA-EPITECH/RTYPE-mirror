@@ -63,6 +63,8 @@ namespace server {
         void updateEnemy();
         void updateProjectile();
 
+        void checkCollisionVessels();
+
         bool getClientsReadiness() const;
         uint32_t getId() const;
         void setId(uint32_t id);
@@ -86,6 +88,7 @@ namespace server {
         long clock;
         int score;
         Pos hitbox;
+        Acceleration acc;
         Pos init_pos;
         std::function<int (int)> moveFunction;
     };
