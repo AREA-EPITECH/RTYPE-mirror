@@ -39,6 +39,9 @@ namespace ecs
             init_game_window(ecs);
             break;
 
+        case END_GAME:
+            init_end_game_window(ecs);
+            break;
         }
 
 

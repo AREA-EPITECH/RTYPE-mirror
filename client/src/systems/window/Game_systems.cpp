@@ -188,8 +188,6 @@ namespace ecs {
             if (score.has_value()) {
                 score.value().draw_ingame();
                 if (score.value().score >= score.value().win_score) {
-                    ecs.unsubscribe_all<WindowDrawEvent>();
-                    ecs.subscribe<WindowDrawEvent>(draw_endgame_system);
                 }
             }
         }
