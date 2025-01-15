@@ -54,8 +54,8 @@ namespace server {
         void addPos(uint32_t client_id, network::MoveDirection type);
         void addProjectile(uint32_t client_id, network::FireType type);
 
-        void spawnEnnemy();
-        void updateEnnemy();
+        void spawnEnemy();
+        void updateEnemy();
         void updateProjectile();
 
         bool getClientsReadiness() const;

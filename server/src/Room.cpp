@@ -142,11 +142,12 @@ namespace server
 
         if (_accumulated_time >= 100) {
             this->updateProjectile();
+            this->updateEnemy();
             _accumulated_time = 0;
         }
 
         if (_enemy_accumulated_time >= 100) {
-            this->spawnEnnemy();
+            this->spawnEnemy();
             _enemy_accumulated_time = 0;
         }
     }
@@ -165,13 +166,29 @@ namespace server
             struct network::SnapshotPacket snapshot_packet;
             snapshot_packet.numEntities = 0;
 
-            auto &clients = _registry.get_components<std::shared_ptr<network::PeerWrapper>>();
             auto &pos = _registry.get_components<Pos>();
+
+            auto &clients = _registry.get_components<std::shared_ptr<network::PeerWrapper>>();
             for (int i = 0; i < clients.size(); i++) {
                 if (clients[i].has_value()) {
                     network::EntityUpdate entity_update;
                     entity_update.type = network::Player;
                     entity_update.entityId = clients[i].value()->getData<ClientData>().getId();
+                    if (pos[i].has_value()) {
+                        entity_update.posX = pos[i].value().x;
+                        entity_update.posY = pos[i].value().y;
+                    }
+                    snapshot_packet.entities.push_back(entity_update);
+                    snapshot_packet.numEntities += 1;
+                }
+            }
+
+            auto &enemy = _registry.get_components<Enemy>();
+            for (int i = 0; i < enemy.size(); i++) {
+                if (enemy[i].has_value()) {
+                    network::EntityUpdate entity_update;
+                    entity_update.type = network::EntityType::Opponent;
+                    entity_update.entityId = i;
                     if (pos[i].has_value()) {
                         entity_update.posX = pos[i].value().x;
                         entity_update.posY = pos[i].value().y;
@@ -262,9 +279,9 @@ namespace server
 
     void Room::addPos(const uint32_t client_id, network::MoveDirection type) {
         auto &clients = _registry.get_components<std::shared_ptr<network::PeerWrapper>>();
+        auto &client_pos = _registry.get_components<Pos>();
         for (int i = 0; i < clients.size(); i++) {
             if (clients[i].has_value() && clients[i].value()->getData<ClientData>().getId() == client_id) {
-                auto &client_pos = _registry.get_components<Pos>();
                 if (client_pos[i].has_value()) {
                     switch (type)
                     {
@@ -343,9 +360,10 @@ namespace server
     }
 
     void Room::updateProjectile() {
+        auto &clients = _registry.get_components<std::shared_ptr<network::PeerWrapper>>();
         auto &projectiles = _registry.get_components<Projectile>();
-        for (int i = 0; i < projectiles.size(); i++) {
-            if (projectiles[i].has_value() && projectiles[i].value().type != network::FireType::NoneFire) {
+        for (int i = 0; i < clients.size(); i++) {
+            if (clients[i].has_value() && projectiles[i].has_value() && projectiles[i].value().type != network::FireType::NoneFire) {
                 if (projectiles[i].value().pos.x > ENDX_MAP) {
                     _registry.kill_entity(i);
                 } else {
@@ -355,7 +373,7 @@ namespace server
         }
     }
 
-    void Room::spawnEnnemy() {
+    void Room::spawnEnemy() {
         for (auto &enemy : _enemies) {
             enemy.clock += 100;
             if (enemy.clock >= enemy.spawn_rate * 1000) {
@@ -371,13 +389,13 @@ namespace server
         }
     }
 
-    void Room::updateEnnemy() {
+    void Room::updateEnemy() {
         auto &enemies = _registry.get_components<Enemy>();
         auto &pos = _registry.get_components<Pos>();
         for (int i = 0; enemies.size(); i++) {
             if (enemies[i].has_value()) {
                 if (pos[i].has_value()) {
-                    if (enemies[i].value().type == EnemyType::Hard) {
+                    if (enemies[i].value().type == Hard) {
                         static bool is_neg = false;
                         if (enemies[i].value().moveFunction(pos[i].value().x) == enemies[i].value().init_pos.y) {
                             is_neg = !is_neg;
@@ -389,7 +407,6 @@ namespace server
                             pos[i].value().x -= 1;
                             pos[i].value().y = enemies[i].value().init_pos.y + enemies[i].value().moveFunction(pos[i].value().x);
                         }
-
                     } else {
                         if (pos[i].value().x > MINX_MAP) {
                             pos[i].value().x -= 1;
@@ -411,7 +428,6 @@ namespace server
     network::LobbyGameState Room::getState() const { return this->_state; }
 
     void Room::setState(const network::LobbyGameState state) { this->_state = state; }
-
 
     MapComponent::MapComponent(const std::string &filePath) {
         std::ifstream file(filePath);
