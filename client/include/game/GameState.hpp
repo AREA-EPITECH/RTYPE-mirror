@@ -11,6 +11,7 @@
 #include <string>
 #include <tuple>
 #include <vector>
+#include <map>
 
 #include "Registry.hpp"
 #include "ecs/Systems.hpp"
@@ -28,6 +29,8 @@ namespace game
             bool is_ready = false;
             std::tuple<uint, uint> position;
         };
+
+        std::map<uint32_t, entity_t> enemy_entities;
 
         GameState();
         GameState(const Player &player);
@@ -47,6 +50,9 @@ namespace game
 
         auto getIdEntity() -> entity_t;
         auto setIdEntity(entity_t entity) -> void;
+
+        auto getEnemyEntities() -> std::map<uint32_t, entity_t>;
+        auto setEnemyEntities(const std::map<uint32_t, entity_t> &entities) -> void;
 
         auto getPlayerNameEntities() -> std::vector<entity_t>;
         auto addPlayerNameEntities(entity_t entity) -> void;

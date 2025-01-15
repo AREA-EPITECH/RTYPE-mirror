@@ -92,6 +92,7 @@ void init_game_window(Registry& ecs) {
     ecs.subscribe<ecs::InitModelEvent>([](Registry& e, const ecs::InitModelEvent& event) {
         //load_model_from_file_system(e, event);
         load_vessels_for_game(e, event);
+        load_enemys_for_game(e, event);
         load_projectiles_models(e, event);
     });
 
