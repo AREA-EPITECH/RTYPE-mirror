@@ -109,7 +109,7 @@ namespace ecs {
 
         auto gameState = getGameState(ecs);
 
-        if (gameState->get().getGameState() == network::LobbyGameState::Starting) {
+        if (gameState->get().getGameState() == game::GameState::LobbyGameState::Starting) {
             int ringWidth = 400;
             int ringHeight = 400;
             int fontSize = 24;
@@ -124,7 +124,7 @@ namespace ecs {
             Color blackTransparent = {0, 48, 73, 200};
             DrawRectangle(0, 0, screenWidth, screenHeight, blackTransparent);
             Vector2 center = {screenWidth / 2.0f, screenHeight / 2.0f};
-            DrawText("Starting...", center.x - MeasureText("Starting...", fontSize) / 2, center.y - fontSize / 2, fontSize, BLACK);
+            DrawText("Starting...", center.x - MeasureText("Starting...", fontSize) / 2, center.y - fontSize / 2, fontSize, WHITE);
             DrawRing(center, 80, 190, startAngle, endAngle, 0, Fade(RED, 0.5f));
         }
 

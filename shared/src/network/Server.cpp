@@ -129,6 +129,32 @@ bool network::NetworkServer::sendLobbyPacket(const struct LobbySnapshotPacket &p
 }
 
 /**
+ * @brief Sends a lobby snapshot packet to a specific peer.
+ *
+ * @param packet The lobby snapshot packet to send.
+ * @param peer A shared pointer to the target PeerWrapper.
+ * @return True if the packet is sent successfully, false otherwise.
+ */
+bool network::NetworkServer::sendErrorPacket(const struct ErrorPacket &packet, std::shared_ptr<PeerWrapper> peer)
+{
+    struct ErrorPacket newPacket;
+
+    lastPacketId++;
+    newPacket.header.packetId = lastPacketId;
+
+    auto now = std::chrono::steady_clock::now();
+    newPacket.header.timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count();
+
+    newPacket.header.type = PacketType::ErrorPacket;
+
+    newPacket.type = packet.type;
+    newPacket.message = packet.message;
+
+    const std::vector<uint8_t> binary = Packet::serializeErrorPacket(newPacket);
+    return sendPacket(binary, peer);
+}
+
+/**
  * @brief Polls the server for new network events.
  *
  * Processes connection, disconnection, and data reception events,

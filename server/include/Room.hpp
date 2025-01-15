@@ -21,9 +21,9 @@
 #include <GameData.hpp>
 
 namespace server {
-#define MINX_MAP 0
+#define MINX_MAP -250
 #define MAXX_MAP 350
-#define ENDX_MAP 900
+#define ENDX_MAP 950
 #define MINY_MAP 0
 #define MAXY_MAP 332
 #define RAY 100
@@ -36,10 +36,13 @@ namespace server {
         long _accumulated_time = 0;
         long _enemy_accumulated_time = 0;
         std::vector<Enemy> _enemies;
+        int level = 1;
     public:
         explicit Room(uint32_t id);
         ~Room();
         bool operator==(const Room& other) const;
+
+        void kill_entities();
 
         void run(long elapsed_time);
 
@@ -54,13 +57,21 @@ namespace server {
         void addPos(uint32_t client_id, network::MoveDirection type);
         void addProjectile(uint32_t client_id, network::FireType type);
 
+        void addProjectileEnemy(const Enemy &enemy, const Pos &pos);
         void spawnEnemy();
+        void spawnEnemyProjectile();
         void updateEnemy();
         void updateProjectile();
+
+        void checkCollisionVessels();
+        void checkCollisionProjectiles();
 
         bool getClientsReadiness() const;
         uint32_t getId() const;
         void setId(uint32_t id);
+        int getLevel() const;
+        void setLevel(int level);
+        bool isClientinsideRoom();
         network::LobbyGameState getState() const;
         void setState(network::LobbyGameState state);
     };
@@ -78,6 +89,7 @@ namespace server {
         long clock;
         int score;
         Pos hitbox;
+        Acceleration acc;
         Pos init_pos;
         std::function<int (int)> moveFunction;
     };

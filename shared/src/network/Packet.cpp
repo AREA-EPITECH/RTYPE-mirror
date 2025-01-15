@@ -356,7 +356,6 @@ struct network::LobbySnapshotPacket network::Packet::deserializeLobbySnapshotPac
     ensureValidOffset(offset, sizeof(numPlayers), data.size());
     std::memcpy(&numPlayers, data.data() + offset, sizeof(numPlayers));
     offset += sizeof(numPlayers);
-    //packet.players.resize(numPlayers);
 
     // Deserialize each player
     for (uint32_t i = 0; i < numPlayers; ++i)
@@ -391,6 +390,73 @@ struct network::LobbySnapshotPacket network::Packet::deserializeLobbySnapshotPac
 
         packet.players.push_back(player);
     }
+
+    return packet;
+}
+
+/**
+ * @brief Serializes a `ErrorPacket` to a binary format.
+ * @param packet The `ErrorPacket` to serialize.
+ * @return A binary representation of the `ErrorPacket`.
+ */
+std::vector<uint8_t> network::Packet::serializeErrorPacket(const struct network::ErrorPacket &packet)
+{
+    std::vector<uint8_t> buffer;
+    size_t offset = 0;
+
+    // Serialize PacketHeader
+    size_t headerSize = sizeof(packet.header);
+    buffer.resize(headerSize);
+    std::memcpy(buffer.data(), &packet.header, headerSize);
+    offset += headerSize;
+
+    // Serialize type
+    buffer.resize(buffer.size() + sizeof(packet.type));
+    std::memcpy(buffer.data() + offset, &packet.type, sizeof(packet.type));
+    offset += sizeof(packet.type);
+
+    // Serialize message
+    uint32_t messageLength = static_cast<uint32_t>(packet.message.size());
+    buffer.resize(buffer.size() + sizeof(messageLength) + messageLength);
+    std::memcpy(buffer.data() + offset, &messageLength, sizeof(messageLength));
+    offset += sizeof(messageLength);
+    std::memcpy(buffer.data() + offset, packet.message.data(), messageLength);
+    offset += messageLength;
+
+    return buffer;
+}
+
+/**
+ * @brief Deserializes a binary format into a `LobbySnapshotPacket`.
+ * @param data The binary data to deserialize.
+ * @return The deserialized `LobbySnapshotPacket`.
+ */
+struct network::ErrorPacket network::Packet::deserializeErrorPacket(const std::vector<uint8_t> &data)
+{
+    struct ErrorPacket packet;
+    size_t offset = 0;
+
+    // Deserialize PacketHeader
+    ensureValidOffset(offset, sizeof(PacketHeader), data.size());
+    size_t headerSize = sizeof(packet.header);
+    std::memcpy(&packet.header, data.data(), headerSize);
+    offset += headerSize;
+
+    // Deserialize type
+    ensureValidOffset(offset, sizeof(packet.type), data.size());
+    std::memcpy(&packet.type, data.data() + offset, sizeof(packet.type));
+    offset += sizeof(packet.type);
+
+    // Deserialize message
+    uint32_t messageLength;
+    ensureValidOffset(offset, sizeof(messageLength), data.size());
+    std::memcpy(&messageLength, data.data() + offset, sizeof(messageLength));
+    offset += sizeof(messageLength);
+
+    ensureValidOffset(offset, messageLength, data.size());
+    packet.message.resize(messageLength);
+    std::memcpy(&packet.message, data.data() + offset, messageLength);
+    offset += messageLength;
 
     return packet;
 }
@@ -443,6 +509,10 @@ std::pair<network::PacketType, std::any> network::Packet::deserializePacket(cons
 
     case PacketType::LobbySnapshotPacket: {
         return {header.type, deserializeLobbySnapshotPacket(data)};
+    }
+
+    case PacketType::ErrorPacket: {
+        return {header.type, deserializeErrorPacket(data)};
     }
 
     default: {

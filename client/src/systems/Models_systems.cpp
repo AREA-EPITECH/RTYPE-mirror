@@ -22,6 +22,7 @@ namespace ecs {
             if (std::string file = entry.path().c_str(); file.find(".vox") != std::string::npos)
                 vox_files.emplace_back(file);
         }
+        std::sort(vox_files.begin(), vox_files.end());
 
         for (int i = 0; i < vox_files.size(); i++) {
             Model models;
@@ -70,6 +71,7 @@ namespace ecs {
             if (std::string file = entry.path().c_str(); file.find(".vox") != std::string::npos)
                 vox_files.emplace_back(file);
         }
+        std::sort(vox_files.begin(), vox_files.end());
         auto user = gameState->get().getUser();
         user.entity = ecs.spawn_entity();
 
@@ -92,7 +94,8 @@ namespace ecs {
 
         const Matrix matTranslate = MatrixTranslate(-center.x, 0, -center.z);
         const Matrix matRotate = MatrixRotateY(DEG2RAD * 90.0f);
-        model.transform = MatrixMultiply(matTranslate, matRotate);
+        const Matrix matScale = MatrixScale(0.7, 0.7, 0.7);
+        model.transform = MatrixMultiply(MatrixMultiply(matTranslate, matRotate), matScale);
 
         ecs.add_component<VesselsComponent>(user.entity, {user.id, model, true, vox_files[user.ship_id], vessel_name, user.ship_id, false});
         ecs.add_component<ControllableComponent>(user.entity, {});
@@ -120,7 +123,8 @@ namespace ecs {
 
             const Matrix matTranslate = MatrixTranslate(-center.x, 0, -center.z);
             const Matrix matRotate = MatrixRotateY(DEG2RAD * 90.0f);
-            model.transform = MatrixMultiply(matTranslate, matRotate);
+            const Matrix matScale = MatrixScale(0.7, 0.7, 0.7);
+            model.transform = MatrixMultiply(MatrixMultiply(matTranslate, matRotate), matScale);
             ecs.add_component<VesselsComponent>(players[i].entity, {players[i].id, model, true, vox_files[players[i].ship_id], vessel_name, players[i].ship_id, false});
         }
         gameState->get().updateOtherPlayer(players);
@@ -133,9 +137,11 @@ namespace ecs {
         auto gameState = getGameState(ecs);
         const int screenWidth = GetScreenWidth();
         for (const auto &entry: std::filesystem::directory_iterator("client/assets/voxels/enemy/spaceship")) {
-            if (std::string file = entry.path().c_str(); file.find(".vox") != std::string::npos)
+            if (std::string file = entry.path().c_str(); file.find(".vox") != std::string::npos) {
                 vox_files.emplace_back(file);
+            }
         }
+        std::sort(vox_files.begin(), vox_files.end());
         std::map<uint32_t, entity_t> enemy_entities;
 
         for (std::size_t i = 0; i < vox_files.size(); i++) {
@@ -160,7 +166,8 @@ namespace ecs {
 
             const Matrix matTranslate = MatrixTranslate(-center.x, 0, -center.z);
             const Matrix matRotate = MatrixRotateY(DEG2RAD * 270.0f);
-            model.transform = MatrixMultiply(matTranslate, matRotate);
+            const Matrix matScale = MatrixScale(0.7, 0.7, 0.7);
+            model.transform = MatrixMultiply(MatrixMultiply(matTranslate, matRotate), matScale);
             ecs.add_component<VesselsComponent>(EnemyEntity, {0, model, false, vox_files[i], vessel_name, static_cast<int>(i), true});
         }
         gameState->get().setEnemyEntities(enemy_entities);
@@ -441,11 +448,13 @@ namespace ecs {
             if (std::string file = entry.path().c_str(); file.find(".vox") != std::string::npos)
                 vox_files_player.emplace_back(file);
         }
+        std::sort(vox_files_player.begin(), vox_files_player.end());
 
         for (const auto &entry: std::filesystem::directory_iterator("client/assets/voxels/enemy/shot")) {
             if (std::string file = entry.path().c_str(); file.find(".vox") != std::string::npos)
                 vox_files_enemy.emplace_back(file);
         }
+        std::sort(vox_files_enemy.begin(), vox_files_enemy.end());
 
         for (int i = 0; i < vox_files_enemy.size(); i++) {
             Model models;
@@ -462,7 +471,8 @@ namespace ecs {
             center.z = min.z + (max.z - min.z) / 2;
 
             const Matrix matTranslate = MatrixTranslate(-center.x, 0, -center.z);
-            models.transform = matTranslate;
+            const Matrix matScale = MatrixScale(0.7, 0.7, 0.7);
+            models.transform = MatrixMultiply(matTranslate, matScale);
             auto ModelEntity = ecs.spawn_entity();
             std::cout << "MODEL ID : " << ModelEntity << std::endl;
 
@@ -485,7 +495,8 @@ namespace ecs {
             center.z = min.z + (max.z - min.z) / 2;
 
             const Matrix matTranslate = MatrixTranslate(-center.x, 0, -center.z);
-            models.transform = matTranslate;
+            const Matrix matScale = MatrixScale(0.7, 0.7, 0.7);
+            models.transform = MatrixMultiply(matTranslate, matScale);
 
             auto ModelEntity = ecs.spawn_entity();
             std::cout << "MODEL ID : " << ModelEntity << std::endl;

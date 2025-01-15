@@ -8,7 +8,8 @@
 #include "ClientData.hpp"
 
 namespace server {
-    ClientData::ClientData(u_int32_t id): _id(id) {}
+    ClientData::ClientData(u_int32_t id): _id(id), _ship() {
+    }
 
     ClientData::~ClientData() {
         this->_room.reset();
@@ -42,7 +43,7 @@ namespace server {
      * @param ship_id
      */
     void ClientData::setShip(const uint16_t ship_id) {
-        this->_ship_id = ship_id;
+        this->_ship.id = ship_id;
     }
 
     /**
@@ -50,8 +51,36 @@ namespace server {
      * @return {uint16_t}
      */
     uint16_t ClientData::getShipId() const {
-        return this->_ship_id;
+        return this->_ship.id;
     }
+
+    /**
+     * Setter for hitbox of the ship
+     */
+    void ClientData::setHitbox() {
+        switch (this->_ship.id) {
+            case 0:
+                this->_ship.hitbox = {200, 42};
+            break;
+            case 1:
+                this->_ship.hitbox = {155, 22};
+            break;
+            case 2:
+                this->_ship.hitbox = {150, 37};
+            break;
+            default:
+                break;
+        }
+    }
+
+    /**
+     * Getter client ship hitbox
+     * @return {Pos}
+     */
+    Pos ClientData::getHitbox() const {
+        return this->_ship.hitbox;
+    }
+
 
     /**
      * Setter for client ready state
@@ -66,6 +95,21 @@ namespace server {
      */
     bool ClientData::getReadyState() const {
         return this->_is_ready;
+    }
+
+    /**
+     * Setter for client life
+     */
+    void ClientData::setAlive() {
+        this->_is_alive = !this->_is_alive;
+    }
+
+    /**
+     * Getter client life
+     * @return {bool}
+     */
+    bool ClientData::getAlive() const {
+        return this->_is_alive;
     }
 
     /**

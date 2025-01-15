@@ -4,18 +4,21 @@
   "enemies" : [
     {
       "type" : 0,
-      "spawn_rate": 5,
-      "score" : 10
+      "spawn_rate": 6,
+      "score" : 10,
+      "acc": 1
     },
     {
       "type" : 1,
       "spawn_rate": 10,
-      "score" : 50
+      "score" : 50,
+      "acc": 2
     },
     {
       "type" : 2,
       "spawn_rate": 15,
-      "score" : 100
+      "score" : 100,
+      "acc": 3
     }
   ]
 }

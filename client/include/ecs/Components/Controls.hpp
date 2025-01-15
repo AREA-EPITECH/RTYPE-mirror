@@ -68,7 +68,7 @@ namespace ecs {
 
         void addSound(const std::string &key, const std::string &filePath) {
             if (sounds.find(key) != sounds.end()) {
-                throw std::runtime_error("add : Sound key already exists: " + key);
+                return;
             }
             Sound sound = LoadSound(filePath.c_str());
             SetSoundVolume(sound, volume / 100.0f);
@@ -111,7 +111,7 @@ namespace ecs {
 
         bool isPlaying(const std::string &key) const {
             if (sounds.find(key) == sounds.end()) {
-                throw std::runtime_error("isplaying : Sound key not found: " + key);
+                return false;
             }
             return IsSoundPlaying(sounds.at(key));
         }
@@ -190,7 +190,7 @@ namespace ecs {
 
         bool isPlaying(const std::string &key) const {
             if (musics.find(key) == musics.end()) {
-                throw std::runtime_error("isPlaying : Music key not found: " + key);
+                return false;
             }
             return IsMusicStreamPlaying(musics.at(key));
         }

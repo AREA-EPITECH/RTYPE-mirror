@@ -264,13 +264,13 @@ namespace server
      * Getter for _playing_rooms
      * @return {std::vector<Room>}
      */
-    std::vector<std::shared_ptr<Room>> Server::getPlayingRooms() { return this->_playing_rooms; }
+    std::vector<std::shared_ptr<Room>>& Server::getPlayingRooms() { return this->_playing_rooms; }
 
     /**
      * Getter for _waiting_rooms
      * @return {std::vector<Room>}
      */
-    std::vector<std::shared_ptr<Room>> Server::getWaitingRooms() { return this->_waiting_rooms; }
+    std::vector<std::shared_ptr<Room>>& Server::getWaitingRooms() { return this->_waiting_rooms; }
 
     /**
      * Getter for _waiting_rooms + _playing_rooms

@@ -63,6 +63,30 @@ namespace network
     };
 
     /**
+     * @enum ErrorType
+     * @brief Represents the type of an error.
+     *
+     */
+    enum ErrorType
+    {
+        RoomNotFound = 1, ///< Represents an room not found error.
+    };
+
+    /**
+     * @struct ErrorPacket
+     * @brief Represents an error.
+     *
+     * This packet is sent to notify client that an error occured.
+     */
+    struct ErrorPacket
+    {
+        PacketHeader header; ///< Header containing metadata about the packet.
+        ErrorType type; ///< The error type.
+        std::string message; ///< The error message.
+    };
+
+
+    /**
      * @enum LobbyGameState
      * @brief Represents the state of the game in a lobby context.
      *
