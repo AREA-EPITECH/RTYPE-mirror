@@ -205,8 +205,6 @@ namespace server
                         entity_update.type = network::Rocket;
                     } else if (proj[i].value().type == network::ChargedFire) {
                         entity_update.type = network::ChargedRocket;
-                    } else {
-                        continue;
                     }
                     if (!proj[i].value()._from_player) {
                         entity_update.type = network::OpponentRocket;
@@ -365,13 +363,13 @@ namespace server
         for (int i = 0; i < projectiles.size(); i++) {
             if (projectiles[i].has_value() && projectiles[i].value().type != network::FireType::NoneFire) {
                 if (projectiles[i].value()._from_player) {
-                    if (projectiles[i].value().pos.x > ENDX_MAP) {
+                    if (projectiles[i].value().pos.x >= ENDX_MAP) {
                         _registry.kill_entity(i);
                     } else {
                         projectiles[i].value().pos.x += 1 * projectiles[i].value().acceleration.x;
                     }
                 } else {
-                    if (projectiles[i].value().pos.x == MINX_MAP) {
+                    if (projectiles[i].value().pos.x <= MINX_MAP) {
                         _registry.kill_entity(i);
                     } else {
                         projectiles[i].value().pos.x -= 1 * projectiles[i].value().acceleration.x;

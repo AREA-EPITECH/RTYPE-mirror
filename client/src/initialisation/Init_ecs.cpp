@@ -209,6 +209,7 @@ Registry init_ecs()
                                     for (auto &sound : sounds) {
                                         if (sound.has_value()) {
                                             sound.value().play("shoot");
+                                            spdlog::info("New sound");
                                         }
                                     }
 
@@ -230,7 +231,6 @@ Registry init_ecs()
                                 }
                             }
                             if (entity.type == network::EntityType::OpponentRocket) {
-                                spdlog::info("New opponent projectile");
                                 bool newShoot = true;
                                 actual_projectiles.push_back(entity.entityId);
                                 for (int i = 0; i < projectiles.size(); i++) {
