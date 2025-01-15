@@ -389,7 +389,18 @@ namespace server
             enemy.clock += 100;
             if (enemy.clock >= enemy.spawn_rate * 1000) {
                 const auto new_enemy = _registry.spawn_entity();
-                int random_y = std::rand() % (MAXY_MAP + 1);
+                int random_y;
+                if (enemy.type == Easy) {
+                    random_y = std::rand() % (MAXY_MAP + 1);
+                } else {
+                    random_y = std::rand() % (MAXY_MAP - 400 + 1) + 200;
+                }
+                if (random_y + enemy.hitbox.y >= MAXY_MAP) {
+                    random_y -= enemy.hitbox.y;
+                }
+                if (random_y - enemy.hitbox.y <= MINY_MAP) {
+                    random_y += enemy.hitbox.y;
+                }
                 enemy.init_pos.y = random_y;
                 enemy.init_pos.x = ENDX_MAP;
                 _registry.add_component<Enemy>(new_enemy, {enemy.type, enemy.spawn_rate, enemy.clock, enemy.score, enemy.hitbox, enemy.init_pos, enemy.moveFunction});
@@ -516,22 +527,22 @@ namespace server
             enemy.clock = 0;
             switch (enemy.type) {
                 case Easy:
-                    enemy.hitbox.x = 30;
-                    enemy.hitbox.y = 30;
+                    enemy.hitbox.x = 60;
+                    enemy.hitbox.y = 60;
                     enemy.moveFunction = [](int x) {
                         return 0;
                     };
                     break;
                 case Medium:
-                    enemy.hitbox.x = 40;
-                    enemy.hitbox.y = 40;
+                    enemy.hitbox.x = 60;
+                    enemy.hitbox.y = 60;
                     enemy.moveFunction = [](int x) {
                         return (MAXX_MAP / 2.5) * sin(x * 0.01);
                     };
                     break;
                 case Hard:
-                    enemy.hitbox.x = 70;
-                    enemy.hitbox.y = 70;
+                    enemy.hitbox.x = 60;
+                    enemy.hitbox.y = 80;
                     enemy.moveFunction = [](int x) {
                         double T = 200;          // Période
                         double mod = std::fmod(x, T); // t modulo T
