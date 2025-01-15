@@ -409,7 +409,7 @@ namespace server
                         break;
                 }
                 _registry.add_component<Projectile>(new_proj, {enemy.init_pos, acc, network::FireType::NormalFire, false});
-                spdlog::info("Spawned enemy of type {} with spawn rate {} at [{};{}}", static_cast<int>(enemy.type), enemy.spawn_rate, enemy.init_pos.x, random_y);
+                spdlog::info("Spawned enemy of type {} with spawn rate {} at [{};{}]", static_cast<int>(enemy.type), enemy.spawn_rate, enemy.init_pos.x, random_y);
                 enemy.clock = 0;
             }
         }
