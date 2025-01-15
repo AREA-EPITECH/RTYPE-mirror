@@ -452,31 +452,8 @@ namespace server
         for (int i = 0; i < enemies.size(); i++) {
             if (enemies[i].has_value()) {
                 if (pos[i].has_value()) {
-                    if (enemies[i].value().type == Hard) {
-                        static bool moveX = false;
-                        static bool Yneg = false;
-                        static int lastX = enemies[i].value().init_pos.x;
-                        if (moveX) {
-                            pos[i]->x -= 1;
-                        } else {
-                            if (Yneg) {
-                                pos[i]->y -= 1;
-                            } else {
-                                pos[i]->y += 1;
-                            }
-                        }
-                        if (abs(pos[i]->y - enemies[i].value().init_pos.y) >= 150) {
-                            lastX = pos[i]->x;
-                            moveX = true;
-                        }
-                        if (abs(pos[i]->x - lastX) >= 150) {
-                            moveX = false;
-                            Yneg = !Yneg;
-                        }
-                    } else {
-                        pos[i].value().x -= 1;
-                        pos[i].value().y = enemies[i].value().init_pos.y + enemies[i].value().moveFunction(pos[i].value().x);
-                    }
+                    pos[i].value().x -= 1;
+                    pos[i].value().y = enemies[i].value().init_pos.y + enemies[i].value().moveFunction(pos[i].value().x);
                     if (pos[i].value().x < MINX_MAP) {
                         _registry.kill_entity(i);
                     }
@@ -544,9 +521,10 @@ namespace server
                     enemy.hitbox.x = 60;
                     enemy.hitbox.y = 80;
                     enemy.moveFunction = [](int x) {
-                        double T = 200;          // Période
-                        double mod = std::fmod(x, T); // t modulo T
-                        return (mod < T / 2) ? 100 : -100;
+                        double T = 800;
+                        double A = 200;
+                        double mod = std::fmod(x, T);
+                        return (2 * A / T) * std::abs(mod - T / 2) - A;
                     };
                     break;
                 default:
