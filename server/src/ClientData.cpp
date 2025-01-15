@@ -55,6 +55,25 @@ namespace server {
     }
 
     /**
+     * Setter for hitbox of the ship
+     */
+    void ClientData::setHitbox() {
+        switch (this->_ship.id) {
+            case 0:
+                this->_ship.hitbox = {100, 100};
+            break;
+            case 1:
+                this->_ship.hitbox = {100, 80};
+            break;
+            case 2:
+                this->_ship.hitbox = {100, 80};
+            break;
+            default:
+                break;
+        }
+    }
+
+    /**
      * Getter client ship hitbox
      * @return {Pos}
      */
@@ -76,6 +95,21 @@ namespace server {
      */
     bool ClientData::getReadyState() const {
         return this->_is_ready;
+    }
+
+    /**
+     * Setter for client life
+     */
+    void ClientData::setAlive() {
+        this->_is_alive = !this->_is_alive;
+    }
+
+    /**
+     * Getter client life
+     * @return {bool}
+     */
+    bool ClientData::getAlive() const {
+        return this->_is_alive;
     }
 
     /**

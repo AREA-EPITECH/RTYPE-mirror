@@ -18,6 +18,7 @@ namespace server {
         uint32_t _id = 0;
         std::string _name = "";
         bool _is_ready = false;
+        bool _is_alive = true;
         Ship _ship;
         std::shared_ptr<Room> _room = nullptr;
     public:
@@ -29,9 +30,12 @@ namespace server {
         std::string getName() const;
         void setShip(uint16_t ship_id);
         uint16_t getShipId() const;
+        void setHitbox();
         Pos getHitbox() const;
         void setReadyState();
         bool getReadyState() const;
+        void setAlive();
+        bool getAlive() const;
         std::shared_ptr<Room> getRoom() const;
         void setRoom(const std::shared_ptr<Room> &room);
         void unsetRoom();

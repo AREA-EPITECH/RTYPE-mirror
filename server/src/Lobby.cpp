@@ -49,11 +49,13 @@ namespace server
                 const auto ecs_client = client_data.getRoom() ->getClient(client_data.getId());
                 if (ecs_client) {
                     ecs_client->getData<ClientData>().setShip(lobby_action_packet.shipId);
+                    ecs_client->getData<ClientData>().setHitbox();
                     spdlog::info("Client {} changed ship to {}", ecs_client->getData<ClientData>().getId(),
                     lobby_action_packet.shipId);
                 }
             } else {
                 peer->getData<ClientData>().setShip(lobby_action_packet.shipId);
+                peer->getData<ClientData>().setHitbox();
                 spdlog::info("Client {} changed ship to {}", peer->getData<ClientData>().getId(),
                     lobby_action_packet.shipId);
             }

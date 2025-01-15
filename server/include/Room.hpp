@@ -64,6 +64,7 @@ namespace server {
         void updateProjectile();
 
         void checkCollisionVessels();
+        void checkCollisionProjectiles();
 
         bool getClientsReadiness() const;
         uint32_t getId() const;
