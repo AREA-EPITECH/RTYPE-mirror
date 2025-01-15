@@ -205,6 +205,8 @@ namespace server
                         entity_update.type = network::Rocket;
                     } else if (proj[i].value().type == network::ChargedFire) {
                         entity_update.type = network::ChargedRocket;
+                    } else if (!proj[i].value()._from_player) {
+                        entity_update.type = network::OpponentRocket;
                     } else {
                         continue;
                     }
