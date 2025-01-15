@@ -71,6 +71,7 @@ namespace network
     enum ErrorType
     {
         RoomNotFound = 1, ///< Represents an room not found error.
+        NoMoreLevel = 2, ///< Represents no more level error.
     };
 
     /**
