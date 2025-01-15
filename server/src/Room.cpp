@@ -19,7 +19,9 @@ namespace server
         _registry.register_component<Pos>();
         _registry.register_component<Projectile>();
         _registry.register_component<Enemy>();
+        _registry.register_component<Level>();
         _registry.register_component<int>();
+        std::srand(std::time(nullptr));
     }
 
     Room::~Room() {
@@ -28,6 +30,34 @@ namespace server
             if (clients[i].has_value()) {
                 clients[i].value()->getData<ClientData>().unsetRoom();
                 clients[i].value().reset();
+                _registry.kill_entity(i);
+            }
+        }
+
+        auto &enemies = _registry.get_components<Enemy>();
+        for (int i = 0; i < enemies.size(); i++) {
+            if (enemies[i].has_value()) {
+                _registry.kill_entity(i);
+            }
+        }
+
+        auto &proj = _registry.get_components<Enemy>();
+        for (int i = 0; i < proj.size(); i++) {
+            if (proj[i].has_value()) {
+                _registry.kill_entity(i);
+            }
+        }
+
+        auto &level = _registry.get_components<Level>();
+        for (int i = 0; i < level.size(); i++) {
+            if (level[i].has_value()) {
+                _registry.kill_entity(i);
+            }
+        }
+
+        auto &life = _registry.get_components<int>();
+        for (int i = 0; i < life.size(); i++) {
+            if (life[i].has_value()) {
                 _registry.kill_entity(i);
             }
         }
@@ -106,11 +136,16 @@ namespace server
      * Call updateProjectile every 100ms
      * @param elapsed_time time from runMainLoop
      */
-    void Room::run(const long elapsed_time) {
+    void Room::run(long elapsed_time) {
         _accumulated_time += elapsed_time;
-        if (_accumulated_time >= 100) {
-            updateProjectile();
-            _accumulated_time = 0;
+        _enemy_accumulated_time += elapsed_time;
+
+        this->updateEnemy();
+        this->updateProjectile();
+
+        if (_enemy_accumulated_time >= 100) {
+            this->spawnEnemy();
+            _enemy_accumulated_time = 0;
         }
     }
 
@@ -128,13 +163,31 @@ namespace server
             struct network::SnapshotPacket snapshot_packet;
             snapshot_packet.numEntities = 0;
 
-            auto &clients = _registry.get_components<std::shared_ptr<network::PeerWrapper>>();
             auto &pos = _registry.get_components<Pos>();
+
+            auto &clients = _registry.get_components<std::shared_ptr<network::PeerWrapper>>();
             for (int i = 0; i < clients.size(); i++) {
                 if (clients[i].has_value()) {
                     network::EntityUpdate entity_update;
                     entity_update.type = network::Player;
                     entity_update.entityId = clients[i].value()->getData<ClientData>().getId();
+                    entity_update.shipId = clients[i].value()->getData<ClientData>().getShipId();
+                    if (pos[i].has_value()) {
+                        entity_update.posX = pos[i].value().x;
+                        entity_update.posY = pos[i].value().y;
+                    }
+                    snapshot_packet.entities.push_back(entity_update);
+                    snapshot_packet.numEntities += 1;
+                }
+            }
+
+            auto &enemy = _registry.get_components<Enemy>();
+            for (int i = 0; i < enemy.size(); i++) {
+                if (enemy[i].has_value()) {
+                    network::EntityUpdate entity_update;
+                    entity_update.type = network::EntityType::Opponent;
+                    entity_update.entityId = i;
+                    entity_update.shipId = enemy[i].value().type;
                     if (pos[i].has_value()) {
                         entity_update.posX = pos[i].value().x;
                         entity_update.posY = pos[i].value().y;
@@ -152,15 +205,13 @@ namespace server
                         entity_update.type = network::Rocket;
                     } else if (proj[i].value().type == network::ChargedFire) {
                         entity_update.type = network::ChargedRocket;
-                    } else {
-                        continue;
+                    }
+                    if (!proj[i].value()._from_player) {
+                        entity_update.type = network::OpponentRocket;
                     }
                     entity_update.entityId = i + 1;
                     entity_update.posX = proj[i].value().pos.x;
                     entity_update.posY = proj[i].value().pos.y;
-                    spdlog::info("Projectile with id: {} pos: {} {}", entity_update.entityId, entity_update.posX, entity_update.posY);
-                    entity_update.velocityX = proj[i].value().acceleration.x;
-                    entity_update.velocityY = proj[i].value().acceleration.y;
                     snapshot_packet.entities.push_back(entity_update);
                     snapshot_packet.numEntities += 1;
                 }
@@ -210,18 +261,25 @@ namespace server
             }
         }
 
-        MapComponent map("./server/levels/map1.json");
+        const MapComponent map("./server/levels/map1.json");
+        const auto level = _registry.spawn_entity();
+        _registry.add_component<Level>(level, {map.level.name, map.level.win_score});
+        auto &ecs_level = _registry.get_components<Level>();
+        for (auto &ecs_lvl: ecs_level) {
+            if (ecs_lvl.has_value()) {
+                spdlog::info("Level \"{}\" loaded. Score for win condition: {}", ecs_lvl.value().name, ecs_lvl.value().win_score);
+            }
+        }
         for (int i = 0; i < map.enemies.size(); i++) {
-            auto ennemy = _registry.spawn_entity();
-            _registry.add_component<Enemy>(ennemy, {map.enemies[i].type, map.enemies[i].spawn_rate, map.enemies[i].score});
+            _enemies.emplace_back(map.enemies[i]);
         }
     }
 
     void Room::addPos(const uint32_t client_id, network::MoveDirection type) {
         auto &clients = _registry.get_components<std::shared_ptr<network::PeerWrapper>>();
+        auto &client_pos = _registry.get_components<Pos>();
         for (int i = 0; i < clients.size(); i++) {
             if (clients[i].has_value() && clients[i].value()->getData<ClientData>().getId() == client_id) {
-                auto &client_pos = _registry.get_components<Pos>();
                 if (client_pos[i].has_value()) {
                     switch (type)
                     {
@@ -263,6 +321,27 @@ namespace server
     }
 
     void Room::addProjectile(const uint32_t client_id, network::FireType type) {
+        Acceleration acc{};
+        network::FireType proj_type;
+        switch (type)
+        {
+            case network::FireType::ChargedFire:
+                acc.x = 2;
+            acc.y = 2;
+            proj_type = network::FireType::ChargedFire;
+            spdlog::info("Client {} shot a Charged Fire", client_id);
+            break;
+            case network::FireType::NormalFire:
+                acc.x = 10;
+            acc.y = 10;
+            proj_type = network::FireType::NormalFire;
+            spdlog::info("Client {} shot a Normal Fire", client_id);
+            break;
+            case network::FireType::NoneFire:
+                default:
+                return;
+        }
+
         auto &clients = _registry.get_components<std::shared_ptr<network::PeerWrapper>>();
         Pos pos_client{};
         for (int i = 0; i < clients.size(); i++) {
@@ -274,47 +353,97 @@ namespace server
                 }
             }
         }
-        Acceleration acc{};
-        network::FireType proj_type;
-        switch (type)
-        {
-            case network::FireType::ChargedFire:
-                acc.x = 2;
-                acc.y = 2;
-                proj_type = network::FireType::ChargedFire;
-                spdlog::info("Client {} shot a Charged Fire", client_id);
-                break;
-            case network::FireType::NormalFire:
-                acc.x = 1;
-                acc.y = 1;
-                proj_type = network::FireType::NormalFire;
-                spdlog::info("Client {} shot a Normal Fire", client_id);
-            break;
-            case network::FireType::NoneFire:
-                default:
-                proj_type = network::FireType::NoneFire;
-                spdlog::info("Client {} didn't shot", client_id);
-            break;
-        }
+
         const auto new_proj = _registry.spawn_entity();
-        _registry.add_component<Projectile>(new_proj, {pos_client.x, pos_client.y, acc.x, acc.y, proj_type});
+        _registry.add_component<Projectile>(new_proj, {pos_client.x, pos_client.y, acc.x, acc.y, proj_type, true});
     }
 
     void Room::updateProjectile() {
-        spdlog::info("Start updateProjectile");
         auto &projectiles = _registry.get_components<Projectile>();
         for (int i = 0; i < projectiles.size(); i++) {
             if (projectiles[i].has_value() && projectiles[i].value().type != network::FireType::NoneFire) {
-                spdlog::info("Move projectile id: {}", i+1);
-                if (projectiles[i].value().pos.x > ENDX_MAP) {
-                    _registry.kill_entity(i);
+                if (projectiles[i].value()._from_player) {
+                    if (projectiles[i].value().pos.x >= ENDX_MAP) {
+                        _registry.kill_entity(i);
+                    } else {
+                        projectiles[i].value().pos.x += 1 * projectiles[i].value().acceleration.x;
+                    }
                 } else {
-                    projectiles[i].value().pos.x += 1 * projectiles[i].value().acceleration.x;
+                    if (projectiles[i].value().pos.x <= MINX_MAP) {
+                        _registry.kill_entity(i);
+                    } else {
+                        projectiles[i].value().pos.x -= 1 * projectiles[i].value().acceleration.x;
+                    }
                 }
             }
         }
     }
 
+    void Room::spawnEnemy() {
+        for (auto &enemy : _enemies) {
+            enemy.clock += 100;
+            if (enemy.clock >= enemy.spawn_rate * 1000) {
+                const auto new_enemy = _registry.spawn_entity();
+                int random_y = std::rand() % (MAXY_MAP + 1);
+                enemy.init_pos.y = random_y;
+                enemy.init_pos.x = ENDX_MAP;
+                _registry.add_component<Enemy>(new_enemy, {enemy.type, enemy.spawn_rate, enemy.clock, enemy.score, enemy.hitbox, enemy.init_pos, enemy.moveFunction});
+                _registry.add_component<Pos>(new_enemy, {ENDX_MAP, random_y});
+                const auto new_proj = _registry.spawn_entity();
+                Acceleration acc{};
+                switch (enemy.type) {
+                    case Easy:
+                        acc.x = 7;
+                        acc.y = 7;
+                        break;
+                    case Medium:
+                        acc.x = 8;
+                        acc.y = 8;
+                        break;
+                    case Hard:
+                        acc.x = 10;
+                        acc.y = 10;
+                        break;
+                    default:
+                        break;
+                }
+                _registry.add_component<Projectile>(new_proj, {enemy.init_pos, acc, network::FireType::NormalFire, false});
+                spdlog::info("Spawned enemy of type {} with spawn rate {} at [{};{}]", static_cast<int>(enemy.type), enemy.spawn_rate, enemy.init_pos.x, random_y);
+                enemy.clock = 0;
+            }
+        }
+    }
+
+    void Room::updateEnemy() {
+        auto &enemies = _registry.get_components<Enemy>();
+        auto &pos = _registry.get_components<Pos>();
+        for (int i = 0; i < enemies.size(); i++) {
+            if (enemies[i].has_value()) {
+                if (pos[i].has_value()) {
+                    if (enemies[i].value().type == Hard) {
+                        static bool is_neg = false;
+                        if (enemies[i].value().moveFunction(pos[i].value().x) == enemies[i].value().init_pos.y) {
+                            is_neg = !is_neg;
+                        }
+                        if (is_neg) {
+                            pos[i].value().x -= 1;
+                            pos[i].value().y = enemies[i].value().init_pos.y - enemies[i].value().moveFunction(pos[i].value().x);
+                        } else {
+                            pos[i].value().x -= 1;
+                            pos[i].value().y = enemies[i].value().init_pos.y + enemies[i].value().moveFunction(pos[i].value().x);
+                        }
+                    } else {
+                        if (pos[i].value().x > MINX_MAP) {
+                            pos[i].value().x -= 1;
+                            pos[i].value().y = enemies[i].value().init_pos.y + enemies[i].value().moveFunction(pos[i].value().x);
+                        } else {
+                            _registry.kill_entity(i);
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     uint32_t Room::getId() const { return this->_id; }
 
@@ -323,4 +452,51 @@ namespace server
     network::LobbyGameState Room::getState() const { return this->_state; }
 
     void Room::setState(const network::LobbyGameState state) { this->_state = state; }
+
+    MapComponent::MapComponent(const std::string &filePath) {
+        std::ifstream file(filePath);
+        if (!file.is_open()) {
+            throw std::runtime_error("Unable to open file: " + filePath);
+        }
+
+        nlohmann::json jsonData;
+        file >> jsonData;
+
+        level.name = jsonData.at("name").get<std::string>();
+        level.win_score = jsonData.at("win_score").get<int>();
+
+        for (const auto &enemyData : jsonData.at("enemies")) {
+            Enemy enemy;
+            enemy.type = enemyData.at("type").get<EnemyType>();
+            enemy.spawn_rate = enemyData.at("spawn_rate").get<int>();
+            enemy.score = enemyData.at("score").get<int>();
+            enemy.clock = 0;
+            switch (enemy.type) {
+                case Easy:
+                    enemy.hitbox.x = 30;
+                    enemy.hitbox.y = 30;
+                    enemy.moveFunction = [](int x) {
+                        return 0;
+                    };
+                    break;
+                case Medium:
+                    enemy.hitbox.x = 40;
+                    enemy.hitbox.y = 40;
+                    enemy.moveFunction = [](int x) {
+                        return (MAXX_MAP / 2.5) * sin(x * 0.01);
+                    };
+                    break;
+                case Hard:
+                    enemy.hitbox.x = 70;
+                    enemy.hitbox.y = 70;
+                    enemy.moveFunction = [](int x) {
+                        return sqrt(pow(RAY, 2) - pow(x, 2));
+                    };
+                    break;
+                default:
+                    break;
+            }
+            enemies.emplace_back(enemy);
+        }
+    }
 } // namespace server

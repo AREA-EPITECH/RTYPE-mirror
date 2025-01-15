@@ -22,5 +22,6 @@ namespace server {
         Pos pos;
         Acceleration acceleration;
         network::FireType type;
+        bool _from_player;
     };
 } // namespace server

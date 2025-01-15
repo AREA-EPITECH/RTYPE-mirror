@@ -30,6 +30,7 @@ namespace network
         Opponent = 2, ///< Represents an opponent entity.
         Rocket = 3, ///< Represents a basic rocket or projectile.
         ChargedRocket = 4, ///< Represents a charged rocket or enhanced projectile.
+        OpponentRocket = 5, ///< Represents a rocket from an opponent.
     };
 
     /**
@@ -44,7 +45,7 @@ namespace network
         uint32_t entityId; ///< Unique identifier for the entity.
         EntityType type; ///< The type of the entity (e.g., Player, Opponent).
         float posX, posY; ///< Position coordinates of the entity.
-        float velocityX, velocityY; ///< Optional velocity of the entity.
+        uint32_t shipId; ///< Optional value to set shipId of the entity.
     };
 
     /**

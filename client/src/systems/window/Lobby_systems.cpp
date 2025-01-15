@@ -19,6 +19,23 @@ namespace ecs {
         auto &backgrounds = ecs.get_components<BackgroundComponent>();
         auto &decors = ecs.get_components<DecorElementComponent>();
         auto &musics = ecs.get_components<MusicComponent>();
+        auto &lights = ecs.get_components<LightComponent>();
+        auto &shaders = ecs.get_components<ShaderComponent>();
+
+        Shader shader = {};
+
+        for (auto &shader_i : shaders) {
+            if (shader_i.has_value()) {
+                shader = *shader_i->shader;
+                break;
+            }
+        }
+
+        for (auto &light : lights) {
+            if (light.has_value()) {
+                light->light->UpdateLightValues(shader, light->light->_enabled);
+            }
+        }
 
         for (auto &music : musics) {
             if (music.has_value()) {
@@ -142,21 +159,6 @@ namespace ecs {
 
         ecs.run_event(InitModelEvent{});
         ecs.run_event(InitShaderEvent{});
-
-        auto &shaders = ecs.get_components<ShaderComponent>();
-        Shader shader = {};
-        for (auto & shader_i : shaders) {
-            if (shader_i.has_value()) {
-                shader = shader_i->shader;
-                break;
-            }
-        }
-        auto &lights = ecs.get_components<LightComponent>();
-        for (auto & light : lights) {
-            if (light.has_value()) {
-                light->light->UpdateLightValues(shader);
-            }
-        }
     }
 
     /**

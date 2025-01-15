@@ -19,6 +19,24 @@ namespace ecs
         auto &decors = ecs.get_components<DecorElementComponent>();
         auto &musics = ecs.get_components<MusicComponent>();
 
+        auto &lights = ecs.get_components<LightComponent>();
+        auto &shaders = ecs.get_components<ShaderComponent>();
+
+        Shader shader = {};
+
+        for (auto &shader_i : shaders) {
+            if (shader_i.has_value()) {
+                shader = *shader_i->shader;
+                break;
+            }
+        }
+
+        for (auto &light : lights) {
+            if (light.has_value()) {
+                light->light->UpdateLightValues(shader, light->light->_enabled);
+            }
+        }
+
         for (auto &music : musics) {
             if (music.has_value()) {
                 music.value().update("menu_music");
@@ -126,24 +144,6 @@ namespace ecs
         ecs.run_event(InitModelEvent{});
         ecs.run_event(InitShaderEvent{"client/assets/voxels/shaders/voxel_lighting.vs",
                                       "client/assets/voxels/shaders/voxel_lighting.fs"});
-        auto &shaders = ecs.get_components<ShaderComponent>();
-        Shader shader = {};
-        for (auto &shader_i : shaders)
-        {
-            if (shader_i.has_value())
-            {
-                shader = shader_i->shader;
-                break;
-            }
-        }
-        auto &lights = ecs.get_components<LightComponent>();
-        for (auto &light : lights)
-        {
-            if (light.has_value())
-            {
-                light->light->UpdateLightValues(shader);
-            }
-        }
 
         auto settingsIcons = ecs.spawn_entity();
         std::string icon_path = ASSET_FILE("images/settings.png");

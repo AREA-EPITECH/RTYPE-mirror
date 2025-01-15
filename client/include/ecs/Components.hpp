@@ -16,6 +16,7 @@
 #include "Components/Controls.hpp"
 #include "core/ParticleSystem.hpp"
 #include <cstring>
+#include <spdlog/spdlog.h>
 
 namespace ecs {
     struct Window {
@@ -30,7 +31,7 @@ namespace ecs {
     };
 
     struct ShaderComponent {
-        Shader shader;
+        std::shared_ptr<Shader> shader;
         std::string vs_file;
         std::string fs_file;
     };
@@ -83,6 +84,7 @@ namespace ecs {
 
     class VesselsComponent {
     public:
+        uint32_t id;
         Model model{};
         bool drawable;
         std::string path;
@@ -90,13 +92,16 @@ namespace ecs {
         Vector3 position = {0, 0, 0};
         int health = MAX_HEALTH;
         int ship_id = 0;
+        bool is_enemy = false;
 
-        VesselsComponent(Model _model, bool _drawable, std::string _path, TextComponent _name, int _ship_id) {
+        VesselsComponent(uint32_t _id, Model _model, bool _drawable, std::string _path, TextComponent _name, int _ship_id, bool _is_enemy) {
+            id = _id;
             model = _model;
             drawable = _drawable;
             path = std::move(_path);
             name = std::move(_name);
             ship_id = _ship_id;
+            is_enemy = _is_enemy;
         }
 
         void Move(const client::Direction direction, const Camera &camera)
@@ -213,7 +218,7 @@ namespace ecs {
             if (x + static_cast<float>(texture.width) * (static_cast<float>(screen_height) /
                 static_cast<float>(texture.height)) < 0) {
                 ResetPosition(screen_width, screen_height);
-                }
+            }
         }
 
         void DrawDecorElement(const int screen_width, const int screen_height) const
@@ -252,11 +257,11 @@ namespace ecs {
             light->UpdateLightValues(_shader);
         }
 
-        void ApplyVelocity() {
-            position.x += velocity.x;
-            position.y += velocity.y;
-            light->_position.x += velocity.x;
-            light->_position.y += velocity.y;
+        void ApplyVelocity(const float deltaTime) {
+            position.x += velocity.x * deltaTime;
+            position.y += velocity.y * deltaTime;
+            light->_position.x += velocity.x * deltaTime;
+            light->_position.y += velocity.y * deltaTime;
         }
 
         [[nodiscard]] bool IsAlive(const Camera &camera) const {

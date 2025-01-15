@@ -50,11 +50,11 @@ namespace ecs {
             int posX = static_cast<int>(screenWidth * 0.66) - textWidth / 2 + 20;
 
             TextComponent vessel_name(name_str, fontSize, posX, 100, 0, {120, 0, 0, 255});
-            ecs.add_component<VesselsComponent>(ModelEntity, {models, (i == 0), vox_files[i], vessel_name, i});
+            ecs.add_component<VesselsComponent>(ModelEntity, {0, models, (i == 0), vox_files[i], vessel_name, i, false});
         }
     }
 
-    void load_vessels_for_game(Registry &ecs)
+    void load_vessels_for_game(Registry &ecs, const InitModelEvent &)
     {
         auto &vessels = ecs.get_components<VesselsComponent>();
         std::vector<std::string> vox_files;
@@ -94,7 +94,7 @@ namespace ecs {
         const Matrix matRotate = MatrixRotateY(DEG2RAD * 90.0f);
         model.transform = MatrixMultiply(matTranslate, matRotate);
 
-        ecs.add_component<VesselsComponent>(user.entity, {model, true, vox_files[user.ship_id], vessel_name, user.ship_id});
+        ecs.add_component<VesselsComponent>(user.entity, {user.id, model, true, vox_files[user.ship_id], vessel_name, user.ship_id, false});
         ecs.add_component<ControllableComponent>(user.entity, {});
 
         gameState->get().updateUser(user);
@@ -121,9 +121,49 @@ namespace ecs {
             const Matrix matTranslate = MatrixTranslate(-center.x, 0, -center.z);
             const Matrix matRotate = MatrixRotateY(DEG2RAD * 90.0f);
             model.transform = MatrixMultiply(matTranslate, matRotate);
-            ecs.add_component<VesselsComponent>(players[i].entity, {model, true, vox_files[players[i].ship_id], vessel_name, players[i].ship_id});
+            ecs.add_component<VesselsComponent>(players[i].entity, {players[i].id, model, true, vox_files[players[i].ship_id], vessel_name, players[i].ship_id, false});
         }
         gameState->get().updateOtherPlayer(players);
+    }
+
+    void load_enemys_for_game(Registry &ecs, const InitModelEvent &)
+    {
+        auto &vessels = ecs.get_components<VesselsComponent>();
+        std::vector<std::string> vox_files;
+        auto gameState = getGameState(ecs);
+        const int screenWidth = GetScreenWidth();
+        for (const auto &entry: std::filesystem::directory_iterator("client/assets/voxels/enemy/spaceship")) {
+            if (std::string file = entry.path().c_str(); file.find(".vox") != std::string::npos)
+                vox_files.emplace_back(file);
+        }
+        std::map<uint32_t, entity_t> enemy_entities;
+
+        for (std::size_t i = 0; i < vox_files.size(); i++) {
+            auto EnemyEntity = ecs.spawn_entity();
+            enemy_entities[i] = EnemyEntity;
+            const double t_0 = GetTime() * 1000.0;
+            TraceLog(LOG_WARNING, TextFormat("Trying to load file %s...", vox_files[i].c_str()));
+            Model model = LoadModel(vox_files[i].c_str());
+            const double t_1 = GetTime() * 1000.0;
+            TraceLog(LOG_WARNING, TextFormat("Loaded file %s in %f ms.", vox_files[i].c_str(), t_1 - t_0));
+            std::string name_str = vox_files[i];
+            int fontSize = 54;
+            int textWidth = MeasureText(name_str.c_str(), fontSize);
+            int posX = static_cast<int>(screenWidth * 0.66) - textWidth / 2 + 20;
+
+            TextComponent vessel_name(name_str, fontSize, posX, 100, 0, {120, 0, 0, 255});
+
+            auto [min, max] = GetModelBoundingBox(model);
+            Vector3 center = {};
+            center.x = min.x + (max.x - min.x) / 2;
+            center.z = min.z + (max.z - min.z) / 2;
+
+            const Matrix matTranslate = MatrixTranslate(-center.x, 0, -center.z);
+            const Matrix matRotate = MatrixRotateY(DEG2RAD * 270.0f);
+            model.transform = MatrixMultiply(matTranslate, matRotate);
+            ecs.add_component<VesselsComponent>(EnemyEntity, {0, model, false, vox_files[i], vessel_name, static_cast<int>(i), true});
+        }
+        gameState->get().setEnemyEntities(enemy_entities);
     }
 
     /**
@@ -182,7 +222,7 @@ namespace ecs {
                 std::string vs_file = shader_component.vs_file;
                 std::string fs_file = shader_component.fs_file;
 
-                UnloadShader(shader_component.shader);
+                UnloadShader(*shader_component.shader);
 
                 TraceLog(LOG_WARNING, TextFormat("Trying to load shader from files %s and %s.",
                     shader_component.vs_file.c_str(), shader_component.fs_file.c_str()));
@@ -194,14 +234,14 @@ namespace ecs {
                 }
 
                 const double t0 = GetTime() * 1000.0;
-                shader_component.shader = LoadShader(vs_file.c_str(),
-                    fs_file.c_str());
+                shader_component.shader = std::make_shared<Shader>(LoadShader(vs_file.c_str(),
+                    fs_file.c_str()));
                 const double t1 = GetTime() * 1000.0;
                 TraceLog(LOG_WARNING, TextFormat("Reloaded shader in %f ms.", t1 - t0));
-                shader_component.shader.locs[SHADER_LOC_VECTOR_VIEW] = GetShaderLocation(shader_component.shader,
+                shader_component.shader->locs[SHADER_LOC_VECTOR_VIEW] = GetShaderLocation(*shader_component.shader,
                 "viewPos");
-                int ambientLoc = GetShaderLocation(shader_component.shader, "ambient");
-                SetShaderValue(shader_component.shader, ambientLoc, (float[4]) {0.1f, 0.1f, 0.1f, 1.0f},
+                int ambientLoc = GetShaderLocation(*shader_component.shader, "ambient");
+                SetShaderValue(*shader_component.shader, ambientLoc, (float[4]) {0.1f, 0.1f, 0.1f, 1.0f},
                 SHADER_UNIFORM_VEC4);
             }
         }
@@ -271,7 +311,7 @@ namespace ecs {
         SetShaderValue(shader, ambientLoc, (float[4]) {0.1f, 0.1f, 0.1f, 1.0f}, SHADER_UNIFORM_VEC4);
 
         auto entity = ecs.spawn_entity();
-        ecs.add_component<ShaderComponent>(entity, {shader, event.vs_file, event.fs_file});
+        ecs.add_component<ShaderComponent>(entity, {std::make_shared<Shader>(shader), event.vs_file, event.fs_file});
     }
 
     /**
@@ -284,7 +324,7 @@ namespace ecs {
         Shader shader = {};
         for (std::size_t i = 0; i < shaders.size(); ++i) {
             if (shaders[i].has_value()) {
-                shader = shaders[i]->shader;
+                shader = *shaders[i]->shader;
                 break;
             }
         }
@@ -300,8 +340,6 @@ namespace ecs {
 
         float camera_pos[3] = {camera.position.x, camera.position.y, camera.position.z};
         SetShaderValue(shader, shader.locs[SHADER_LOC_VECTOR_VIEW], camera_pos, SHADER_UNIFORM_VEC3);
-        SetShaderValue(shader, shader.locs[SHADER_LOC_VECTOR_VIEW], camera_pos, SHADER_UNIFORM_VEC3);
-        SetShaderValue(shader, shader.locs[SHADER_LOC_VECTOR_VIEW], camera_pos, SHADER_UNIFORM_VEC3);
     }
 
     /**
@@ -316,7 +354,7 @@ namespace ecs {
         Shader shader = {};
         for (std::size_t i = 0; i < shaders.size(); ++i) {
             if (shaders[i].has_value()) {
-                shader = shaders[i]->shader;
+                shader = *shaders[i]->shader;
                 break;
             }
         }
@@ -357,9 +395,11 @@ namespace ecs {
      */
     void create_light_system(Registry &ecs, const InitLightEvent &event)
     {
-        const client::Light light{event.type, event.position, event.target, event.color, event.nb};
         auto entity = ecs.spawn_entity();
-        ecs.add_component<LightComponent>(entity, {std::make_shared<client::Light>(light)});
+        ecs.add_component<LightComponent>(
+            entity,
+            {std::make_shared<client::Light>(event.type, event.position, event.target, event.color, event.nb)}
+        );
     }
 
     /**

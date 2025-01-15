@@ -34,7 +34,7 @@ namespace ecs {
         Shader shader = {};
         for (auto & shader_i : shaders) {
             if (shader_i.has_value()) {
-                shader = shader_i->shader;
+                shader = *shader_i->shader;
                 break;
             }
         }
@@ -68,7 +68,7 @@ namespace ecs {
                     if (camera_i.has_value())
                     {
                         VesselsComponent &vesselComponent = vessel.value();
-                        if (vesselComponent.drawable)
+                        if (vesselComponent.drawable && !vesselComponent.is_enemy)
                         {
                             vessels_positions.emplace_back(GetWorldToScreen(vesselComponent.position, camera_i->camera));
                             vessels_health.emplace_back(vesselComponent.health);
@@ -128,11 +128,12 @@ namespace ecs {
 
 
                 auto &projectiles = ecs.get_components<ProjectilesComponent>();
+                float deltaTime = GetFrameTime();
                 for (size_t i = 0; i < projectiles.size(); ++i) {
                     if (projectiles[i].has_value()) {
                         ProjectilesComponent *projectile = &projectiles[i].value();
                         if (projectile->drawable) {
-                            //projectile->ApplyVelocity();
+                            projectile->ApplyVelocity(deltaTime);
                             if (projectile->IsAlive(camera))
                             {
                                 DrawModel(projectile->model, projectile->position, 1.0f, WHITE);
@@ -143,9 +144,6 @@ namespace ecs {
                                 projectile->light->UpdateLightValues(shader, false);
                                 ecs.kill_entity(i);
                             }
-                        } else {
-                            projectile->light->UpdateLightValues(shader, false);
-                            ecs.kill_entity(i);
                         }
                     }
                 }
@@ -238,7 +236,7 @@ namespace ecs {
         Shader shader = {};
         for (auto & shader_i : shaders) {
             if (shader_i.has_value()) {
-                shader = shader_i->shader;
+                shader = *shader_i->shader;
                 break;
             }
         }
@@ -341,7 +339,13 @@ namespace ecs {
 
         for (std::size_t i = 0; i < vessels_models.size(); ++i) {
             if (vessels_models[i].has_value()) {
-                UnloadModel(vessels_models[i]->model);
+                if (vessels_models[i]->is_enemy) {
+                    if (!vessels_models[i]->drawable) {
+                        UnloadModel(vessels_models[i]->model);
+                    }
+                } else {
+                    UnloadModel(vessels_models[i]->model);
+                }
                 TraceLog(LOG_WARNING, TextFormat("Unloaded model for entity %zu.", i));
                 ecs.kill_entity(i);
             }
@@ -360,7 +364,7 @@ namespace ecs {
         kill_entities_with_component<ScoreComponent>(ecs);
         for (std::size_t i = 0; i < shaders.size(); ++i) {
             if (shaders[i].has_value()) {
-                UnloadShader(shaders[i]->shader);
+                UnloadShader(*shaders[i]->shader);
                 ecs.kill_entity(i);
             }
         }
