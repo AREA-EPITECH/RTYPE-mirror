@@ -44,7 +44,7 @@ namespace network
         uint32_t entityId; ///< Unique identifier for the entity.
         EntityType type; ///< The type of the entity (e.g., Player, Opponent).
         float posX, posY; ///< Position coordinates of the entity.
-        float velocityX, velocityY; ///< Optional velocity of the entity.
+        uint32_t shipId; ///< Optional value to set shipId of the entity.
     };
 
     /**
