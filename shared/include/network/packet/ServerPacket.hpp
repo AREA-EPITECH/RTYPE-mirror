@@ -46,6 +46,7 @@ namespace network
         EntityType type; ///< The type of the entity (e.g., Player, Opponent).
         float posX, posY; ///< Position coordinates of the entity.
         uint32_t shipId; ///< Optional value to set shipId of the entity.
+        int score; ///< Optional score of entity player.
     };
 
     /**
