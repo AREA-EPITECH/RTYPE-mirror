@@ -140,11 +140,8 @@ namespace server
         _accumulated_time += elapsed_time;
         _enemy_accumulated_time += elapsed_time;
 
-        if (_accumulated_time >= 100) {
-            this->updateProjectile();
-            this->updateEnemy();
-            _accumulated_time = 0;
-        }
+        this->updateEnemy();
+        this->updateProjectile();
 
         if (_enemy_accumulated_time >= 100) {
             this->spawnEnemy();
@@ -345,8 +342,8 @@ namespace server
                 spdlog::info("Client {} shot a Charged Fire", client_id);
                 break;
             case network::FireType::NormalFire:
-                acc.x = 75;
-                acc.y = 75;
+                acc.x = 10;
+                acc.y = 10;
                 proj_type = network::FireType::NormalFire;
                 spdlog::info("Client {} shot a Normal Fire", client_id);
             break;
@@ -394,16 +391,16 @@ namespace server
                 Acceleration acc{};
                 switch (enemy.type) {
                     case Easy:
-                        acc.x = 50;
-                        acc.y = 50;
+                        acc.x = 7;
+                        acc.y = 7;
                         break;
                     case Medium:
-                        acc.x = 65;
-                        acc.y = 65;
+                        acc.x = 8;
+                        acc.y = 8;
                         break;
                     case Hard:
-                        acc.x = 80;
-                        acc.y = 80;
+                        acc.x = 10;
+                        acc.y = 10;
                         break;
                     default:
                         break;
@@ -436,7 +433,7 @@ namespace server
                     } else {
                         if (pos[i].value().x > MINX_MAP) {
                             pos[i].value().x -= 1;
-                            pos[i].value().y = enemies[i].value().moveFunction(pos[i].value().x);
+                            pos[i].value().y = enemies[i].value().init_pos.y + enemies[i].value().moveFunction(pos[i].value().x);
                         } else {
                             _registry.kill_entity(i);
                         }
@@ -477,14 +474,14 @@ namespace server
                     enemy.hitbox.x = 30;
                     enemy.hitbox.y = 30;
                     enemy.moveFunction = [](int x) {
-                        return x;
+                        return 0;
                     };
                     break;
                 case Medium:
                     enemy.hitbox.x = 40;
                     enemy.hitbox.y = 40;
                     enemy.moveFunction = [](int x) {
-                        return 2 * sin(x);
+                        return (MAXX_MAP / 2.5) * sin(x * 0.01);
                     };
                     break;
                 case Hard:
