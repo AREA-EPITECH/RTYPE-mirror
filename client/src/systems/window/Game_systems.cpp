@@ -275,7 +275,13 @@ namespace ecs {
 
         for (std::size_t i = 0; i < vessels_models.size(); ++i) {
             if (vessels_models[i].has_value()) {
-                UnloadModel(vessels_models[i]->model);
+                if (vessels_models[i]->is_enemy) {
+                    if (!vessels_models[i]->drawable) {
+                        UnloadModel(vessels_models[i]->model);
+                    }
+                } else {
+                    UnloadModel(vessels_models[i]->model);
+                }
                 TraceLog(LOG_WARNING, TextFormat("Unloaded model for entity %zu.", i));
                 ecs.kill_entity(i);
             }

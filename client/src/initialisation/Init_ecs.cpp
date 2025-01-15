@@ -291,6 +291,7 @@ Registry init_ecs()
                                     auto EnemyEntity = ecs.spawn_entity();
                                     ecs::VesselsComponent selectedOpponent = vessels[enemy_entities[entity.shipId]].value();
                                     ecs.add_component<ecs::VesselsComponent>(EnemyEntity, {entity.entityId, selectedOpponent.model, true, selectedOpponent.path, selectedOpponent.name, selectedOpponent.ship_id, true});
+                                    vessels[EnemyEntity]->position = {posX, posY, 0};
                                 }
                             }
                         }

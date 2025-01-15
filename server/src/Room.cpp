@@ -418,7 +418,7 @@ namespace server
     void Room::updateEnemy() {
         auto &enemies = _registry.get_components<Enemy>();
         auto &pos = _registry.get_components<Pos>();
-        for (int i = 0; enemies.size(); i++) {
+        for (int i = 0; i < enemies.size(); i++) {
             if (enemies[i].has_value()) {
                 if (pos[i].has_value()) {
                     if (enemies[i].value().type == Hard) {
