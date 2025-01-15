@@ -351,8 +351,7 @@ namespace server
             break;
             case network::FireType::NoneFire:
                 default:
-                proj_type = network::FireType::NoneFire;
-            break;
+                return;
         }
         const auto new_proj = _registry.spawn_entity();
         _registry.add_component<Projectile>(new_proj, {pos_client.x, pos_client.y, acc.x, acc.y, proj_type, true});
