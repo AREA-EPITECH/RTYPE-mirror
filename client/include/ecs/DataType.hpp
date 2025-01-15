@@ -16,7 +16,6 @@ namespace ecs
         MENU,
         LOBBY,
         GAME,
-        END_GAME,
     };
 
     enum WindowFocus

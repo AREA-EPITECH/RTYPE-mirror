@@ -15,7 +15,6 @@ namespace ecs {
      * @param ecs
      */
     void draw_game_system(Registry &ecs, const WindowDrawEvent &) {
-        std::cout << "DRAW\n";
         ecs.run_event(ControlsEvent{});
         auto &backgrounds = ecs.get_components<BackgroundComponent>();
         auto &shaders = ecs.get_components<ShaderComponent>();
@@ -188,7 +187,8 @@ namespace ecs {
             if (score.has_value()) {
                 score.value().draw_ingame();
                 if (score.value().score >= score.value().win_score) {
-                    change_window(ecs, END_GAME);
+                    ecs.unsubscribe_all<WindowDrawEvent>();
+                    ecs.subscribe<WindowDrawEvent>(draw_endgame_system);
                 }
             }
         }
@@ -320,7 +320,6 @@ namespace ecs {
     * @param ecs
     */
     void close_game_system(Registry &ecs, const WindowCloseEvent &) {
-        std::cout << "CLOSE\n";
         auto &vessels_models = ecs.get_components<VesselsComponent>();
         auto &projectiles_models = ecs.get_components<ProjectilesComponent>();
         auto &shaders = ecs.get_components<ShaderComponent>();
