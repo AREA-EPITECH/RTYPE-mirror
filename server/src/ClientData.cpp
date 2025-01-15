@@ -8,7 +8,8 @@
 #include "ClientData.hpp"
 
 namespace server {
-    ClientData::ClientData(u_int32_t id): _id(id) {}
+    ClientData::ClientData(u_int32_t id): _id(id), _ship() {
+    }
 
     ClientData::~ClientData() {
         this->_room.reset();
@@ -42,7 +43,7 @@ namespace server {
      * @param ship_id
      */
     void ClientData::setShip(const uint16_t ship_id) {
-        this->_ship_id = ship_id;
+        this->_ship.id = ship_id;
     }
 
     /**
@@ -50,8 +51,17 @@ namespace server {
      * @return {uint16_t}
      */
     uint16_t ClientData::getShipId() const {
-        return this->_ship_id;
+        return this->_ship.id;
     }
+
+    /**
+     * Getter client ship hitbox
+     * @return {Pos}
+     */
+    Pos ClientData::getHitbox() const {
+        return this->_ship.hitbox;
+    }
+
 
     /**
      * Setter for client ready state
