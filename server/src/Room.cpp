@@ -174,6 +174,7 @@ namespace server
                     network::EntityUpdate entity_update;
                     entity_update.type = network::Player;
                     entity_update.entityId = clients[i].value()->getData<ClientData>().getId();
+                    entity_update.shipId = clients[i].value()->getData<ClientData>().getShipId();
                     if (pos[i].has_value()) {
                         entity_update.posX = pos[i].value().x;
                         entity_update.posY = pos[i].value().y;
@@ -189,6 +190,7 @@ namespace server
                     network::EntityUpdate entity_update;
                     entity_update.type = network::EntityType::Opponent;
                     entity_update.entityId = i;
+                    entity_update.shipId = enemy[i].value().type;
                     if (pos[i].has_value()) {
                         entity_update.posX = pos[i].value().x;
                         entity_update.posY = pos[i].value().y;
@@ -212,8 +214,6 @@ namespace server
                     entity_update.entityId = i + 1;
                     entity_update.posX = proj[i].value().pos.x;
                     entity_update.posY = proj[i].value().pos.y;
-                    entity_update.velocityX = proj[i].value().acceleration.x;
-                    entity_update.velocityY = proj[i].value().acceleration.y;
                     snapshot_packet.entities.push_back(entity_update);
                     snapshot_packet.numEntities += 1;
                 }
@@ -360,14 +360,21 @@ namespace server
     }
 
     void Room::updateProjectile() {
-        auto &clients = _registry.get_components<std::shared_ptr<network::PeerWrapper>>();
         auto &projectiles = _registry.get_components<Projectile>();
-        for (int i = 0; i < clients.size(); i++) {
-            if (clients[i].has_value() && projectiles[i].has_value() && projectiles[i].value().type != network::FireType::NoneFire) {
-                if (projectiles[i].value().pos.x > ENDX_MAP) {
-                    _registry.kill_entity(i);
+        for (int i = 0; i < projectiles.size(); i++) {
+            if (projectiles[i].has_value() && projectiles[i].value().type != network::FireType::NoneFire) {
+                if (projectiles[i].value()._from_player) {
+                    if (projectiles[i].value().pos.x > ENDX_MAP) {
+                        _registry.kill_entity(i);
+                    } else {
+                        projectiles[i].value().pos.x += 1 * projectiles[i].value().acceleration.x;
+                    }
                 } else {
-                    projectiles[i].value().pos.x += 1 * projectiles[i].value().acceleration.x;
+                    if (projectiles[i].value().pos.x == MINX_MAP) {
+                        _registry.kill_entity(i);
+                    } else {
+                        projectiles[i].value().pos.x -= 1 * projectiles[i].value().acceleration.x;
+                    }
                 }
             }
         }
@@ -380,10 +387,29 @@ namespace server
                 const auto new_enemy = _registry.spawn_entity();
                 int random_y = std::rand() % (MAXY_MAP + 1);
                 enemy.init_pos.y = random_y;
+                enemy.init_pos.x = ENDX_MAP;
                 _registry.add_component<Enemy>(new_enemy, {enemy.type, enemy.spawn_rate, enemy.clock, enemy.score, enemy.hitbox, enemy.init_pos, enemy.moveFunction});
                 _registry.add_component<Pos>(new_enemy, {ENDX_MAP, random_y});
-                // TODO: make enemy shoot in another function
-                spdlog::info("Spawned enemy of type {} with spawn rate {} at y = {}", static_cast<int>(enemy.type), enemy.spawn_rate, random_y);
+                const auto new_proj = _registry.spawn_entity();
+                Acceleration acc{};
+                switch (enemy.type) {
+                    case Easy:
+                        acc.x = 50;
+                        acc.y = 50;
+                        break;
+                    case Medium:
+                        acc.x = 65;
+                        acc.y = 65;
+                        break;
+                    case Hard:
+                        acc.x = 80;
+                        acc.y = 80;
+                        break;
+                    default:
+                        break;
+                }
+                _registry.add_component<Projectile>(new_proj, {enemy.init_pos, acc, network::FireType::NormalFire, false});
+                spdlog::info("Spawned enemy of type {} with spawn rate {} at [{};{}}", static_cast<int>(enemy.type), enemy.spawn_rate, enemy.init_pos.x, random_y);
                 enemy.clock = 0;
             }
         }
@@ -415,7 +441,6 @@ namespace server
                             _registry.kill_entity(i);
                         }
                     }
-
                 }
             }
         }
