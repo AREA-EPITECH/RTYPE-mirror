@@ -22,6 +22,7 @@ namespace ecs {
             if (std::string file = entry.path().c_str(); file.find(".vox") != std::string::npos)
                 vox_files.emplace_back(file);
         }
+        std::sort(vox_files.begin(), vox_files.end());
 
         for (int i = 0; i < vox_files.size(); i++) {
             Model models;
@@ -70,6 +71,7 @@ namespace ecs {
             if (std::string file = entry.path().c_str(); file.find(".vox") != std::string::npos)
                 vox_files.emplace_back(file);
         }
+        std::sort(vox_files.begin(), vox_files.end());
         auto user = gameState->get().getUser();
         user.entity = ecs.spawn_entity();
 
@@ -135,9 +137,11 @@ namespace ecs {
         auto gameState = getGameState(ecs);
         const int screenWidth = GetScreenWidth();
         for (const auto &entry: std::filesystem::directory_iterator("client/assets/voxels/enemy/spaceship")) {
-            if (std::string file = entry.path().c_str(); file.find(".vox") != std::string::npos)
+            if (std::string file = entry.path().c_str(); file.find(".vox") != std::string::npos) {
                 vox_files.emplace_back(file);
+            }
         }
+        std::sort(vox_files.begin(), vox_files.end());
         std::map<uint32_t, entity_t> enemy_entities;
 
         for (std::size_t i = 0; i < vox_files.size(); i++) {
@@ -444,11 +448,13 @@ namespace ecs {
             if (std::string file = entry.path().c_str(); file.find(".vox") != std::string::npos)
                 vox_files_player.emplace_back(file);
         }
+        std::sort(vox_files_player.begin(), vox_files_player.end());
 
         for (const auto &entry: std::filesystem::directory_iterator("client/assets/voxels/enemy/shot")) {
             if (std::string file = entry.path().c_str(); file.find(".vox") != std::string::npos)
                 vox_files_enemy.emplace_back(file);
         }
+        std::sort(vox_files_enemy.begin(), vox_files_enemy.end());
 
         for (int i = 0; i < vox_files_enemy.size(); i++) {
             Model models;

@@ -109,7 +109,7 @@ namespace ecs {
 
         auto gameState = getGameState(ecs);
 
-        if (gameState->get().getGameState() == network::LobbyGameState::Starting) {
+        if (gameState->get().getGameState() == game::GameState::LobbyGameState::Starting) {
             int ringWidth = 400;
             int ringHeight = 400;
             int fontSize = 24;
