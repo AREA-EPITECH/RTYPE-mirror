@@ -230,6 +230,7 @@ Registry init_ecs()
                                 }
                             }
                             if (entity.type == network::EntityType::OpponentRocket) {
+                                spdlog::info("New opponent projectile");
                                 bool newShoot = true;
                                 actual_projectiles.push_back(entity.entityId);
                                 for (int i = 0; i < projectiles.size(); i++) {
@@ -262,7 +263,7 @@ Registry init_ecs()
                                                 float posY = map_value(entity.posY, 0, 332, 16.60, -16.60);
                                                 ecs::create_player_basic_projectile(
                                                     ecs, entity.entityId, projectile->model,
-                                                    {posX, posY, 0}, {35, 0, 0},
+                                                    {posX, posY, 0}, {-35, 0, 0},
                                                     false, projectile->path, Vector3Zero(), nb_lights, shader);
                                             }
                                         }
