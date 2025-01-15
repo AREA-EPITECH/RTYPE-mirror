@@ -21,9 +21,9 @@
 #include <GameData.hpp>
 
 namespace server {
-#define MINX_MAP 0
+#define MINX_MAP -250
 #define MAXX_MAP 350
-#define ENDX_MAP 900
+#define ENDX_MAP 950
 #define MINY_MAP 0
 #define MAXY_MAP 332
 #define RAY 100

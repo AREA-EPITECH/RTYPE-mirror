@@ -92,7 +92,8 @@ namespace ecs {
 
         const Matrix matTranslate = MatrixTranslate(-center.x, 0, -center.z);
         const Matrix matRotate = MatrixRotateY(DEG2RAD * 90.0f);
-        model.transform = MatrixMultiply(matTranslate, matRotate);
+        const Matrix matScale = MatrixScale(0.7, 0.7, 0.7);
+        model.transform = MatrixMultiply(MatrixMultiply(matTranslate, matRotate), matScale);
 
         ecs.add_component<VesselsComponent>(user.entity, {user.id, model, true, vox_files[user.ship_id], vessel_name, user.ship_id, false});
         ecs.add_component<ControllableComponent>(user.entity, {});
@@ -120,7 +121,8 @@ namespace ecs {
 
             const Matrix matTranslate = MatrixTranslate(-center.x, 0, -center.z);
             const Matrix matRotate = MatrixRotateY(DEG2RAD * 90.0f);
-            model.transform = MatrixMultiply(matTranslate, matRotate);
+            const Matrix matScale = MatrixScale(0.7, 0.7, 0.7);
+            model.transform = MatrixMultiply(MatrixMultiply(matTranslate, matRotate), matScale);
             ecs.add_component<VesselsComponent>(players[i].entity, {players[i].id, model, true, vox_files[players[i].ship_id], vessel_name, players[i].ship_id, false});
         }
         gameState->get().updateOtherPlayer(players);
@@ -160,7 +162,8 @@ namespace ecs {
 
             const Matrix matTranslate = MatrixTranslate(-center.x, 0, -center.z);
             const Matrix matRotate = MatrixRotateY(DEG2RAD * 270.0f);
-            model.transform = MatrixMultiply(matTranslate, matRotate);
+            const Matrix matScale = MatrixScale(0.7, 0.7, 0.7);
+            model.transform = MatrixMultiply(MatrixMultiply(matTranslate, matRotate), matScale);
             ecs.add_component<VesselsComponent>(EnemyEntity, {0, model, false, vox_files[i], vessel_name, static_cast<int>(i), true});
         }
         gameState->get().setEnemyEntities(enemy_entities);
@@ -462,7 +465,8 @@ namespace ecs {
             center.z = min.z + (max.z - min.z) / 2;
 
             const Matrix matTranslate = MatrixTranslate(-center.x, 0, -center.z);
-            models.transform = matTranslate;
+            const Matrix matScale = MatrixScale(0.7, 0.7, 0.7);
+            models.transform = MatrixMultiply(matTranslate, matScale);
             auto ModelEntity = ecs.spawn_entity();
             std::cout << "MODEL ID : " << ModelEntity << std::endl;
 
@@ -485,7 +489,8 @@ namespace ecs {
             center.z = min.z + (max.z - min.z) / 2;
 
             const Matrix matTranslate = MatrixTranslate(-center.x, 0, -center.z);
-            models.transform = matTranslate;
+            const Matrix matScale = MatrixScale(0.7, 0.7, 0.7);
+            models.transform = MatrixMultiply(matTranslate, matScale);
 
             auto ModelEntity = ecs.spawn_entity();
             std::cout << "MODEL ID : " << ModelEntity << std::endl;

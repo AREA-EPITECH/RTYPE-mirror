@@ -20,6 +20,13 @@ namespace game
 {
     class GameState {
     public:
+        enum LobbyGameState {
+            Waiting = network::LobbyGameState::Waiting,
+            Starting = network::LobbyGameState::Starting,
+            Playing = network::LobbyGameState::Playing,
+            Menu = 4,
+        };
+
         struct Player {
             uint32_t id;
             entity_t entity;
@@ -42,8 +49,8 @@ namespace game
         auto getOtherPlayer() -> std::vector<Player>;
         auto updateOtherPlayer(const std::vector<Player> &players) -> void;
 
-        auto getGameState() -> network::LobbyGameState;
-        auto updateGameState(network::LobbyGameState state) -> void;
+        auto getGameState() -> LobbyGameState;
+        auto updateGameState(LobbyGameState state) -> void;
 
         auto getRoomId() -> uint32_t;
         auto setRoomId(uint32_t _roomId) -> void;
@@ -61,7 +68,7 @@ namespace game
     private:
         Player user;
         std::vector<Player> other_players;
-        network::LobbyGameState game_state = network::LobbyGameState::Waiting;
+        LobbyGameState game_state = LobbyGameState::Waiting;
         uint32_t roomId;
 
         entity_t textIdEntity;

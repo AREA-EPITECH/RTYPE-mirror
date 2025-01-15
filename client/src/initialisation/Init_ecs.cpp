@@ -102,7 +102,7 @@ Registry init_ecs()
                             }
                         }
                         gameState->get().updateOtherPlayer(other_players);
-                        gameState->get().updateGameState(received_packet.gameState);
+                        gameState->get().updateGameState(static_cast<game::GameState::LobbyGameState>(received_packet.gameState));
                         if (received_packet.gameState == network::LobbyGameState::Playing) {
                             ecs::change_window(ecs, ecs::WindowType::GAME);
                         }
@@ -111,7 +111,10 @@ Registry init_ecs()
                     {
                         auto received_packet = std::any_cast<struct network::SnapshotPacket>(event.data);
                         auto gameState = getGameState(ecs);
-                        if (gameState->get().getGameState() == network::LobbyGameState::Waiting) {
+                        if (gameState->get().getGameState() == game::GameState::LobbyGameState::Menu) {
+                            return;
+                        }
+                        if (gameState->get().getGameState() == game::GameState::LobbyGameState::Waiting) {
                             auto user = gameState->get().getUser();
                             user.id = received_packet.entities[0].entityId;
                             gameState->get().updateUser(user);
@@ -209,7 +212,6 @@ Registry init_ecs()
                                     for (auto &sound : sounds) {
                                         if (sound.has_value()) {
                                             sound.value().play("shoot");
-                                            spdlog::info("New sound");
                                         }
                                     }
 

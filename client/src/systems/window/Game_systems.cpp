@@ -6,6 +6,7 @@
 */
 
 #include "ecs/Systems.hpp"
+#include "game/GameState.hpp"
 #include <algorithm>
 
 namespace ecs {
@@ -141,7 +142,7 @@ namespace ecs {
                             else
                             {
                                 projectile->light->UpdateLightValues(shader, false);
-                                ecs.kill_entity(i);
+                                //ecs.kill_entity(i);
                             }
                         }
                     }
@@ -272,6 +273,7 @@ namespace ecs {
         auto &shaders = ecs.get_components<ShaderComponent>();
         auto &backgrounds = ecs.get_components<BackgroundComponent>();
         auto &decors = ecs.get_components<DecorElementComponent>();
+        auto gameState = getGameState(ecs);
 
         for (std::size_t i = 0; i < vessels_models.size(); ++i) {
             if (vessels_models[i].has_value()) {
@@ -331,6 +333,7 @@ namespace ecs {
                 musics[i].value().stop("game_music");
             }
         }
+        gameState->get().updateGameState(game::GameState::LobbyGameState::Menu);
     }
 
 }

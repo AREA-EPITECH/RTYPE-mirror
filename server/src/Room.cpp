@@ -298,7 +298,7 @@ namespace server
                         }
                             break;
                         case network::MoveDirection::LeftDirection: {
-                            if (client_pos[i].value().x - 1 < MINX_MAP) {
+                            if (client_pos[i].value().x - 1 < MINX_MAP + 200) {
                                 break;
                             }
                             client_pos[i].value().x -= 1;
@@ -421,24 +421,32 @@ namespace server
             if (enemies[i].has_value()) {
                 if (pos[i].has_value()) {
                     if (enemies[i].value().type == Hard) {
-                        static bool is_neg = false;
-                        if (enemies[i].value().moveFunction(pos[i].value().x) == enemies[i].value().init_pos.y) {
-                            is_neg = !is_neg;
-                        }
-                        if (is_neg) {
-                            pos[i].value().x -= 1;
-                            pos[i].value().y = enemies[i].value().init_pos.y - enemies[i].value().moveFunction(pos[i].value().x);
+                        static bool moveX = false;
+                        static bool Yneg = false;
+                        static int lastX = enemies[i].value().init_pos.x;
+                        if (moveX) {
+                            pos[i]->x -= 1;
                         } else {
-                            pos[i].value().x -= 1;
-                            pos[i].value().y = enemies[i].value().init_pos.y + enemies[i].value().moveFunction(pos[i].value().x);
+                            if (Yneg) {
+                                pos[i]->y -= 1;
+                            } else {
+                                pos[i]->y += 1;
+                            }
+                        }
+                        if (abs(pos[i]->y - enemies[i].value().init_pos.y) >= 150) {
+                            lastX = pos[i]->x;
+                            moveX = true;
+                        }
+                        if (abs(pos[i]->x - lastX) >= 150) {
+                            moveX = false;
+                            Yneg = !Yneg;
                         }
                     } else {
-                        if (pos[i].value().x > MINX_MAP) {
-                            pos[i].value().x -= 1;
-                            pos[i].value().y = enemies[i].value().init_pos.y + enemies[i].value().moveFunction(pos[i].value().x);
-                        } else {
-                            _registry.kill_entity(i);
-                        }
+                        pos[i].value().x -= 1;
+                        pos[i].value().y = enemies[i].value().init_pos.y + enemies[i].value().moveFunction(pos[i].value().x);
+                    }
+                    if (pos[i].value().x < MINX_MAP) {
+                        _registry.kill_entity(i);
                     }
                 }
             }
@@ -490,7 +498,9 @@ namespace server
                     enemy.hitbox.x = 70;
                     enemy.hitbox.y = 70;
                     enemy.moveFunction = [](int x) {
-                        return sqrt(pow(RAY, 2) - pow(x, 2));
+                        double T = 200;          // Période
+                        double mod = std::fmod(x, T); // t modulo T
+                        return (mod < T / 2) ? 100 : -100;
                     };
                     break;
                 default:

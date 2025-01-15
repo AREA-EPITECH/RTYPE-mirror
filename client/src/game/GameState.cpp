@@ -31,11 +31,11 @@ namespace game
         other_players = players;
     }
 
-    auto GameState::getGameState() -> network::LobbyGameState {
+    auto GameState::getGameState() -> GameState::LobbyGameState {
         return game_state;
     }
 
-    auto GameState::updateGameState(network::LobbyGameState state) -> void {
+    auto GameState::updateGameState(GameState::LobbyGameState state) -> void {
         game_state = state;
     }
 

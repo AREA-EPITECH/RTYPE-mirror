@@ -93,6 +93,15 @@ namespace network
         bool sendLobbyPacket(const struct LobbySnapshotPacket &packet, std::shared_ptr<PeerWrapper> peer);
 
         /**
+         * @brief Sends an error packet to a specific peer.
+         *
+         * @param packet The error packet to send.
+         * @param peer A shared pointer to the target PeerWrapper.
+         * @return True if the packet is sent successfully, false otherwise.
+         */
+        bool sendErrorPacket(const struct ErrorPacket &packet, std::shared_ptr<PeerWrapper> peer);
+
+        /**
          * @brief Polls the server for new network events.
          *
          * Processes connection, disconnection, and data reception events,

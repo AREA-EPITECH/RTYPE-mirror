@@ -27,7 +27,8 @@ namespace network
         InputPacket = 2, ///< A packet containing player input data.
         LobbyActionPacket = 3, ///< A packet containing actions related to the lobby.
         LobbySnapshotPacket = 4, ///< A snapshot of the current state of the lobby.
-        NoPacket = 5 ///< Represents the absence of a valid packet.
+        ErrorPacket = 5, ///< An error handling packet.
+        NoPacket = 0 ///< Represents the absence of a valid packet.
     };
 
     /**
