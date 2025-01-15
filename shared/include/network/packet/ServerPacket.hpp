@@ -30,6 +30,7 @@ namespace network
         Opponent = 2, ///< Represents an opponent entity.
         Rocket = 3, ///< Represents a basic rocket or projectile.
         ChargedRocket = 4, ///< Represents a charged rocket or enhanced projectile.
+        OpponentRocket = 5, ///< Represents a rocket from an opponent.
     };
 
     /**
