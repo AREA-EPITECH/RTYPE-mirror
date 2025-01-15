@@ -81,7 +81,7 @@ namespace server
                     spdlog::info("Client connected: {}",event.peer->getData<ClientData>().getId());
                     struct network::SnapshotPacket snapshot;
                     snapshot.numEntities = 1;
-                    snapshot.entities.push_back({unique_id, network::EntityType::Player, 0, 0, 0, 0});
+                    snapshot.entities.push_back({unique_id, network::EntityType::Player, 0, 0, 0});
                     _server.sendSnapshotPacket(snapshot, event.peer);
                     break;
                 }
