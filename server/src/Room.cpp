@@ -211,6 +211,7 @@ namespace server
                         entity_update.posX = pos[i].value().x;
                         entity_update.posY = pos[i].value().y;
                     }
+                    entity_update.score = clients[i].value()->getData<ClientData>().getScore();
                     snapshot_packet.entities.push_back(entity_update);
                     snapshot_packet.numEntities += 1;
                 }
@@ -301,23 +302,29 @@ namespace server
             if (this->_state == network::LobbyGameState::Playing)
             {
                 server.changeRoomToPlaying(this->_id);
-                this->initPlaying();
+                if (!this->initPlaying()) {
+                    struct network::ErrorPacket error_packet;
+                    error_packet.message = std::string("Game over");
+                    error_packet.type = network::ErrorType::NoMoreLevel;
+                    for (int i = 0; i < clients.size(); i++)
+                    {
+                        if (clients[i].has_value())
+                        {
+                            server.getServer().sendErrorPacket(error_packet, clients[i].value());
+                        }
+                    }
+                }
             }
         }
     }
 
-    void Room::initPlaying()
+    bool Room::initPlaying()
     {
-        auto &clients = _registry.get_components<std::shared_ptr<network::PeerWrapper>>();
-        for (int i = 0; i < clients.size(); i++)
-        {
-            if (clients[i].has_value())
-            {
-                _registry.add_component<Pos>(i, {0, 0});
-            }
+        std::string level_map = fmt::format("./server/levels/map{}.json", level);
+        if (!std::filesystem::exists(level_map)) {
+            return false;
         }
-
-        const MapComponent map("./server/levels/map1.json");
+        const MapComponent map(level_map);
         const auto level = _registry.spawn_entity();
         _registry.add_component<Level>(level, {map.level.name, map.level.win_score});
         auto &ecs_level = _registry.get_components<Level>();
@@ -333,6 +340,15 @@ namespace server
         {
             _enemies.emplace_back(map.enemies[i]);
         }
+        auto &clients = _registry.get_components<std::shared_ptr<network::PeerWrapper>>();
+        for (int i = 0; i < clients.size(); i++)
+        {
+            if (clients[i].has_value())
+            {
+                _registry.add_component<Pos>(i, {0, 0});
+            }
+        }
+        return true;
     }
 
     void Room::addPos(const uint32_t client_id, network::MoveDirection type)
@@ -417,6 +433,7 @@ namespace server
 
         auto &clients = _registry.get_components<std::shared_ptr<network::PeerWrapper>>();
         Pos pos_client{};
+        entity_t client_entity;
         for (int i = 0; i < clients.size(); i++)
         {
             if (clients[i].has_value() && clients[i].value()->getData<ClientData>().getId() == client_id)
@@ -426,12 +443,13 @@ namespace server
                 {
                     pos_client.x = client_pos[i].value().x;
                     pos_client.y = client_pos[i].value().y;
+                    client_entity = i;
                 }
             }
         }
 
         const auto new_proj = _registry.spawn_entity();
-        _registry.add_component<Projectile>(new_proj, {pos_client.x, pos_client.y, acc.x, acc.y, proj_type, true});
+        _registry.add_component<Projectile>(new_proj, {pos_client.x, pos_client.y, acc.x, acc.y, proj_type, true, client_entity});
     }
 
     void Room::updateProjectile()
@@ -527,7 +545,7 @@ namespace server
         default:
             break;
         }
-        _registry.add_component<Projectile>(new_proj, {pos, acc, network::FireType::NormalFire, false});
+        _registry.add_component<Projectile>(new_proj, {pos, acc, network::FireType::NormalFire, false, 0});
     }
 
     void Room::spawnEnemyProjectile()
@@ -583,7 +601,6 @@ namespace server
                             pos[i].value().x + hitbox.x > pos[j].value().x &&
                             pos[i].value().y - hitbox.y < pos[j].value().y &&
                             pos[i].value().y > pos[j].value().y - enemies[j].value().hitbox.y) {
-                            _registry.kill_entity(j);
                             spdlog::info("Enemy {} is dead by vessel", j);
                             if (lives[i].has_value()) {
                                 lives[i].value() -= 1;
@@ -592,6 +609,8 @@ namespace server
                                     spdlog::info("Client {} is dead by vessel", data.getId());
                                 }
                             }
+                            clients[i].value()->getData<ClientData>().setScore(enemies[j].value().score);
+                            _registry.kill_entity(j);
                         }
                     }
                 }
@@ -615,9 +634,12 @@ namespace server
                                 proj[i].value().pos.x <= pos[j].value().x + enemies[j].value().hitbox.x &&
                                 proj[i].value().pos.y >= pos[j].value().y - enemies[j].value().hitbox.y / 2 &&
                                 proj[i].value().pos.y <= pos[j].value().y + enemies[j].value().hitbox.y / 2) {
+                                spdlog::info("Enemy {} is dead by shot", j);
+                                if (clients[proj[i].value().player_id].has_value()) {
+                                    clients[proj[i].value().player_id].value()->getData<ClientData>().setScore(enemies[j].value().score);
+                                }
                                 _registry.kill_entity(i);
                                 _registry.kill_entity(j);
-                                spdlog::info("Enemy {} is dead by shot", j);
                             }
                         }
                     }
@@ -647,6 +669,35 @@ namespace server
             }
         }
     }
+
+    bool Room::checkWin() {
+        auto &clients = _registry.get_components<std::shared_ptr<network::PeerWrapper>>();
+        auto &levels = _registry.get_components<Level>();
+        int score_to_achieve = 0;
+        for (auto &level: levels) {
+            if (level.has_value()) {
+                score_to_achieve = level.value().win_score;
+                break;
+            }
+        }
+        for (int i = 0; i < clients.size(); i++) {
+            if (clients[i].has_value() && clients[i].value()->getData<ClientData>().getScore() >= score_to_achieve) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    bool Room::checkLose() {
+        auto &clients = _registry.get_components<std::shared_ptr<network::PeerWrapper>>();
+        for (int i = 0; i < clients.size(); i++) {
+            if (clients[i].has_value() && clients[i].value()->getData<ClientData>().getAlive()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
 
 
     uint32_t Room::getId() const { return this->_id; }

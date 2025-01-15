@@ -113,6 +113,20 @@ namespace server {
     }
 
     /**
+     * Setter for client life
+     */
+    void ClientData::setScore(const int score) {
+        this->_score += score;
+    }
+
+    /**
+     * Getter client life
+     * @return {bool}
+     */
+    int ClientData::getScore() const {
+        return this->_score;
+    }
+    /**
      * Getter room shared pointer
      * @return {std::shared_ptr<Room>}
      */
