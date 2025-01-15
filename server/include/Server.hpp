@@ -57,8 +57,8 @@ namespace server
         void moveActionRoom(uint32_t client_id, uint32_t room_id, network::MoveDirection type);
         void fireActionRoom(uint32_t client_id, uint32_t room_id, network::FireType type);
 
-        std::vector<std::shared_ptr<Room>> getWaitingRooms();
-        std::vector<std::shared_ptr<Room>> getPlayingRooms();
+        std::vector<std::shared_ptr<Room>>& getWaitingRooms();
+        std::vector<std::shared_ptr<Room>>& getPlayingRooms();
         std::vector<std::shared_ptr<Room>> getAllRooms();
         network::NetworkServer &getServer();
 

@@ -25,6 +25,11 @@ namespace server
     }
 
     Room::~Room() {
+        this->kill_entities();
+        spdlog::info("Room {} destroyed", _id);
+    }
+
+    void Room::kill_entities() {
         auto &clients = _registry.get_components<std::shared_ptr<network::PeerWrapper>>();
         for (int i = 0; i < clients.size(); i++) {
             if (clients[i].has_value()) {
@@ -389,27 +394,43 @@ namespace server
                 enemy.init_pos.x = ENDX_MAP;
                 _registry.add_component<Enemy>(new_enemy, {enemy.type, enemy.spawn_rate, enemy.clock, enemy.score, enemy.hitbox, enemy.init_pos, enemy.moveFunction});
                 _registry.add_component<Pos>(new_enemy, {ENDX_MAP, random_y});
-                const auto new_proj = _registry.spawn_entity();
-                Acceleration acc{};
-                switch (enemy.type) {
-                    case Easy:
-                        acc.x = 7;
-                        acc.y = 7;
-                        break;
-                    case Medium:
-                        acc.x = 8;
-                        acc.y = 8;
-                        break;
-                    case Hard:
-                        acc.x = 10;
-                        acc.y = 10;
-                        break;
-                    default:
-                        break;
-                }
-                _registry.add_component<Projectile>(new_proj, {enemy.init_pos, acc, network::FireType::NormalFire, false});
+                this->addProjectileEnemy(enemy, enemy.init_pos);
                 spdlog::info("Spawned enemy of type {} with spawn rate {} at [{};{}]", static_cast<int>(enemy.type), enemy.spawn_rate, enemy.init_pos.x, random_y);
                 enemy.clock = 0;
+            }
+        }
+    }
+
+    void Room::addProjectileEnemy(const Enemy &enemy, const Pos &pos) {
+        const auto new_proj = _registry.spawn_entity();
+        Acceleration acc{};
+        switch (enemy.type) {
+            case Easy:
+                acc.x = 7;
+            acc.y = 7;
+            break;
+            case Medium:
+                acc.x = 8;
+            acc.y = 8;
+            break;
+            case Hard:
+                acc.x = 10;
+            acc.y = 10;
+            break;
+            default:
+                break;
+        }
+        _registry.add_component<Projectile>(new_proj, {pos, acc, network::FireType::NormalFire, false});
+    }
+
+    void Room::spawnEnemyProjectile() {
+        auto &enemies = _registry.get_components<Enemy>();
+        auto &pos = _registry.get_components<Pos>();
+        for (int i = 0; i < enemies.size(); i++) {
+            if (enemies[i].has_value()) {
+                if (pos[i].has_value()) {
+                    this->addProjectileEnemy(enemies[i].value(), pos[i].value());
+                }
             }
         }
     }
@@ -456,6 +477,20 @@ namespace server
     uint32_t Room::getId() const { return this->_id; }
 
     void Room::setId(const uint32_t id) { this->_id = id; }
+
+    int Room::getLevel() const { return this->level; }
+
+    void Room::setLevel(const int level) { this->level = level; }
+
+    bool Room::isClientinsideRoom() {
+        auto &clients = _registry.get_components<std::shared_ptr<network::PeerWrapper>>();
+        for (int i = 0; i < clients.size(); i++) {
+            if (clients[i].has_value()) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     network::LobbyGameState Room::getState() const { return this->_state; }
 
