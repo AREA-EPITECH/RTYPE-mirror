@@ -33,7 +33,6 @@ namespace ecs
 
         for (auto &light : lights) {
             if (light.has_value()) {
-                spdlog::info("Updating light values");
                 light->light->UpdateLightValues(shader, light->light->_enabled);
             }
         }

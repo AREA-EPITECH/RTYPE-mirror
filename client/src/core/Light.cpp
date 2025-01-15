@@ -23,7 +23,6 @@ namespace client
         _nb = nb;
         if (nb < MAX_LIGHTS)
         {
-            TraceLog(LOG_WARNING, TextFormat("Creating light number %d.", nb));
             _enabled = true;
             _type = type;
             _position = position;
