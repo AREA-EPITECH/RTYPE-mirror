@@ -67,7 +67,7 @@ namespace ecs {
                     if (camera_i.has_value())
                     {
                         VesselsComponent &vesselComponent = vessel.value();
-                        if (vesselComponent.drawable)
+                        if (vesselComponent.drawable && !vesselComponent.is_enemy)
                         {
                             vessels_positions.emplace_back(GetWorldToScreen(vesselComponent.position, camera_i->camera));
                             vessels_health.emplace_back(vesselComponent.health);

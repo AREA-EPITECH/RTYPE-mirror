@@ -59,6 +59,14 @@ namespace game
         return textPlayerNameEntities;
     }
 
+    auto GameState::getEnemyEntities() -> std::map<uint32_t, entity_t> {
+        return enemy_entities;
+    }
+
+    auto GameState::setEnemyEntities(const std::map<uint32_t, entity_t> &entities) -> void {
+        enemy_entities = entities;
+    }
+
     auto GameState::addPlayerNameEntities(entity_t entity) -> void {
         textPlayerNameEntities.push_back(entity);
     }

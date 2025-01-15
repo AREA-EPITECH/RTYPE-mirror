@@ -50,7 +50,7 @@ namespace ecs {
             int posX = static_cast<int>(screenWidth * 0.66) - textWidth / 2 + 20;
 
             TextComponent vessel_name(name_str, fontSize, posX, 100, 0, {120, 0, 0, 255});
-            ecs.add_component<VesselsComponent>(ModelEntity, {models, (i == 0), vox_files[i], vessel_name, i});
+            ecs.add_component<VesselsComponent>(ModelEntity, {0, models, (i == 0), vox_files[i], vessel_name, i, false});
         }
     }
 
@@ -94,7 +94,7 @@ namespace ecs {
         const Matrix matRotate = MatrixRotateY(DEG2RAD * 90.0f);
         model.transform = MatrixMultiply(matTranslate, matRotate);
 
-        ecs.add_component<VesselsComponent>(user.entity, {model, true, vox_files[user.ship_id], vessel_name, user.ship_id});
+        ecs.add_component<VesselsComponent>(user.entity, {user.id, model, true, vox_files[user.ship_id], vessel_name, user.ship_id, false});
         ecs.add_component<ControllableComponent>(user.entity, {});
 
         gameState->get().updateUser(user);
@@ -121,9 +121,49 @@ namespace ecs {
             const Matrix matTranslate = MatrixTranslate(-center.x, 0, -center.z);
             const Matrix matRotate = MatrixRotateY(DEG2RAD * 90.0f);
             model.transform = MatrixMultiply(matTranslate, matRotate);
-            ecs.add_component<VesselsComponent>(players[i].entity, {model, true, vox_files[players[i].ship_id], vessel_name, players[i].ship_id});
+            ecs.add_component<VesselsComponent>(players[i].entity, {players[i].id, model, true, vox_files[players[i].ship_id], vessel_name, players[i].ship_id, false});
         }
         gameState->get().updateOtherPlayer(players);
+    }
+
+    void load_enemys_for_game(Registry &ecs, const InitModelEvent &)
+    {
+        auto &vessels = ecs.get_components<VesselsComponent>();
+        std::vector<std::string> vox_files;
+        auto gameState = getGameState(ecs);
+        const int screenWidth = GetScreenWidth();
+        for (const auto &entry: std::filesystem::directory_iterator("client/assets/voxels/enemy/spaceship")) {
+            if (std::string file = entry.path().c_str(); file.find(".vox") != std::string::npos)
+                vox_files.emplace_back(file);
+        }
+        std::map<uint32_t, entity_t> enemy_entities;
+
+        for (std::size_t i = 0; i < vox_files.size(); i++) {
+            auto EnemyEntity = ecs.spawn_entity();
+            enemy_entities[i] = EnemyEntity;
+            const double t_0 = GetTime() * 1000.0;
+            TraceLog(LOG_WARNING, TextFormat("Trying to load file %s...", vox_files[i].c_str()));
+            Model model = LoadModel(vox_files[i].c_str());
+            const double t_1 = GetTime() * 1000.0;
+            TraceLog(LOG_WARNING, TextFormat("Loaded file %s in %f ms.", vox_files[i].c_str(), t_1 - t_0));
+            std::string name_str = vox_files[i];
+            int fontSize = 54;
+            int textWidth = MeasureText(name_str.c_str(), fontSize);
+            int posX = static_cast<int>(screenWidth * 0.66) - textWidth / 2 + 20;
+
+            TextComponent vessel_name(name_str, fontSize, posX, 100, 0, {120, 0, 0, 255});
+
+            auto [min, max] = GetModelBoundingBox(model);
+            Vector3 center = {};
+            center.x = min.x + (max.x - min.x) / 2;
+            center.z = min.z + (max.z - min.z) / 2;
+
+            const Matrix matTranslate = MatrixTranslate(-center.x, 0, -center.z);
+            const Matrix matRotate = MatrixRotateY(DEG2RAD * 270.0f);
+            model.transform = MatrixMultiply(matTranslate, matRotate);
+            ecs.add_component<VesselsComponent>(EnemyEntity, {0, model, false, vox_files[i], vessel_name, static_cast<int>(i), true});
+        }
+        gameState->get().setEnemyEntities(enemy_entities);
     }
 
     /**
