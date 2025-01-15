@@ -322,6 +322,27 @@ namespace server
     }
 
     void Room::addProjectile(const uint32_t client_id, network::FireType type) {
+        Acceleration acc{};
+        network::FireType proj_type;
+        switch (type)
+        {
+            case network::FireType::ChargedFire:
+                acc.x = 2;
+            acc.y = 2;
+            proj_type = network::FireType::ChargedFire;
+            spdlog::info("Client {} shot a Charged Fire", client_id);
+            break;
+            case network::FireType::NormalFire:
+                acc.x = 10;
+            acc.y = 10;
+            proj_type = network::FireType::NormalFire;
+            spdlog::info("Client {} shot a Normal Fire", client_id);
+            break;
+            case network::FireType::NoneFire:
+                default:
+                return;
+        }
+
         auto &clients = _registry.get_components<std::shared_ptr<network::PeerWrapper>>();
         Pos pos_client{};
         for (int i = 0; i < clients.size(); i++) {
@@ -333,26 +354,7 @@ namespace server
                 }
             }
         }
-        Acceleration acc{};
-        network::FireType proj_type;
-        switch (type)
-        {
-            case network::FireType::ChargedFire:
-                acc.x = 2;
-                acc.y = 2;
-                proj_type = network::FireType::ChargedFire;
-                spdlog::info("Client {} shot a Charged Fire", client_id);
-                break;
-            case network::FireType::NormalFire:
-                acc.x = 10;
-                acc.y = 10;
-                proj_type = network::FireType::NormalFire;
-                spdlog::info("Client {} shot a Normal Fire", client_id);
-            break;
-            case network::FireType::NoneFire:
-                default:
-                return;
-        }
+
         const auto new_proj = _registry.spawn_entity();
         _registry.add_component<Projectile>(new_proj, {pos_client.x, pos_client.y, acc.x, acc.y, proj_type, true});
     }
