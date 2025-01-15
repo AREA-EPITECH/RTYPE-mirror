@@ -51,6 +51,7 @@ namespace tower_defense
                 enemy_wave._spawn_delay = enemy["spawn_delay"];
                 enemy_wave._spawn_amount = enemy["spawn_amount"];
                 enemy_wave._amount = enemy["amount"];
+                enemy_wave._finished = false;
 
                 enemy_waves_in_wave.emplace_back(enemy_wave);
             }
@@ -68,9 +69,9 @@ namespace tower_defense
         texture_manager.add_texture(DECOR, "tower_defense/assets/maps/decors/rock_2.png");
         texture_manager.add_texture(DECOR, "tower_defense/assets/maps/decors/rock_3.png");
         texture_manager.add_texture(ARCHER, "tower_defense/assets/towers/archer.png");
-        texture_manager.add_texture(BASIC_SLIME, "tower_defense/assets/enemies/spr_normal_slime.png");
-        texture_manager.add_texture(BAT, "tower_defense/assets/enemies/spr_bat.png");
-        texture_manager.add_texture(ZOMBIE, "tower_defense/assets/enemies/spr_zombie.png");
+        texture_manager.add_texture(BASIC_SLIME, "tower_defense/assets/enemies/basic_slime.png");
+        texture_manager.add_texture(BAT, "tower_defense/assets/enemies/bat.png");
+        texture_manager.add_texture(ZOMBIE, "tower_defense/assets/enemies/zombie.png");
 
         const auto texture_manager_entity = ecs.spawn_entity();
         ecs.add_component<ecs::TextureManager>(texture_manager_entity, std::move(texture_manager));
@@ -82,7 +83,10 @@ namespace tower_defense
         ecs::Money money_component = {_game_rules._start_money, LoadTexture("tower_defense/assets/money.png")};
 
         ecs::GameComponent game_component = {_game_rules._start_health,
-            _game_rules._auto_increment_money, _game_rules._map_name, money_component};
+            _game_rules._auto_increment_money, _game_rules._map_name, money_component, 3,
+            0.5};
+
+        game_component._enemy_waves = this->_enemy_waves;
 
         for (const auto& pos : _enemy_path) {
             path.emplace_back(ecs::Tile{pos.first, pos.second, PATH, texture_manager.get_texture(PATH)});
@@ -101,7 +105,8 @@ namespace tower_defense
         }
 
         const auto map_entity = ecs.spawn_entity();
-        ecs.add_component<ecs::MapComponent>(map_entity, {map, path, decors, game_component});
+        ecs.add_component<ecs::MapComponent>(map_entity, {map, path, decors, {},
+            game_component});
 
         const auto selector_entity = ecs.spawn_entity();
         ecs.add_component<ecs::SelectorComponent>(selector_entity,

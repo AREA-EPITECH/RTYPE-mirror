@@ -44,4 +44,15 @@ namespace tower_defense
         BASIC_SLIME,
         ZOMBIE
     };
+
+    struct EnemyWave
+    {
+        EnemyType _enemy_type;
+        float _start_delay; // in seconds
+        float _spawn_delay; // in seconds
+        unsigned int _spawn_amount;
+        unsigned int _amount;
+        bool _finished;
+    };
+
 } // namespace tower_defense
