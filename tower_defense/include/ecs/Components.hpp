@@ -12,6 +12,7 @@
 #include "Events.hpp"
 #include "DataType.hpp"
 #include <random>
+#include "ecs/DataType.hpp"
 
 namespace ecs {
     class TextureManager
@@ -69,6 +70,10 @@ namespace ecs {
         bool _auto_increment_money;
         std::string _map_name;
         Money _money;
+        int _frame_counter;
+        float _frame_time;
+        std::vector<std::vector<tower_defense::EnemyWave>> _enemy_waves = {};
+        int _current_wave = 0;
     };
 
     struct Tile {
@@ -78,10 +83,25 @@ namespace ecs {
         std::shared_ptr<Texture2D> _texture;
     };
 
+    struct EnemyComponent
+    {
+        unsigned int _health;
+        unsigned int _speed;
+        unsigned int _current_step;
+        unsigned int _damage;
+        unsigned int _reward;
+        std::shared_ptr<Texture2D> _texture;
+        int _pos_x;
+        int _pos_y;
+        int _frame = 0;
+        float _frame_counter = 0.0f;
+    };
+
     struct MapComponent {
         std::vector<Tile> _grass;
         std::vector<Tile> _path;
         std::vector<Tile> _decors;
+        std::vector<EnemyComponent> _enemies;
         GameComponent _game;
     };
 
@@ -105,7 +125,8 @@ namespace ecs {
         unsigned int _cost;
         std::string _name;
         std::shared_ptr<Texture2D> _texture;
-        int _frame;
+        int _frame = 0;
+        float _frame_counter = 0.0f;
         tower_defense::TileType _tower_type;
     };
 
