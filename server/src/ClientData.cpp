@@ -60,13 +60,13 @@ namespace server {
     void ClientData::setHitbox() {
         switch (this->_ship.id) {
             case 0:
-                this->_ship.hitbox = {100, 100};
+                this->_ship.hitbox = {200, 42};
             break;
             case 1:
-                this->_ship.hitbox = {100, 80};
+                this->_ship.hitbox = {155, 22};
             break;
             case 2:
-                this->_ship.hitbox = {100, 80};
+                this->_ship.hitbox = {150, 37};
             break;
             default:
                 break;

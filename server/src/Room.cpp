@@ -574,15 +574,15 @@ namespace server
         auto &pos = _registry.get_components<Pos>();
         auto &lives = _registry.get_components<int>();
         for (int i = 0; i < clients.size(); i++) {
-            if (clients[i].has_value() && pos[i].has_value()) {
+            if (clients[i].has_value() && clients[i].value()->getData<ClientData>().getAlive() && pos[i].has_value()) {
                 for (int j = 0; j < enemies.size() && clients[i].has_value(); j++) {
                     if (enemies[j].has_value() && pos[j].has_value()) {
                         auto &data = clients[i].value()->getData<ClientData>();
                         Pos hitbox = data.getHitbox();
-                        if (pos[i].value().x - hitbox.x / 2 < pos[j].value().x + enemies[j].value().hitbox.x / 2 &&
-                            pos[i].value().x + hitbox.x / 2 > pos[j].value().x - enemies[j].value().hitbox.x / 2 &&
-                            pos[i].value().y - hitbox.y / 2 < pos[j].value().y + enemies[j].value().hitbox.y / 2 &&
-                            pos[i].value().y + hitbox.y / 2 > pos[j].value().y - enemies[j].value().hitbox.y / 2) {
+                        if (pos[i].value().x < pos[j].value().x + enemies[j].value().hitbox.x &&
+                            pos[i].value().x + hitbox.x > pos[j].value().x &&
+                            pos[i].value().y - hitbox.y < pos[j].value().y &&
+                            pos[i].value().y > pos[j].value().y - enemies[j].value().hitbox.y) {
                             _registry.kill_entity(j);
                             spdlog::info("Enemy {} is dead by vessel", j);
                             if (lives[i].has_value()) {
@@ -611,8 +611,8 @@ namespace server
                 if (proj[i].value()._from_player) {
                     for (int j = 0; j < enemies.size() && proj[i].has_value(); j++) {
                         if (enemies[j].has_value() && pos[j].has_value()) {
-                            if (proj[i].value().pos.x >= pos[j].value().x - enemies[j].value().hitbox.x / 2 &&
-                                proj[i].value().pos.x <= pos[j].value().x + enemies[j].value().hitbox.x / 2 &&
+                            if (proj[i].value().pos.x >= pos[j].value().x - enemies[j].value().hitbox.x &&
+                                proj[i].value().pos.x <= pos[j].value().x + enemies[j].value().hitbox.x &&
                                 proj[i].value().pos.y >= pos[j].value().y - enemies[j].value().hitbox.y / 2 &&
                                 proj[i].value().pos.y <= pos[j].value().y + enemies[j].value().hitbox.y / 2) {
                                 _registry.kill_entity(i);
@@ -623,13 +623,13 @@ namespace server
                     }
                 } else {
                     for (int j = 0; j < clients.size() && proj[i].has_value(); j++) {
-                        if (clients[j].has_value() && pos[j].has_value()) {
+                        if (clients[j].has_value() && clients[j].value()->getData<ClientData>().getAlive() && pos[j].has_value()) {
                             auto &data = clients[j].value()->getData<ClientData>();
                             Pos hitbox = data.getHitbox();
                             if (proj[i].value().pos.x >= pos[j].value().x - hitbox.x / 2 &&
                                 proj[i].value().pos.x <= pos[j].value().x + hitbox.x / 2 &&
-                                proj[i].value().pos.y >= pos[j].value().y - hitbox.y / 2 &&
-                                proj[i].value().pos.y <= pos[j].value().y + hitbox.y / 2) {
+                                proj[i].value().pos.y >= pos[j].value().y - hitbox.y  &&
+                                proj[i].value().pos.y <= pos[j].value().y) {
                                 _registry.kill_entity(i);
                                 spdlog::info("Client {} is shot", data.getId());
                                 if (lives[j].has_value()) {
@@ -700,18 +700,18 @@ namespace server
             switch (enemy.type)
             {
             case Easy:
-                enemy.hitbox.x = 100;
-                enemy.hitbox.y = 80;
+                enemy.hitbox.x = 75;
+                enemy.hitbox.y = 35;
                 enemy.moveFunction = [](int x) { return 0; };
                 break;
             case Medium:
-                enemy.hitbox.x = 100;
-                enemy.hitbox.y = 100;
+                enemy.hitbox.x = 90;
+                enemy.hitbox.y = 30;
                 enemy.moveFunction = [](int x) { return (MAXX_MAP / 2.5) * sin(x * 0.01); };
                 break;
             case Hard:
-                enemy.hitbox.x = 100;
-                enemy.hitbox.y = 120;
+                enemy.hitbox.x = 42;
+                enemy.hitbox.y = 140;
                 enemy.moveFunction = [](int x)
                 {
                     double T = 800;
