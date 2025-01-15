@@ -130,6 +130,7 @@ Registry init_ecs()
                         std::vector<uint32_t> actual_opponents;
                         actual_opponents.push_back(0);
                         actual_opponents.push_back(user.id);
+                        vessels[user.id]->drawable = false;
                         for (auto &player: players) {
                             if (vessels[player.entity].has_value()) {
                                 vessels[player.entity]->drawable = false;
@@ -175,6 +176,7 @@ Registry init_ecs()
                                     user.position = {posX, posY};
                                     if (vessels[user.entity].has_value()) {
                                         vessels[user.entity]->position = {posX, posY, 0};
+                                        vessels[user.entity]->drawable = true;
                                     }
                                     gameState->get().updateUser(user);
                                 } else {
