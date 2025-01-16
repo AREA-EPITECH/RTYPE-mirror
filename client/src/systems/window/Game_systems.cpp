@@ -182,17 +182,8 @@ namespace ecs {
             }
         }
 
-        auto &scores = ecs.get_components<ScoreComponent>();
-
-        for (auto &score : scores) {
-            if (score.has_value()) {
-                score.value().draw_ingame();
-                if (score.value().score >= score.value().win_score) {
-                    EndDrawing();
-                    change_window(ecs, END_GAME);
-                }
-            }
-        }
+        if (check_endgame(ecs))
+            return;
 
         EndDrawing();
 
