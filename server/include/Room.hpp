@@ -48,7 +48,7 @@ namespace server {
 
         std::vector<network::LobbyPlayer> toLobbyPlayers() const;
         void sendUpdateRoom(Server &server);
-        void initPlaying();
+        bool initPlaying();
 
         void addClient(std::shared_ptr<network::PeerWrapper> &peer);
         std::shared_ptr<network::PeerWrapper> getClient(uint32_t id);
@@ -65,6 +65,9 @@ namespace server {
 
         void checkCollisionVessels();
         void checkCollisionProjectiles();
+
+        bool checkWin();
+        bool checkLose();
 
         bool getClientsReadiness() const;
         uint32_t getId() const;

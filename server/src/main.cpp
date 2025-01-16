@@ -54,6 +54,19 @@ static void runMainLoop(server::Server &server)
                     it = server.getPlayingRooms().erase(it);
                 } else {
                     (*it)->run(elapsed_time);
+                    if ((*it)->checkWin()) {
+                        server.changeRoomToWaiting((*it)->getId());
+                        (*it)->setLevel((*it)->getLevel() + 1);
+                        spdlog::info("Win ! Go to level {}", (*it)->getLevel());
+                        (*it)->sendUpdateRoom(server);
+                        continue;
+                    }
+                    if ((*it)->checkLose()) {
+                        server.changeRoomToWaiting((*it)->getId());
+                        spdlog::info("Lose ! Go back to level {}", (*it)->getLevel());
+                        (*it)->sendUpdateRoom(server);
+                        continue;
+                    }
                     (*it)->sendUpdateRoom(server);
                     ++it;
                 }

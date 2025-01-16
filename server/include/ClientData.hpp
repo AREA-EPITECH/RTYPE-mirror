@@ -19,6 +19,7 @@ namespace server {
         std::string _name = "";
         bool _is_ready = false;
         bool _is_alive = true;
+        int _score = 0;
         Ship _ship;
         std::shared_ptr<Room> _room = nullptr;
     public:
@@ -36,6 +37,8 @@ namespace server {
         bool getReadyState() const;
         void setAlive();
         bool getAlive() const;
+        void setScore(int score);
+        int getScore() const;
         std::shared_ptr<Room> getRoom() const;
         void setRoom(const std::shared_ptr<Room> &room);
         void unsetRoom();
