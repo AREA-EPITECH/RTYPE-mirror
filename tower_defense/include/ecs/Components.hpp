@@ -117,6 +117,7 @@ namespace ecs {
         Texture2D _texture{};
         Tile _pos{};
         bool _drawable{};
+        std::vector<Rectangle> _no_clickable;
     };
 
     struct Tower
