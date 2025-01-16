@@ -149,7 +149,8 @@ namespace server
     bool Room::getClientsReadiness() const
     {
         auto &clients = _registry.get_components<std::shared_ptr<network::PeerWrapper>>();
-        for (int i = 0; i < clients.size(); i++)
+        int i = 0;
+        for (; i < clients.size(); i++)
         {
             if (clients[i].has_value())
             {
@@ -158,6 +159,9 @@ namespace server
                     return false;
                 }
             }
+        }
+        if (i == 0) {
+            return false;
         }
         return true;
     }
