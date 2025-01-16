@@ -282,6 +282,7 @@ namespace ecs {
         for (auto &sound : sounds) {
             if (sound.has_value()) {
                 sound.value().addSound("shoot", "./client/assets/sound/shoot.wav");
+                sound.value().addSound("kill_enemy", "./client/assets/sound/kill_enemy_sound.wav");
             }
         }
 
@@ -343,6 +344,7 @@ namespace ecs {
         for (int i = 0; i < sounds.size();i++) {
             if (sounds[i].has_value()) {
                 sounds[i].value().stop("shoot");
+                sounds[i].value().stop("kill_enemy");
             }
         }
 

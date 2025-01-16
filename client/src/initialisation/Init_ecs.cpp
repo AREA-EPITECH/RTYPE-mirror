@@ -348,6 +348,11 @@ Registry init_ecs()
                                 }
                                 if (!found) {
                                     ecs.kill_entity(i);
+                                    for (auto &sound : sounds) {
+                                        if (sound.has_value()) {
+                                            sound.value().play("kill_enemy");
+                                        }
+                                    }
                                 }
                             }
                         }
