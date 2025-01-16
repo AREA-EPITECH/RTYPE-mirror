@@ -34,7 +34,7 @@ namespace game
             uint16_t ship_id = 0;
             bool is_ready = false;
             std::tuple<uint, uint> position;
-            int score;
+            int score = 0;
         };
 
         std::map<uint32_t, entity_t> enemy_entities;

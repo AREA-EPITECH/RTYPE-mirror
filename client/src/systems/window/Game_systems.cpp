@@ -336,7 +336,6 @@ namespace ecs {
         }
         kill_entities_with_component<ParticleSystemComponent>(ecs);
         kill_entities_with_component<LightComponent>(ecs);
-        kill_entities_with_component<ScoreComponent>(ecs);
 
         auto &sounds = ecs.get_components<SoundComponent>();
 

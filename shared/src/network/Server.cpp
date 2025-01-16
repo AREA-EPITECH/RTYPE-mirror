@@ -98,6 +98,7 @@ bool network::NetworkServer::sendSnapshotPacket(const struct SnapshotPacket &pac
     newPacket.entities = packet.entities;
 
     newPacket.maxScore = packet.maxScore;
+    newPacket.level = packet.level;
 
     const std::vector<uint8_t> binary = Packet::serializeSnapshotPacket(newPacket);
     return sendPacket(binary, peer);

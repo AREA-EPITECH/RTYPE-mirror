@@ -167,6 +167,23 @@ namespace ecs {
                     button.drawButton(ecs::get_focus(ecs));
                 }
             }
+            std::vector<std::tuple<std::string, int, bool>> lines;
+            int startY = center.y - scoreBoardHeight / 2 + headerHeight + 10;
+            fontSize = 64;
+            auto user = gameState->get().getUser();
+            lines.push_back({user.name, user.score, true});
+            auto other_players = gameState->get().getOtherPlayer();
+            for (auto &player: other_players) {
+                lines.push_back({player.name, player.score, false});
+            }
+            std::sort(lines.begin(), lines.end(), [](std::tuple<std::string, int, bool> a, std::tuple<std::string, int, bool> b){
+                return std::get<1>(a) > std::get<1>(b);
+            });
+            for (auto &line: lines) {
+                DrawText(std::get<0>(line).c_str(), center.x - scoreBoardWidth / 2 + 20, startY, fontSize, std::get<2>(line) ? GREEN : WHITE);
+                DrawText(std::to_string(std::get<1>(line)).c_str(), center.x + scoreBoardWidth / 2 - 20 - MeasureText(std::to_string(std::get<1>(line)).c_str(), fontSize), startY, fontSize, WHITE);
+                startY += fontSize + 10;
+            }
         }
 
         for (auto &filter : filters) {

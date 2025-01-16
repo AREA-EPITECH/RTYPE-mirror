@@ -74,17 +74,32 @@ Registry init_ecs()
                         auto gameState = getGameState(ecs);
                         auto user = gameState->get().getUser();
                         if (gameState->get().getGameState() == game::GameState::LobbyGameState::Playing) {
-                            spdlog::info("WIN !!");
                             gameState->get().updateGameState(game::GameState::LobbyGameState::Waiting);
                             user.is_ready = false;
                             gameState->get().updateUser(user);
                             gameState->get().setShowScore(true);
                             ecs::change_window(ecs, ecs::WindowType::LOBBY);
+                            auto &scores = ecs.get_components<ecs::ScoreComponent>();
+                            int level = 0;
+                            for (auto &score_i: scores) {
+                            if (score_i.has_value()) {
+                                    level = score_i->level;
+                                    break;
+                                }
+                            }
                             return;
                         }
+                        std::vector<game::GameState::Player> saved_players = gameState->get().getOtherPlayer();
                         std::vector<game::GameState::Player> other_players;
                         gameState->get().setRoomId(received_packet.roomId);
                         for (auto player: received_packet.players) {
+                            int saved_score;
+                            for (auto s_player: saved_players) {
+                                if (s_player.id == user.id) {
+                                    saved_score = s_player.score;
+                                    break;
+                                }
+                            }
                             if (player.id != user.id) {
                                 other_players.push_back({
                                     player.id,
@@ -92,7 +107,8 @@ Registry init_ecs()
                                     player.name,
                                     player.shipId,
                                     player.ready,
-                                    {0, 0}
+                                    {0, 0},
+                                    saved_score
                                 });
                             }
                         }
@@ -168,7 +184,6 @@ Registry init_ecs()
                             if (score_i.has_value()) {
                                 score_i->win_score = received_packet.maxScore;
                                 score_i->level = received_packet.level;
-                                spdlog::info("LEvel {}", received_packet.level);
                                 break;
                             }
                         }
@@ -204,14 +219,14 @@ Registry init_ecs()
                                             break;
                                         }
                                     }
-                                    for (auto &player: players) {
-                                        if (player.id == entity.entityId) {
-                                            player.position = {posX, posY};
-                                            player.score = entity.score;
-                                            if (vessels[player.entity].has_value()) {
-                                                vessels[player.entity]->health = entity.health;
-                                                vessels[player.entity]->position = {posX, posY, 0};
-                                                vessels[player.entity]->drawable = true;
+                                    for (int i = 0; i < players.size(); i++) {
+                                        if (players[i].id == entity.entityId) {
+                                            players[i].position = {posX, posY};
+                                            players[i].score = entity.score;
+                                            if (vessels[players[i].entity].has_value()) {
+                                                vessels[players[i].entity]->health = entity.health;
+                                                vessels[players[i].entity]->position = {posX, posY, 0};
+                                                vessels[players[i].entity]->drawable = true;
                                             }
                                             break;
                                         }

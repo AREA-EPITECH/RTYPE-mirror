@@ -725,8 +725,8 @@ namespace server
     int Room::getLevel() const { return this->level; }
 
     void Room::setLevel(const int level, server::Server &server) {
-        this->level = level;
         this->sendUpdateRoom(server);
+        this->level = level;
         this->setState(network::LobbyGameState::Waiting);
         auto &clients = _registry.get_components<std::shared_ptr<network::PeerWrapper>>();
         for (int i = 0; i < clients.size(); i++)
