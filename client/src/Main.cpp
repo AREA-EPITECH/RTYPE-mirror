@@ -22,6 +22,13 @@ void empty_ecs(Registry &ecs)
 {
     kill_entities_with_component<ecs::Window>(ecs);
 
+    auto &filters = ecs.get_components<ecs::FilterComponent>();
+    for (auto &filter : filters) {
+        if (filter.has_value()) {
+            filter.value().clearShader();
+        }
+    }
+
     auto &vessels = ecs.get_components<ecs::VesselsComponent>();
     for (std::size_t i = 0; i < vessels.size(); ++i)
     {
@@ -200,7 +207,6 @@ int main(int argc, char *argv[])
     ecs.subscribe<struct network::InputPacket>([&sendQueue](Registry &ecs, const struct network::InputPacket &packet)
                                                { sendQueue.push(packet); });
     SetExitKey(0);
-
     while (!WindowShouldClose())
     {
         while (!receiveQueue.empty())

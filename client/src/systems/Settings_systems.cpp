@@ -85,15 +85,19 @@ namespace ecs {
         }
     }
 
-    void drawDaltonianModeButton(Shader &daltonianShader, bool &isDaltonianMode) {
-        if (GuiButton({500, 100, 200, 100}, isDaltonianMode ? "Disable Daltonian Mode" : "Enable Daltonian Mode")) {
-            isDaltonianMode = !isDaltonianMode;
-        }
+    void createColorBlindModeButton(Registry &ecs, const Rectangle &buttonRect,
+                                    const std::string &buttonText,
+                                    ecs::ColorBlindMode mode) {
+        auto &filterComponents = ecs.get_components<ecs::FilterComponent>();
+        for (auto &filterComponent : filterComponents) {
+            if (filterComponent.has_value()) {
+                auto &filter = filterComponent.value();
 
-        if (isDaltonianMode) {
-            BeginShaderMode(daltonianShader);
-        } else {
-            EndShaderMode();
+                if (GuiButton(buttonRect, buttonText.c_str())) {
+                    filter.removeFilter();
+                    filter.setMode(mode);
+                }
+            }
         }
     }
 
@@ -120,7 +124,7 @@ namespace ecs {
             auto &keyBindings = keyBindingsArray[i].value();
 
             int yOffset = s_height / 4;
-            int xOffset = s_width / 5;
+            int xOffset = s_width / 4;
             int textBoxWidth = 200;
             int textBoxHeight = 50;
 
@@ -132,6 +136,8 @@ namespace ecs {
                     isFocusedMap[action] = false;
                 }
             }
+
+            DrawText("Controls", xOffset, 125, 50, WHITE);
 
             for (const auto &action : actions) {
                 int currentKey = keyBindings.getKey(action);
@@ -185,9 +191,18 @@ namespace ecs {
                 yOffset += 70;
             }
         }
+
+        DrawText("General", s_width / 2, 125, 50, WHITE);
         drawSoundAndMusicSliders(ecs, s_width / 2, s_height / 4 + 10, 300, 20);
         drawResolutionButton(s_width / 2, s_height / 2, 300, 100, 2560, 1440);
         drawResolutionButton(s_width / 2, s_height / 2 + 150, 300, 100, 1920, 1080);
-        drawResolutionButton(s_width / 2, s_height / 2 + 300, 300, 100, 1600, 900);
+        drawResolutionButton(s_width / 2, s_height / 2 + 300, 300, 100, 1680, 1050);
+
+        DrawText("Filters", (int)(s_width / 1.3), 125, 50, WHITE);
+        createColorBlindModeButton(ecs, {(float)(s_width / 1.3), (float)(s_height / 4), 300, 100}, "Normal", ecs::ColorBlindMode::NONE);
+        createColorBlindModeButton(ecs, {(float)(s_width / 1.3), (float)(s_height / 4 + 150), 300, 100}, "Protanopia", ecs::ColorBlindMode::PROTANOPIA);
+        createColorBlindModeButton(ecs, {(float)(s_width / 1.3), (float)(s_height / 4 + 300), 300, 100}, "Deuteranopia", ecs::ColorBlindMode::DEUTERANOPIA);
+        createColorBlindModeButton(ecs, {(float)(s_width / 1.3), (float)(s_height / 4 + 450), 300, 100}, "Tritanopia", ecs::ColorBlindMode::TRITANOPIA);
+
     }
 }

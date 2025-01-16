@@ -66,6 +66,13 @@ namespace ecs
         }
 
         BeginDrawing();
+
+        auto &filters = ecs.get_components<FilterComponent>();
+        for (auto &filter : filters) {
+            if (filter.has_value()) {
+                filter.value().applyFilter();
+            }
+        }
         ClearBackground(RAYWHITE);
 
 
@@ -113,6 +120,11 @@ namespace ecs
 
         update_menu_selectors(ecs, screenWidth, screenHeight);
         display_menu_selectors(ecs);
+        for (auto &filter : filters) {
+            if (filter.has_value()) {
+                filter.value().removeFilter();
+            }
+        }
         EndDrawing();
 
         if (WindowShouldClose())

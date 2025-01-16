@@ -34,7 +34,12 @@ namespace ecs {
         for (auto &light : lights) {
             if (light.has_value()) {
                 light->light->UpdateLightValues(shader, light->light->_enabled);
+            }auto &filters = ecs.get_components<FilterComponent>();
+        for (auto &filter : filters) {
+            if (filter.has_value()) {
+                filter.value().applyFilter();
             }
+        }
         }
 
         for (auto &music : musics) {
@@ -61,6 +66,13 @@ namespace ecs {
         }
 
         BeginDrawing();
+        auto &filters = ecs.get_components<FilterComponent>();
+        for (auto &filter : filters) {
+            if (filter.has_value()) {
+                filter.value().applyFilter();
+            }
+        }
+
         ClearBackground(RAYWHITE);
 
         for (auto & background : backgrounds) {
@@ -128,6 +140,11 @@ namespace ecs {
             DrawRing(center, 80, 190, startAngle, endAngle, 0, Fade(RED, 0.5f));
         }
 
+        for (auto &filter : filters) {
+            if (filter.has_value()) {
+                filter.value().removeFilter();
+            }
+        }
         EndDrawing();
 
         if (WindowShouldClose()) {

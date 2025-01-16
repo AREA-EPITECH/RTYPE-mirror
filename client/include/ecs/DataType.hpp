@@ -109,4 +109,11 @@ namespace ecs
             {KEY_RIGHT, "Right"},
             {KEY_LEFT_SHIFT, "Left Shift"}
     };
+
+    enum class ColorBlindMode {
+        NONE,
+        PROTANOPIA,
+        DEUTERANOPIA,
+        TRITANOPIA
+    };
 } // namespace ecs
