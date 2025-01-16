@@ -37,8 +37,9 @@ namespace ecs {
                 DrawText("Sound", static_cast<int>(soundBar.x), static_cast<int>(yOffset), 30, WHITE);
 
                 if (IsMouseButtonDown(MOUSE_LEFT_BUTTON) && CheckCollisionPointRec(mousePosition, soundBar)) {
-                    soundLevel.value().volume = (mousePosition.x - soundBar.x) / soundBar.width * 100.0f;
-                    soundLevel.value().volume = std::clamp(soundLevel.value().volume, 0.0f, 100.0f);
+                    float newVolume = (mousePosition.x - soundBar.x) / soundBar.width * 100.0f;
+                    newVolume = std::clamp(newVolume, 0.0f, 100.0f);
+                    soundLevel.value().setVolume(newVolume);
                 }
                 std::string soundText = std::to_string(static_cast<int>(soundLevel.value().volume)) + "%";
                 DrawText(soundText.c_str(), xOffset + sliderWidth + 20, yOffset + sliderHeight + 10, 30, WHITE);
