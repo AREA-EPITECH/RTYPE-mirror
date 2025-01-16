@@ -9,6 +9,7 @@
 
 #include <map>
 #include <spdlog/spdlog.h>
+#include <chrono>
 
 namespace tower_defense
 {
@@ -53,7 +54,7 @@ namespace tower_defense
         unsigned int _spawn_amount;
         unsigned int _amount;
         bool _finished;
-        int _time_since_last_spawn;
+        std::chrono::time_point<std::chrono::steady_clock> _time_since_last_spawn = std::chrono::steady_clock::now();
     };
 
 } // namespace tower_defense
