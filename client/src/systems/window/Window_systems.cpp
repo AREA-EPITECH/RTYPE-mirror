@@ -35,6 +35,10 @@ namespace ecs {
         ecs.subscribe<ecs::DisplaySettingEvent>(ecs::display_settings_system);
         ecs.register_component<ecs::KeyBindingComponent>();
 
+        ecs.register_component<ecs::FilterComponent>();
+        auto filter = ecs.spawn_entity();
+        ecs.add_component<ecs::FilterComponent>(filter, {});
+
         auto keys = ecs.spawn_entity();
         ecs::KeyBindingComponent keyBindings;
         for (auto &[action, key] : settingsJson.items()) {
