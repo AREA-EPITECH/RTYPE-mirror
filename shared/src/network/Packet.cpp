@@ -49,6 +49,18 @@ std::vector<uint8_t> network::Packet::serializeSnapshotPacket(const struct netwo
         offset += entitySize;
     }
 
+    // Serialize the level number
+    uint8_t level = packet.level;
+    buffer.resize(buffer.size() + sizeof(uint8_t));
+    std::memcpy(buffer.data() + offset, &level, sizeof(uint8_t));
+    offset += sizeof(uint8_t);
+
+    // Serialize the maxScore number
+    uint16_t maxScore = packet.maxScore;
+    buffer.resize(buffer.size() + sizeof(uint16_t));
+    std::memcpy(buffer.data() + offset, &maxScore, sizeof(uint16_t));
+    offset += sizeof(uint16_t);
+
     return buffer;
 }
 
@@ -82,6 +94,20 @@ struct network::SnapshotPacket network::Packet::deserializeSnapshotPacket(const 
         std::memcpy(&packet.entities[i], data.data() + offset, sizeof(EntityUpdate));
         offset += sizeof(EntityUpdate);
     }
+
+    // Deserialize the level number
+    ensureValidOffset(offset, sizeof(uint8_t), data.size());
+    uint8_t level = 0;
+    std::memcpy(&level, data.data() + offset, sizeof(uint8_t));
+    offset += sizeof(uint8_t);
+    packet.level = level;
+
+    // Deserialize the maxScore number
+    ensureValidOffset(offset, sizeof(uint16_t), data.size());
+    uint16_t maxScore = 0;
+    std::memcpy(&maxScore, data.data() + offset, sizeof(uint16_t));
+    offset += sizeof(uint16_t);
+    packet.maxScore = maxScore;
 
     return packet;
 }

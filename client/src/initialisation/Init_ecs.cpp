@@ -69,7 +69,6 @@ Registry init_ecs()
                 {
                     if (event.packetType == network::PacketType::LobbySnapshotPacket)
                     {
-                        spdlog::info("New lobby snapshot packet");
                         auto received_packet = std::any_cast<struct network::LobbySnapshotPacket>(event.data);
                         auto gameState = getGameState(ecs);
                         auto user = gameState->get().getUser();
@@ -78,6 +77,7 @@ Registry init_ecs()
                             gameState->get().updateGameState(game::GameState::LobbyGameState::Waiting);
                             user.is_ready = false;
                             gameState->get().updateUser(user);
+                            gameState->get().setShowScore(true);
                             ecs::change_window(ecs, ecs::WindowType::LOBBY);
                             return;
                         }
@@ -88,7 +88,6 @@ Registry init_ecs()
                                 other_players.push_back({
                                     player.id,
                                     0,
-                                    MAX_HEALTH,
                                     player.name,
                                     player.shipId,
                                     player.ready,
@@ -104,7 +103,6 @@ Registry init_ecs()
                     }
                     else if (event.packetType == network::PacketType::SnapshotPacket)
                     {
-                        spdlog::info("New snapshot packet");
                         auto received_packet = std::any_cast<struct network::SnapshotPacket>(event.data);
                         auto gameState = getGameState(ecs);
                         if (gameState->get().getGameState() == game::GameState::LobbyGameState::Menu) {
@@ -121,6 +119,7 @@ Registry init_ecs()
                         auto &projectiles = ecs.get_components<ecs::ProjectilesComponent>();
                         auto &lights = ecs.get_components<ecs::LightComponent>();
                         auto &shaders = ecs.get_components<ecs::ShaderComponent>();
+                        auto &scores = ecs.get_components<ecs::ScoreComponent>();
                         auto user = gameState->get().getUser();
                         auto players = gameState->get().getOtherPlayer();
                         std::vector<uint32_t> actual_opponents;
@@ -164,24 +163,51 @@ Registry init_ecs()
                         std::vector<uint32_t> actual_projectiles;
                         std::map<uint32_t, entity_t> enemy_entities = gameState->get().getEnemyEntities();
                         actual_projectiles.push_back(0);
+                        for (auto &score_i: scores) {
+                            if (score_i.has_value()) {
+                                score_i->win_score = received_packet.maxScore;
+                                score_i->level = received_packet.level;
+                                break;
+                            }
+                        }
                         for (auto &entity: received_packet.entities) {
                             if (entity.type == network::EntityType::Player) {
                                 if (entity.entityId == user.id) {
                                     float posX = map_value(entity.posX, 0, 350, -27.30, 7.79);
                                     float posY = map_value(entity.posY, 0, 332, 16.60, -16.60);
                                     user.position = {posX, posY};
+                                    user.score = entity.score;
                                     if (vessels[user.entity].has_value()) {
+                                        vessels[user.entity]->health = entity.health;
                                         vessels[user.entity]->position = {posX, posY, 0};
                                         vessels[user.entity]->drawable = true;
+                                    }
+                                    for (auto &score_i: scores) {
+                                        if (score_i.has_value()) {
+                                            if (score_i->score < entity.score) {
+                                                score_i->score = entity.score;
+                                            }
+                                            break;
+                                        }
                                     }
                                     gameState->get().updateUser(user);
                                 } else {
                                     float posX = map_value(entity.posX, 0, 350, -27.30, 7.79);
                                     float posY = map_value(entity.posY, 0, 332, 16.60, -16.60);
+                                    for (auto &score_i: scores) {
+                                        if (score_i.has_value()) {
+                                            if (score_i->score < entity.score) {
+                                                score_i->score = entity.score;
+                                            }
+                                            break;
+                                        }
+                                    }
                                     for (auto &player: players) {
                                         if (player.id == entity.entityId) {
                                             player.position = {posX, posY};
+                                            player.score = entity.score;
                                             if (vessels[player.entity].has_value()) {
+                                                vessels[player.entity]->health = entity.health;
                                                 vessels[player.entity]->position = {posX, posY, 0};
                                                 vessels[player.entity]->drawable = true;
                                             }

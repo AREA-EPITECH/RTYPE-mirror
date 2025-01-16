@@ -30,11 +30,11 @@ namespace game
         struct Player {
             uint32_t id;
             entity_t entity;
-            uint16_t health = MAX_HEALTH;
             std::string name;
             uint16_t ship_id = 0;
             bool is_ready = false;
             std::tuple<uint, uint> position;
+            int score;
         };
 
         std::map<uint32_t, entity_t> enemy_entities;
@@ -61,6 +61,9 @@ namespace game
         auto getEnemyEntities() -> std::map<uint32_t, entity_t>;
         auto setEnemyEntities(const std::map<uint32_t, entity_t> &entities) -> void;
 
+        auto getShowScore() -> bool;
+        auto setShowScore(bool show) -> void;
+
         auto getPlayerNameEntities() -> std::vector<entity_t>;
         auto addPlayerNameEntities(entity_t entity) -> void;
         auto removePlayerNameEntities(entity_t entity) -> void;
@@ -70,6 +73,7 @@ namespace game
         std::vector<Player> other_players;
         LobbyGameState game_state = LobbyGameState::Waiting;
         uint32_t roomId;
+        bool show_score = false;
 
         entity_t textIdEntity;
         std::vector<entity_t> textPlayerNameEntities;

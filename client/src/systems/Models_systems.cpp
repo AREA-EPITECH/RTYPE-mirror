@@ -17,6 +17,8 @@ namespace ecs {
     void load_models_system(Registry &ecs, const InitModelEvent &) {
         std::vector<std::string> vox_files;
         const int screenWidth = GetScreenWidth();
+        auto gameState = getGameState(ecs);
+        int shipId = gameState->get().getUser().ship_id;
 
         for (const auto &entry: std::filesystem::directory_iterator("client/assets/voxels/player/spaceship")) {
             if (std::string file = entry.path().c_str(); file.find(".vox") != std::string::npos)
@@ -44,14 +46,13 @@ namespace ecs {
             auto ModelEntity = ecs.spawn_entity();
             std::cout << "MODEL ID : " << ModelEntity << std::endl;
 
-            auto gameState = getGameState(ecs);
             std::string name_str = gameState->get().getUser().name;
             int fontSize = 54;
             int textWidth = MeasureText(name_str.c_str(), fontSize);
             int posX = static_cast<int>(screenWidth * 0.66) - textWidth / 2 + 20;
 
             TextComponent vessel_name(name_str, fontSize, posX, 100, 0, {120, 0, 0, 255});
-            ecs.add_component<VesselsComponent>(ModelEntity, {0, models, (i == 0), vox_files[i], vessel_name, i, false});
+            ecs.add_component<VesselsComponent>(ModelEntity, {0, models, (i == shipId), vox_files[i], vessel_name, i, false});
         }
     }
 
@@ -286,6 +287,8 @@ namespace ecs {
     */
     void create_camera_system(Registry &ecs, const InitCameraEvent &event) {
         auto entity = ecs.spawn_entity();
+
+        spdlog::info("Create Camera");
 
         Camera camera = {};
         camera.position = event.position;

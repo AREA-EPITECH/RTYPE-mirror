@@ -196,10 +196,21 @@ namespace server
         {
             struct network::SnapshotPacket snapshot_packet;
             snapshot_packet.numEntities = 0;
+            snapshot_packet.level = this->level;
+            auto &levels = _registry.get_components<Level>();
+            uint16_t score_to_achieve = 0;
+            for (auto &level: levels) {
+                if (level.has_value()) {
+                    score_to_achieve = static_cast<uint16_t>(level.value().win_score);
+                    break;
+                }
+            }
+            snapshot_packet.maxScore = score_to_achieve;
 
             auto &pos = _registry.get_components<Pos>();
 
             auto &clients = _registry.get_components<std::shared_ptr<network::PeerWrapper>>();
+            auto &lives = _registry.get_components<int>();
             for (int i = 0; i < clients.size(); i++) {
                 if (clients[i].has_value() && clients[i].value()->getData<ClientData>().getAlive()) {
                     network::EntityUpdate entity_update;
@@ -210,6 +221,9 @@ namespace server
                     {
                         entity_update.posX = pos[i].value().x;
                         entity_update.posY = pos[i].value().y;
+                    }
+                    if (lives[i].value()) {
+                        entity_update.health = lives[i].value();
                     }
                     entity_update.score = clients[i].value()->getData<ClientData>().getScore();
                     snapshot_packet.entities.push_back(entity_update);

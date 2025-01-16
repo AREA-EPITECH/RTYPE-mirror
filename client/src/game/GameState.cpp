@@ -78,6 +78,14 @@ namespace game
             }
         }
     }
+
+    auto GameState::getShowScore() -> bool {
+        return show_score;
+    }
+
+    auto GameState::setShowScore(bool show) -> void {
+        show_score = show;
+    }
 } // namespace game
 
 std::optional<std::reference_wrapper<game::GameState>> getGameState(Registry &ecs) {

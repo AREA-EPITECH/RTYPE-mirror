@@ -161,7 +161,7 @@ namespace ecs {
                          static_cast<int>(textBox.x + 5), static_cast<int>(textBox.y + 10), 30, BLACK);
 
                 if (isFocusedMap[action]) {
-                    int key = Kbd_GetKeyPressed(KBD_Layout::FR);
+                    int key = Kbd_GetKeyPressed(KBD_Layout::FR, true);
                     if (key != 0) {
                         if (key >= 32 && key <= 126) {
                             currentInputMap[action] = std::string(1, static_cast<char>(key));

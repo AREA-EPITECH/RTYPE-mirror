@@ -182,8 +182,13 @@ namespace ecs {
             }
         }
 
-        if (check_endgame(ecs))
-            return;
+        auto &scores = ecs.get_components<ScoreComponent>();
+
+        for (auto &score : scores) {
+            if (score.has_value()) {
+                score.value().draw_ingame();
+            }
+        }
 
         EndDrawing();
 
@@ -198,7 +203,6 @@ namespace ecs {
     * @param ecs
     */
     void open_game_system(Registry &ecs, const WindowOpenEvent &) {
-        // Update camera
         auto &cameras = ecs.get_components<CameraComponent>();
         Camera camera = {};
         for (auto & camera_i : cameras) {
@@ -314,9 +318,6 @@ namespace ecs {
     void close_game_system(Registry &ecs, const WindowCloseEvent &) {
         auto &vessels_models = ecs.get_components<VesselsComponent>();
         auto &projectiles_models = ecs.get_components<ProjectilesComponent>();
-        auto &shaders = ecs.get_components<ShaderComponent>();
-        auto &backgrounds = ecs.get_components<BackgroundComponent>();
-        auto &decors = ecs.get_components<DecorElementComponent>();
         auto &images = ecs.get_components<ImageComponent>();
 
         for (std::size_t i = 0; i < images.size(); ++i)
@@ -334,11 +335,12 @@ namespace ecs {
                 if (vessels_models[i]->is_enemy) {
                     if (!vessels_models[i]->drawable) {
                         UnloadModel(vessels_models[i]->model);
+                        TraceLog(LOG_WARNING, TextFormat("Unloaded model for entity %zu.", i));
                     }
                 } else {
                     UnloadModel(vessels_models[i]->model);
+                    TraceLog(LOG_WARNING, TextFormat("Unloaded model for entity %zu.", i));
                 }
-                TraceLog(LOG_WARNING, TextFormat("Unloaded model for entity %zu.", i));
                 ecs.kill_entity(i);
             }
         }
@@ -350,28 +352,9 @@ namespace ecs {
                 ecs.kill_entity(i);
             }
         }
-        kill_entities_with_component<CameraComponent>(ecs);
         kill_entities_with_component<ParticleSystemComponent>(ecs);
         kill_entities_with_component<LightComponent>(ecs);
         kill_entities_with_component<ScoreComponent>(ecs);
-        for (std::size_t i = 0; i < shaders.size(); ++i) {
-            if (shaders[i].has_value()) {
-                UnloadShader(*shaders[i]->shader);
-                ecs.kill_entity(i);
-            }
-        }
-        for (std::size_t i = 0; i < backgrounds.size(); ++i) {
-            if (backgrounds[i].has_value()) {
-                UnloadTexture(backgrounds[i]->texture);
-                ecs.kill_entity(i);
-            }
-        }
-        for (std::size_t i = 0; i < decors.size(); ++i) {
-            if (decors[i].has_value()) {
-                UnloadTexture(decors[i]->texture);
-                ecs.kill_entity(i);
-            }
-        }
 
         auto &sounds = ecs.get_components<SoundComponent>();
 

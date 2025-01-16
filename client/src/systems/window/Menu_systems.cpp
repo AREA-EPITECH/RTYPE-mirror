@@ -197,6 +197,15 @@ namespace ecs
                 ecs.kill_entity(i);
             }
         }
+        auto &texts = ecs.get_components<MenuText>();
+        for (std::size_t i = 0; i < texts.size(); ++i)
+        {
+            if (texts[i].has_value())
+            {
+                UnloadModel(texts[i]->model);
+                ecs.kill_entity(i);
+            }
+        }
         kill_entities_with_component<LightComponent>(ecs);
         kill_entities_with_component<ButtonComponent>(ecs);
         kill_entities_with_component<TextInputComponent>(ecs);
