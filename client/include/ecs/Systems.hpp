@@ -39,6 +39,12 @@ namespace ecs {
     void draw_game_system(Registry &ecs, const WindowDrawEvent &);
     void close_game_system(Registry &ecs, const WindowCloseEvent &);
     void open_game_system(Registry &ecs, const WindowOpenEvent &);
+    bool check_endgame (Registry &ecs);
+
+// EndGame
+    void draw_endgame_system(Registry &ecs, const WindowDrawEvent &);
+    void open_endgame_system(Registry &ecs, const WindowOpenEvent &);
+    void close_endgame_system(Registry &ecs, const WindowCloseEvent &);
 
 // Camera
     void create_camera_system(Registry &ecs, const InitCameraEvent &);

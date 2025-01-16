@@ -18,9 +18,11 @@
 void init_menu_window (Registry& ecs);
 void init_lobby_window (Registry& ecs);
 void init_game_window (Registry& ecs);
+void init_end_game_window(Registry& ecs);
 
 Registry init_ecs();
-void init_settings (Registry &ecs);
 
 void previous_ship(Registry &ecs);
 void next_ship(Registry &ecs);
+
+void updateSettings(Registry &ecs, const std::string &jsonFilePath, int s_width, int _s_height);

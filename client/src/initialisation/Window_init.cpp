@@ -105,3 +105,22 @@ void init_game_window(Registry& ecs) {
 
     ecs.run_event(ecs::ChangeFocusEvent{ecs::GAME_FOCUS});
 }
+
+void init_end_game_window(Registry& ecs) {
+    ecs.unsubscribe_all<ecs::InitModelEvent>();
+    ecs.unsubscribe_all<ecs::InitLightEvent>();
+    ecs.unsubscribe_all<ecs::InitShaderEvent>();
+
+    //ecs.subscribe<ecs::ControlsEvent>(ecs::game_controls_system);
+
+
+    ecs.subscribe<ecs::WindowOpenEvent>([](Registry &ecs, const ecs::WindowOpenEvent &event) {
+        open_endgame_system(ecs, event);
+    });
+    ecs.subscribe<ecs::WindowCloseEvent>([](Registry &e, const ecs::WindowCloseEvent &event) {
+        close_endgame_system(e, event);
+    });
+    ecs.subscribe<ecs::WindowDrawEvent>(ecs::draw_endgame_system);
+
+    ecs.run_event(ecs::ChangeFocusEvent{ecs::END_GAME_FOCUS});
+}

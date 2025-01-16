@@ -16,6 +16,7 @@ namespace ecs
         MENU,
         LOBBY,
         GAME,
+        END_GAME,
     };
 
     enum WindowFocus
@@ -31,7 +32,10 @@ namespace ecs
         LOBBY_FOCUS,
 
         // GAME
-        GAME_FOCUS
+        GAME_FOCUS,
+
+        // END_GAME
+        END_GAME_FOCUS
     };
 
 #define ASSETS_PATH "client/assets/"

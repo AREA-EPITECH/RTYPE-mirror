@@ -10,18 +10,6 @@ float map_value(float x, float in_min, float in_max, float out_min, float out_ma
     return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 
-void init_settings(Registry &ecs)
-{
-    ecs.register_component<ecs::SettingsComponent>();
-
-    ecs.register_event<ecs::DisplaySettingEvent>();
-
-    ecs.subscribe<ecs::DisplaySettingEvent>(ecs::display_settings_system);
-    ecs.register_component<ecs::KeyBindingComponent>();
-
-    auto keys = ecs.spawn_entity();
-    ecs.add_component<ecs::KeyBindingComponent>(keys, {});
-}
 
 /**
  * Init the ecs
@@ -51,8 +39,7 @@ Registry init_ecs()
     ecs.register_component<ecs::ImageComponent>();
     ecs.register_component<ecs::HealthBarComponent>();
     ecs.register_component<game::GameState>();
-    ecs.register_component<ecs::SoundComponent>();
-    ecs.register_component<ecs::MusicComponent>();
+    ecs.register_component<ecs::ScoreComponent>();
 
     ecs.register_event<ecs::CreateWindowEvent>();
     ecs.register_event<ecs::WindowOpenEvent>();
@@ -350,7 +337,6 @@ Registry init_ecs()
     auto gameState = ecs.spawn_entity();
     ecs.add_component<game::GameState>(gameState, {});
 
-    init_settings(ecs);
     init_menu_window(ecs);
 
     return ecs;

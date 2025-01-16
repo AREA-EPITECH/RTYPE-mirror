@@ -36,7 +36,6 @@ namespace ecs {
         float y = dynamicY ? static_cast<float>(dynamicY(GetScreenWidth(), GetScreenHeight())) : 0.0f;
 
         Rectangle imageRect = {x, y, width, height};
-
         if (CheckCollisionPointRec(mousePosition, imageRect) && onClick && focus == _focus) {
             onClick();
         }

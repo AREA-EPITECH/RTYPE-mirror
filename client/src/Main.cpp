@@ -182,7 +182,9 @@ int main(int argc, char *argv[])
     std::thread thread_network(handle_network_event, std::ref(host), port, std::ref(receiveQueue), std::ref(sendQueue));
 
     auto windowEntity = ecs.spawn_entity();
-    ecs.add_component<ecs::Window>(windowEntity, {1920, 1080, "ECS Raylib - Multi Events", false});
+    int s_width = 1920;
+    int s_height = 1080;
+    ecs.add_component<ecs::Window>(windowEntity, {s_width, s_height, "ECS Raylib - Multi Events", false});
 
     ecs.subscribe<ecs::CreateWindowEvent>(ecs::init_window_system);
 
@@ -205,12 +207,16 @@ int main(int argc, char *argv[])
             ecs.run_event(receiveQueue.pop());
         }
         ecs.run_event(ecs::WindowDrawEvent{});
+        if (WindowShouldClose()) {
+            s_width = GetScreenWidth();
+            s_height = GetScreenHeight();
+        }
     }
+    updateSettings(ecs, "./client/settings/settings.json", s_width, s_height);
     shutdown_requested.store(true);
     thread_network.join();
     empty_ecs(ecs);
     CloseAudioDevice();
     CloseWindow();
-
     return 0;
 }

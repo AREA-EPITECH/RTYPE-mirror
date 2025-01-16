@@ -3,7 +3,7 @@
 //
 
 #include "ecs/Systems.hpp"
-#include "list"
+#include "raylib/kbd_layout.h"
 
 namespace ecs {
 
@@ -136,7 +136,7 @@ namespace ecs {
                 int currentKey = keyBindings.getKey(action);
                 std::string keyText = getPrintableKeyName(currentKey);
 
-                DrawText(action.c_str(), xOffset, yOffset, 30, WHITE);
+                          DrawText(action.c_str(), xOffset, yOffset, 30, WHITE);
                 yOffset += 50;
 
                 Rectangle textBox = {static_cast<float>(xOffset), static_cast<float>(yOffset),
@@ -161,7 +161,7 @@ namespace ecs {
                          static_cast<int>(textBox.x + 5), static_cast<int>(textBox.y + 10), 30, BLACK);
 
                 if (isFocusedMap[action]) {
-                    int key = GetKeyPressed();
+                    int key = Kbd_GetKeyPressed(KBD_Layout::FR);
                     if (key != 0) {
                         if (key >= 32 && key <= 126) {
                             currentInputMap[action] = std::string(1, static_cast<char>(key));
