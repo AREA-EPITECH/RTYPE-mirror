@@ -66,7 +66,6 @@ void display_menu_selectors(Registry &ecs) {
         if (setting.has_value()) {
             setting.value().background.width = (float)s_width;
             setting.value().background.height = (float)s_height;
-            //setting.value().drawSettings(s_width, s_height);
             DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), Fade(BLACK, 0.9f));
             ecs.run_event(ecs::DisplaySettingEvent{});
         }

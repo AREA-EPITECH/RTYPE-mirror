@@ -38,7 +38,12 @@ namespace ecs
         case GAME:
             init_game_window(ecs);
             break;
+
+        case END_GAME:
+            init_end_game_window(ecs);
+            break;
         }
+
 
         ecs.run_event(WindowOpenEvent{});
     }
@@ -118,6 +123,19 @@ namespace ecs
         int nb_lights = 0;
 
         auto &controls = ecs.get_components<KeyBindingComponent>();
+
+        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+        {
+            auto &images = ecs.get_components<ImageComponent>();
+            Vector2 mousePosition = GetMousePosition();
+            for (auto &image : images)
+            {
+                if (image.has_value())
+                {
+                    image.value().handleClick(mousePosition, get_focus(ecs));
+                }
+            }
+        }
 
         VesselsComponent *modelComponent = nullptr;
         for (int i = 0; i < models.size(); i++) {
@@ -204,10 +222,40 @@ namespace ecs
 
                 if (Kbd_IsKeyPressed(KBD_Layout::FR, key.value().getKey("Basic Shoot")))
                 {
+                    auto &scores = ecs.get_components<ScoreComponent>();
+
+                    for (auto &score : scores) {
+                        if (score.has_value()) {
+                            score.value().score += 100;
+                        }
+                    }
+                    /*auto &sounds = ecs.get_components<SoundComponent>();
+
+                    for (auto &sound : sounds) {
+                        if (sound.has_value()) {
+                            sound.value().play("shoot");
+                        }
+                    }
+
+                    auto &projectiles = ecs.get_components<ProjectilesComponent>();
+                    for (auto &projectile : projectiles)
+                    {
+                        if (projectile.has_value())
+                        {
+                            if (projectile->player && !projectile->drawable)
+                            {
+                                create_player_basic_projectile(
+                                    ecs, 0, projectile->model,
+                                    {modelComponent->position.x + 10, modelComponent->position.y + 2, 0}, {0.5, 0, 0},
+                                    true, projectile->path, Vector3Zero(), nb_lights, shader);
+                            }
+                        }
+                    }*/
                     input_packet.fire = network::FireType::NormalFire;
                 }
             }
         }
         ecs.run_event(input_packet);
     }
+
 } // namespace ecs
