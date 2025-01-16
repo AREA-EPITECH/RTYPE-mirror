@@ -74,6 +74,8 @@ namespace ecs {
         float _frame_time;
         std::vector<std::vector<tower_defense::EnemyWave>> _enemy_waves = {};
         int _current_wave = 0;
+        long _wave_start_time = clock();
+        bool _wave_started = false;
     };
 
     struct Tile {

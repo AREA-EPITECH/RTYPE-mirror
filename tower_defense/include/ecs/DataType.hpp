@@ -53,6 +53,7 @@ namespace tower_defense
         unsigned int _spawn_amount;
         unsigned int _amount;
         bool _finished;
+        int _time_since_last_spawn;
     };
 
 } // namespace tower_defense
