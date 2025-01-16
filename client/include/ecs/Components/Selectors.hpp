@@ -2,7 +2,8 @@
 
 #include "../DataType.hpp"
 
-namespace ecs {
+namespace ecs
+{
 
     struct FocusComponent
     {
@@ -46,6 +47,22 @@ namespace ecs {
         Color base_color_focused;
         Color text_color_focused;
         Color border_color_focused;
+    };
+
+    class CloseLeaderBoard : public ButtonComponent
+    {
+    public:
+        CloseLeaderBoard(int _buttonWidth, int _buttonHeight, std::string _text, WindowFocus _focus,
+                         std::function<void()> _onClick, std::function<int(int, int)> _dynamicX = nullptr,
+                         std::function<int(int, int)> _dynamicY = nullptr, int _text_size = 12, int _border_width = 2,
+                         Color _base_color_normal = {0, 0, 0, 100}, Color _text_color_normal = {0, 0, 0, 100},
+                         Color _border_color_normal = {0, 0, 0, 100}, Color _base_color_focused = {0, 0, 0, 100},
+                         Color _text_color_focused = {0, 0, 0, 100}, Color _border_color_focused = {0, 0, 0, 100}) :
+            ButtonComponent(_buttonWidth, _buttonHeight, _text, _focus, _onClick, _dynamicX, _dynamicY, _text_size,
+                            _border_width, _base_color_normal, _text_color_normal, _border_color_normal,
+                            _base_color_focused, _text_color_focused, _border_color_focused)
+        {
+        }
     };
 
     class TextInputComponent
@@ -114,11 +131,11 @@ namespace ecs {
         std::function<int(int screenWidth, int screenHeight)> dynamicX;
         std::function<int(int screenWidth, int screenHeight)> dynamicY;
 
-        explicit NumberInputComponent(
-            Rectangle _inputBox, WindowFocus _focus, std::string _defaultText = "", int _minValue = 0, int _maxValue = 100,
-            Color _boxColor = {0, 0, 0, 100}, Color _textColor = {0, 0, 0, 100}, Color _borderColor = {0, 0, 0, 100},
-            std::function<int(int screenWidth, int screenHeight)> _dynamicX = nullptr,
-            std::function<int(int screenWidth, int screenHeight)> _dynamicY = nullptr);
+        explicit NumberInputComponent(Rectangle _inputBox, WindowFocus _focus, std::string _defaultText = "",
+                                      int _minValue = 0, int _maxValue = 100, Color _boxColor = {0, 0, 0, 100},
+                                      Color _textColor = {0, 0, 0, 100}, Color _borderColor = {0, 0, 0, 100},
+                                      std::function<int(int screenWidth, int screenHeight)> _dynamicX = nullptr,
+                                      std::function<int(int screenWidth, int screenHeight)> _dynamicY = nullptr);
 
         NumberInputComponent() = default;
 
@@ -146,12 +163,12 @@ namespace ecs {
         std::string continueButtonText;
 
         explicit ShowBoxComponent(Rectangle _boxRect, std::string _message, Color _boxColor, Color _textColor,
-                         WindowFocus _focus, std::string _textInput = "", std::string _closeButtonText = "Close",
-                         std::string _continueButtonText = "Continue",
-                         std::function<int(int screenWidth, int screenHeight)> _dynamicX = nullptr,
-                         std::function<int(int screenWidth, int screenHeight)> _dynamicY = nullptr,
-                         std::function<void()> _continue_func = nullptr,
-                         std::function<void()> _close_func = nullptr);
+                                  WindowFocus _focus, std::string _textInput = "",
+                                  std::string _closeButtonText = "Close", std::string _continueButtonText = "Continue",
+                                  std::function<int(int screenWidth, int screenHeight)> _dynamicX = nullptr,
+                                  std::function<int(int screenWidth, int screenHeight)> _dynamicY = nullptr,
+                                  std::function<void()> _continue_func = nullptr,
+                                  std::function<void()> _close_func = nullptr);
 
         ShowBoxComponent() = default;
 
@@ -165,8 +182,8 @@ namespace ecs {
     public:
         ImageComponent(const std::string &_imagePath, WindowFocus _focus,
                        std::function<int(int screenWidth, int screenHeight)> _dynamicX,
-                       std::function<int(int screenWidth, int screenHeight)> _dynamicY,
-                       float _width = 0.0f, float _height = 0.0f, std::function<void()> _onClick = nullptr);
+                       std::function<int(int screenWidth, int screenHeight)> _dynamicY, float _width = 0.0f,
+                       float _height = 0.0f, std::function<void()> _onClick = nullptr);
 
         void draw(int screenWidth, int screenHeight);
         void handleClick(Vector2 mousePosition, WindowFocus _focus);

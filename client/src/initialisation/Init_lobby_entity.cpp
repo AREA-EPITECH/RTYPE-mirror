@@ -88,6 +88,34 @@ void init_lobby_entity(Registry &ecs)
             ecs::ButtonStyleColors.at(ecs::BUTTON_BASE_COLOR_FOCUSED),
             ecs::ButtonStyleColors.at(ecs::BUTTON_TEXT_COLOR_FOCUSED),
             ecs::ButtonStyleColors.at(ecs::BUTTON_BORDER_COLOR_FOCUSED)));
+    auto closeScoreBoard = ecs.spawn_entity();
+    const int screenHeight = GetScreenHeight();
+    ecs.add_component<ecs::CloseLeaderBoard>(
+        closeScoreBoard,
+        ecs::CloseLeaderBoard(
+            (screenHeight / 1.5) / 10, (screenHeight / 1.5) / 10, "X", ecs::LOBBY_FOCUS, [&ecs]()
+            {
+                auto gameState = getGameState(ecs);
+                if (gameState->get().getShowScore()) {
+                    gameState->get().setShowScore(false);
+                }
+            }, [buttonWidth](int screenWidth, int screenHeight)
+            {
+                Vector2 center = {screenWidth / 2.0f, screenHeight / 2.0f};
+                int scoreBoardWidth = screenWidth / 1.5;
+                int buttonWidth = (screenHeight / 1.5) / 10;
+                return center.x + scoreBoardWidth / 2 - buttonWidth;
+            }, [](int screenWidth, int screenHeight)
+            {
+                Vector2 center = {screenWidth / 2.0f, screenHeight / 2.0f};
+                int scoreBoardHeight = screenHeight / 1.5;
+                return center.y - scoreBoardHeight / 2;
+            }, 24, 1, BLACK,
+            WHITE,
+            WHITE,
+            BLACK,
+            GRAY,
+            WHITE));
     struct network::LobbyActionPacket packet;
     game::GameState::Player user = gameState->get().getUser();
     packet.name = user.name;

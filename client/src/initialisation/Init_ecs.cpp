@@ -27,6 +27,7 @@ Registry init_ecs()
     ecs.register_component<ecs::LightComponent>();
     ecs.register_component<ecs::TextComponent>();
     ecs.register_component<ecs::ButtonComponent>();
+    ecs.register_component<ecs::CloseLeaderBoard>();
     ecs.register_component<ecs::MenuText>();
     ecs.register_component<ecs::BackgroundComponent>();
     ecs.register_component<ecs::DecorElementComponent>();
@@ -167,6 +168,7 @@ Registry init_ecs()
                             if (score_i.has_value()) {
                                 score_i->win_score = received_packet.maxScore;
                                 score_i->level = received_packet.level;
+                                spdlog::info("LEvel {}", received_packet.level);
                                 break;
                             }
                         }

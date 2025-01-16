@@ -141,7 +141,24 @@ namespace ecs {
             DrawRectangle(center.x - scoreBoardWidth / 2, center.y - scoreBoardHeight / 2, scoreBoardWidth, scoreBoardHeight, BLACK);
             DrawRectangleLines(center.x - scoreBoardWidth / 2, center.y - scoreBoardHeight / 2, scoreBoardWidth, scoreBoardHeight, WHITE);
             DrawRectangleLines(center.x - scoreBoardWidth / 2, center.y - scoreBoardHeight / 2, scoreBoardWidth, headerHeight, WHITE);
+            auto &scores = ecs.get_components<ecs::ScoreComponent>();
+            int level = 0;
+            for (auto &score_i: scores) {
+                if (score_i.has_value()) {
+                    level = score_i->level;
+                    break;
+                }
+            }
+            std::string level_str = fmt::format("Level {}", level);
             DrawText("LEADERBOARD", center.x - MeasureText("LEADERBOARD", fontSize) / 2, center.y - scoreBoardHeight / 2 + headerHeight / 2 - fontSize / 2, fontSize, WHITE);
+            DrawText(level_str.c_str(), center.x - scoreBoardWidth / 2 + 20, center.y - scoreBoardHeight / 2 + headerHeight / 2 - fontSize / 2, fontSize, WHITE);
+            auto &buttons = ecs.get_components<ecs::CloseLeaderBoard>();
+            for (int i = 0; i < buttons.size(); i++) {
+                if (buttons[i].has_value()) {
+                    auto &button = buttons[i].value();
+                    button.drawButton(ecs::get_focus(ecs));
+                }
+            }
         }
 
         EndDrawing();
