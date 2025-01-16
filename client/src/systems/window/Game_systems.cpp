@@ -187,18 +187,14 @@ namespace ecs {
         for (auto &score : scores) {
             if (score.has_value()) {
                 score.value().draw_ingame();
+                if (score.value().score >= score.value().win_score) {
+                    EndDrawing();
+                    change_window(ecs, END_GAME);
+                }
             }
         }
 
         EndDrawing();
-
-        for (auto &score : scores) {
-            if (score.has_value()) {
-                if (score.value().score >= score.value().win_score) {
-                    change_window(ecs, WindowType::END_GAME);
-                }
-            }
-        }
 
         if (WindowShouldClose()) {
             ecs.run_event(WindowCloseEvent{});
