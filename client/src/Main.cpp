@@ -199,6 +199,7 @@ int main(int argc, char *argv[])
         });
     ecs.subscribe<struct network::InputPacket>([&sendQueue](Registry &ecs, const struct network::InputPacket &packet)
                                                { sendQueue.push(packet); });
+    SetExitKey(0);
 
     while (!WindowShouldClose())
     {

@@ -184,6 +184,16 @@ namespace ecs
             }
         }
 
+        if (Kbd_IsKeyPressed(KBD_Layout::FR, KEY_ESCAPE)) {
+            auto settingEntity = ecs.spawn_entity();
+
+            std::string back_path = ASSET_FILE("backgrounds/menu/setting_back.jpg");
+            ImageComponent setting_back(back_path, SETTINGS_FOCUS,
+                                        [](int screenWidth, int screenHeight) {return 0;},
+                                        [](int screenWidth, int screenHeight) {return 0;}, GetScreenWidth(), GetScreenHeight());
+            ecs.add_component<SettingsComponent>(settingEntity, {setting_back});
+            ecs.run_event(ChangeFocusEvent{SETTINGS_FOCUS});
+        }
         if (modelComponent == nullptr || cameraComponent == nullptr)
             return;
         if (Kbd_IsKeyPressed(KBD_Layout::FR, KEY_ENTER))
