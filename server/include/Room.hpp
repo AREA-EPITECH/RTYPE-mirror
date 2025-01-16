@@ -73,7 +73,7 @@ namespace server {
         uint32_t getId() const;
         void setId(uint32_t id);
         int getLevel() const;
-        void setLevel(int level);
+        void setLevel(int level, server::Server &server);
         bool isClientinsideRoom();
         network::LobbyGameState getState() const;
         void setState(network::LobbyGameState state);

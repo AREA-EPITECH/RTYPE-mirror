@@ -34,12 +34,7 @@ namespace ecs {
         for (auto &light : lights) {
             if (light.has_value()) {
                 light->light->UpdateLightValues(shader, light->light->_enabled);
-            }auto &filters = ecs.get_components<FilterComponent>();
-        for (auto &filter : filters) {
-            if (filter.has_value()) {
-                filter.value().applyFilter();
             }
-        }
         }
 
         for (auto &music : musics) {
@@ -103,6 +98,7 @@ namespace ecs {
                 BeginMode3D(camera);
 
                 auto &models = ecs.get_components<VesselsComponent>();
+                int j = 0;
                 for (auto &model : models) {
                     if (model.has_value()) {
                         VesselsComponent &modelComponent = model.value();
@@ -112,6 +108,7 @@ namespace ecs {
                             DrawModel(modelComponent.model, {0, 0, 0}, 1.0f, WHITE);
                         }
                     }
+                    j++;
                 }
 
                 EndMode3D();
@@ -140,6 +137,21 @@ namespace ecs {
             DrawRing(center, 80, 190, startAngle, endAngle, 0, Fade(RED, 0.5f));
         }
 
+
+        if (gameState->get().getShowScore()) {
+            int scoreBoardWidth = screenWidth / 1.5;
+            int scoreBoardHeight = screenHeight / 1.5;
+            int headerHeight = scoreBoardHeight / 10;
+            int fontSize = 52;
+            Color blackTransparent = {0, 48, 73, 200};
+            DrawRectangle(0, 0, screenWidth, screenHeight, blackTransparent);
+            Vector2 center = {screenWidth / 2.0f, screenHeight / 2.0f};
+            DrawRectangle(center.x - scoreBoardWidth / 2, center.y - scoreBoardHeight / 2, scoreBoardWidth, scoreBoardHeight, BLACK);
+            DrawRectangleLines(center.x - scoreBoardWidth / 2, center.y - scoreBoardHeight / 2, scoreBoardWidth, scoreBoardHeight, WHITE);
+            DrawRectangleLines(center.x - scoreBoardWidth / 2, center.y - scoreBoardHeight / 2, scoreBoardWidth, headerHeight, WHITE);
+            DrawText("LEADERBOARD", center.x - MeasureText("LEADERBOARD", fontSize) / 2, center.y - scoreBoardHeight / 2 + headerHeight / 2 - fontSize / 2, fontSize, WHITE);
+        }
+
         for (auto &filter : filters) {
             if (filter.has_value()) {
                 filter.value().removeFilter();
@@ -159,8 +171,10 @@ namespace ecs {
     void open_lobby_system(Registry &ecs, const WindowOpenEvent &) {
         auto &cameras = ecs.get_components<CameraComponent>();
         Camera camera = {};
-        for (auto & camera_i : cameras) {
-            if (camera_i.has_value()) {
+        for (auto &camera_i : cameras)
+        {
+            if (camera_i.has_value())
+            {
                 camera_i->camera.position = {10.0f, 10.0f, 30.0f};
                 camera_i->camera.target = {-10.0f, 0.0f, 0.0f};
                 camera_i->camera.up = {0.0f, 30.0f, 0.0f};
@@ -176,6 +190,42 @@ namespace ecs {
 
         ecs.run_event(InitModelEvent{});
         ecs.run_event(InitShaderEvent{});
+
+        auto &backgrounds = ecs.get_components<BackgroundComponent>();
+        for (auto & background : backgrounds) {
+            if (background.has_value()) {
+                background->speed = 50;
+            }
+        }
+
+        auto &decors = ecs.get_components<DecorElementComponent>();
+        for (auto & decor : decors) {
+            if (decor.has_value()) {
+                switch (decor->depth)
+                {
+                    case 1:
+                        decor->speed = 75;
+                        break;
+                    case 2:
+                        decor->speed = 100;
+                        break;
+                    case 3:
+                        decor->speed = 125;
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+        auto &musics = ecs.get_components<MusicComponent>();
+        for (int i = 0; i < musics.size();i++) {
+            if (musics[i].has_value()) {
+                if (!musics[i].value().isPlaying("menu_music")) {
+                    musics[i].value().play("menu_music");
+                }
+            }
+        }
     }
 
     /**
@@ -191,7 +241,7 @@ namespace ecs {
 
         for (int i = 0; i < musics.size();i++) {
             if (musics[i].has_value()) {
-                musics[i].value().stop("menu_music");
+                musics[i].value().pause("menu_music");
             }
         }
     }

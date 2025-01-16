@@ -149,7 +149,8 @@ namespace server
     bool Room::getClientsReadiness() const
     {
         auto &clients = _registry.get_components<std::shared_ptr<network::PeerWrapper>>();
-        for (int i = 0; i < clients.size(); i++)
+        int i = 0;
+        for (; i < clients.size(); i++)
         {
             if (clients[i].has_value())
             {
@@ -158,6 +159,9 @@ namespace server
                     return false;
                 }
             }
+        }
+        if (i == 0) {
+            return false;
         }
         return true;
     }
@@ -196,10 +200,21 @@ namespace server
         {
             struct network::SnapshotPacket snapshot_packet;
             snapshot_packet.numEntities = 0;
+            snapshot_packet.level = this->level;
+            auto &levels = _registry.get_components<Level>();
+            uint16_t score_to_achieve = 0;
+            for (auto &level: levels) {
+                if (level.has_value()) {
+                    score_to_achieve = static_cast<uint16_t>(level.value().win_score);
+                    break;
+                }
+            }
+            snapshot_packet.maxScore = score_to_achieve;
 
             auto &pos = _registry.get_components<Pos>();
 
             auto &clients = _registry.get_components<std::shared_ptr<network::PeerWrapper>>();
+            auto &lives = _registry.get_components<int>();
             for (int i = 0; i < clients.size(); i++) {
                 if (clients[i].has_value() && clients[i].value()->getData<ClientData>().getAlive()) {
                     network::EntityUpdate entity_update;
@@ -210,6 +225,9 @@ namespace server
                     {
                         entity_update.posX = pos[i].value().x;
                         entity_update.posY = pos[i].value().y;
+                    }
+                    if (lives[i].value()) {
+                        entity_update.health = lives[i].value();
                     }
                     entity_update.score = clients[i].value()->getData<ClientData>().getScore();
                     snapshot_packet.entities.push_back(entity_update);
@@ -706,7 +724,23 @@ namespace server
 
     int Room::getLevel() const { return this->level; }
 
-    void Room::setLevel(const int level) { this->level = level; }
+    void Room::setLevel(const int level, server::Server &server) {
+        this->level = level;
+        this->sendUpdateRoom(server);
+        this->setState(network::LobbyGameState::Waiting);
+        auto &clients = _registry.get_components<std::shared_ptr<network::PeerWrapper>>();
+        for (int i = 0; i < clients.size(); i++)
+        {
+            if (clients[i].has_value())
+            {
+                auto &data = clients[i].value()->getData<ClientData>();
+                if (data.getReadyState()) {
+                    data.setReadyState();
+                }
+            }
+        }
+        server.changeRoomToWaiting(this->_id);
+    }
 
     bool Room::isClientinsideRoom()
     {

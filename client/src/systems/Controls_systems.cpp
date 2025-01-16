@@ -232,35 +232,6 @@ namespace ecs
 
                 if (Kbd_IsKeyPressed(KBD_Layout::FR, key.value().getKey("Basic Shoot")))
                 {
-                    auto &scores = ecs.get_components<ScoreComponent>();
-
-                    for (auto &score : scores) {
-                        if (score.has_value()) {
-                            score.value().score += 100;
-                        }
-                    }
-                    /*auto &sounds = ecs.get_components<SoundComponent>();
-
-                    for (auto &sound : sounds) {
-                        if (sound.has_value()) {
-                            sound.value().play("shoot");
-                        }
-                    }
-
-                    auto &projectiles = ecs.get_components<ProjectilesComponent>();
-                    for (auto &projectile : projectiles)
-                    {
-                        if (projectile.has_value())
-                        {
-                            if (projectile->player && !projectile->drawable)
-                            {
-                                create_player_basic_projectile(
-                                    ecs, 0, projectile->model,
-                                    {modelComponent->position.x + 10, modelComponent->position.y + 2, 0}, {0.5, 0, 0},
-                                    true, projectile->path, Vector3Zero(), nb_lights, shader);
-                            }
-                        }
-                    }*/
                     input_packet.fire = network::FireType::NormalFire;
                 }
             }

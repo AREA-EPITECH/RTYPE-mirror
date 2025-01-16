@@ -54,7 +54,6 @@ void init_lobby_entity(Registry &ecs)
                 packet.roomId = gameState->get().getRoomId();
                 ecs.run_event(packet);
                 gameState->get().updateUser(user);
-                //ecs::change_window(ecs, ecs::WindowType::GAME);
             }, [buttonWidth](int screenWidth, int screenHeight)
             { return screenWidth * 0.66 - (buttonWidth / 2) + 20; }, [](int screenWidth, int screenHeight)
             { return screenHeight - 150; }, 24, 4, ecs::ButtonStyleColors.at(ecs::BUTTON_BASE_COLOR_NORMAL),

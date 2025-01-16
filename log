@@ -46,12 +46,13 @@ INFO:     > Format:        32-bit IEEE Floating Point -> 32-bit Signed Integer
 INFO:     > Channels:      2 -> 2
 INFO:     > Sample rate:   48000 -> 48000
 INFO:     > Periods size:  3600
+[2025-01-16 15:16:07.171] [info] Create Camera
 INFO: Created camera with properties: position (40.000000, -10.000000, 0.000000), target (0.000000, -10.000000, 0.000000), up (0.000000, 1.000000, 0.000000), fovy 45.000000.
 WARNING: Trying to load file client/assets/voxels/title/r-type.vox...
 INFO: FILEIO: [client/assets/voxels/title/r-type.vox] File loaded successfully
 INFO: MODEL: [client/assets/voxels/title/r-type.vox] VOX data loaded successfully : 15224 vertices/1 meshes
 INFO: VAO: [ID 2] Mesh uploaded successfully to VRAM (GPU)
-WARNING: Loaded file client/assets/voxels/title/r-type.vox in 2.591403 ms.
+WARNING: Loaded file client/assets/voxels/title/r-type.vox in 1.778507 ms.
 MODEL ID : 13
 INFO: FILEIO: [client/assets/voxels/shaders/voxel_lighting.vs] Text file loaded successfully
 INFO: FILEIO: [client/assets/voxels/shaders/voxel_lighting.fs] Text file loaded successfully
@@ -84,77 +85,73 @@ INFO:     > Sample size:   16 bits
 INFO:     > Channels:      2 (Stereo)
 INFO:     > Total frames:  6756038
 INFO: TEXTURE: [ID 4] Unloaded texture data from VRAM (GPU)
+INFO: VAO: [ID 2] Unloaded vertex array data from VRAM (GPU)
+INFO: MODEL: Unloaded model (and meshes) from RAM and VRAM
+WARNING: Trying to load file client/assets/voxels/player/spaceship/player_spaceship_1.vox...
+INFO: FILEIO: [client/assets/voxels/player/spaceship/player_spaceship_1.vox] File loaded successfully
+INFO: MODEL: [client/assets/voxels/player/spaceship/player_spaceship_1.vox] VOX data loaded successfully : 32840 vertices/1 meshes
+INFO: VAO: [ID 3] Mesh uploaded successfully to VRAM (GPU)
+WARNING: Loaded file client/assets/voxels/player/spaceship/player_spaceship_1.vox in 3.910312 ms.
+MODEL ID : 21
 WARNING: Trying to load file client/assets/voxels/player/spaceship/player_spaceship_2.vox...
 INFO: FILEIO: [client/assets/voxels/player/spaceship/player_spaceship_2.vox] File loaded successfully
 INFO: MODEL: [client/assets/voxels/player/spaceship/player_spaceship_2.vox] VOX data loaded successfully : 12168 vertices/1 meshes
-INFO: VAO: [ID 3] Mesh uploaded successfully to VRAM (GPU)
-WARNING: Loaded file client/assets/voxels/player/spaceship/player_spaceship_2.vox in 3.651940 ms.
+INFO: VAO: [ID 4] Mesh uploaded successfully to VRAM (GPU)
+WARNING: Loaded file client/assets/voxels/player/spaceship/player_spaceship_2.vox in 1.038832 ms.
 MODEL ID : 22
 WARNING: Trying to load file client/assets/voxels/player/spaceship/player_spaceship_3.vox...
 INFO: FILEIO: [client/assets/voxels/player/spaceship/player_spaceship_3.vox] File loaded successfully
 INFO: MODEL: [client/assets/voxels/player/spaceship/player_spaceship_3.vox] VOX data loaded successfully : 23112 vertices/1 meshes
-INFO: VAO: [ID 4] Mesh uploaded successfully to VRAM (GPU)
-WARNING: Loaded file client/assets/voxels/player/spaceship/player_spaceship_3.vox in 4.741950 ms.
-MODEL ID : 23
-WARNING: Trying to load file client/assets/voxels/player/spaceship/player_spaceship_1.vox...
-INFO: FILEIO: [client/assets/voxels/player/spaceship/player_spaceship_1.vox] File loaded successfully
-INFO: MODEL: [client/assets/voxels/player/spaceship/player_spaceship_1.vox] VOX data loaded successfully : 32840 vertices/1 meshes
 INFO: VAO: [ID 5] Mesh uploaded successfully to VRAM (GPU)
-WARNING: Loaded file client/assets/voxels/player/spaceship/player_spaceship_1.vox in 5.940324 ms.
-MODEL ID : 24
+WARNING: Loaded file client/assets/voxels/player/spaceship/player_spaceship_3.vox in 1.936862 ms.
+MODEL ID : 23
+INFO: Applied shader to model of entity 21.
 INFO: Applied shader to model of entity 22.
 INFO: Applied shader to model of entity 23.
-INFO: Applied shader to model of entity 24.
-INFO: Applied shader to model of entity 13.
-INFO: STREAM: Unloaded audio stream data from RAM
 INFO: VAO: [ID 3] Unloaded vertex array data from VRAM (GPU)
 INFO: MODEL: Unloaded model (and meshes) from RAM and VRAM
 INFO: VAO: [ID 4] Unloaded vertex array data from VRAM (GPU)
 INFO: MODEL: Unloaded model (and meshes) from RAM and VRAM
 INFO: VAO: [ID 5] Unloaded vertex array data from VRAM (GPU)
 INFO: MODEL: Unloaded model (and meshes) from RAM and VRAM
-WARNING: Trying to load file client/assets/voxels/player/spaceship/player_spaceship_2.vox...
-INFO: FILEIO: [client/assets/voxels/player/spaceship/player_spaceship_2.vox] File loaded successfully
-INFO: MODEL: [client/assets/voxels/player/spaceship/player_spaceship_2.vox] VOX data loaded successfully : 12168 vertices/1 meshes
+WARNING: Trying to load file client/assets/voxels/player/spaceship/player_spaceship_1.vox...
+INFO: FILEIO: [client/assets/voxels/player/spaceship/player_spaceship_1.vox] File loaded successfully
+INFO: MODEL: [client/assets/voxels/player/spaceship/player_spaceship_1.vox] VOX data loaded successfully : 32840 vertices/1 meshes
 INFO: VAO: [ID 6] Mesh uploaded successfully to VRAM (GPU)
-WARNING: Loaded file client/assets/voxels/player/spaceship/player_spaceship_2.vox in 3.806502 ms.
-[2025-01-15 18:27:48.648] [info] File client/assets/voxels/enemy/spaceship/enemy_spaceship_1.vox
-[2025-01-15 18:27:48.648] [info] File client/assets/voxels/enemy/spaceship/enemy_spaceship_3.vox
-[2025-01-15 18:27:48.648] [info] File client/assets/voxels/enemy/spaceship/enemy_spaceship_2.vox
+WARNING: Loaded file client/assets/voxels/player/spaceship/player_spaceship_1.vox in 3.180243 ms.
 WARNING: Trying to load file client/assets/voxels/enemy/spaceship/enemy_spaceship_1.vox...
 INFO: FILEIO: [client/assets/voxels/enemy/spaceship/enemy_spaceship_1.vox] File loaded successfully
-INFO: MODEL: [client/assets/voxels/enemy/spaceship/enemy_spaceship_1.vox] VOX data loaded successfully : 23360 vertices/1 meshes
+INFO: MODEL: [client/assets/voxels/enemy/spaceship/enemy_spaceship_1.vox] VOX data loaded successfully : 13832 vertices/1 meshes
 INFO: VAO: [ID 7] Mesh uploaded successfully to VRAM (GPU)
-WARNING: Loaded file client/assets/voxels/enemy/spaceship/enemy_spaceship_1.vox in 4.264260 ms.
-WARNING: Trying to load file client/assets/voxels/enemy/spaceship/enemy_spaceship_3.vox...
-INFO: FILEIO: [client/assets/voxels/enemy/spaceship/enemy_spaceship_3.vox] File loaded successfully
-INFO: MODEL: [client/assets/voxels/enemy/spaceship/enemy_spaceship_3.vox] VOX data loaded successfully : 13832 vertices/1 meshes
-INFO: VAO: [ID 8] Mesh uploaded successfully to VRAM (GPU)
-WARNING: Loaded file client/assets/voxels/enemy/spaceship/enemy_spaceship_3.vox in 1.612997 ms.
+WARNING: Loaded file client/assets/voxels/enemy/spaceship/enemy_spaceship_1.vox in 1.269175 ms.
 WARNING: Trying to load file client/assets/voxels/enemy/spaceship/enemy_spaceship_2.vox...
 INFO: FILEIO: [client/assets/voxels/enemy/spaceship/enemy_spaceship_2.vox] File loaded successfully
 INFO: MODEL: [client/assets/voxels/enemy/spaceship/enemy_spaceship_2.vox] VOX data loaded successfully : 24104 vertices/1 meshes
+INFO: VAO: [ID 8] Mesh uploaded successfully to VRAM (GPU)
+WARNING: Loaded file client/assets/voxels/enemy/spaceship/enemy_spaceship_2.vox in 1.825328 ms.
+WARNING: Trying to load file client/assets/voxels/enemy/spaceship/enemy_spaceship_3.vox...
+INFO: FILEIO: [client/assets/voxels/enemy/spaceship/enemy_spaceship_3.vox] File loaded successfully
+INFO: MODEL: [client/assets/voxels/enemy/spaceship/enemy_spaceship_3.vox] VOX data loaded successfully : 23360 vertices/1 meshes
 INFO: VAO: [ID 9] Mesh uploaded successfully to VRAM (GPU)
-WARNING: Loaded file client/assets/voxels/enemy/spaceship/enemy_spaceship_2.vox in 2.184776 ms.
+WARNING: Loaded file client/assets/voxels/enemy/spaceship/enemy_spaceship_3.vox in 2.214616 ms.
 WARNING: Trying to load file client/assets/voxels/enemy/shot/enemy_basic_shot.vox...
 INFO: FILEIO: [client/assets/voxels/enemy/shot/enemy_basic_shot.vox] File loaded successfully
 INFO: MODEL: [client/assets/voxels/enemy/shot/enemy_basic_shot.vox] VOX data loaded successfully : 120 vertices/1 meshes
 INFO: VAO: [ID 10] Mesh uploaded successfully to VRAM (GPU)
-WARNING: Loaded file client/assets/voxels/enemy/shot/enemy_basic_shot.vox in 0.385724 ms.
+WARNING: Loaded file client/assets/voxels/enemy/shot/enemy_basic_shot.vox in 0.133181 ms.
 MODEL ID : 11
 WARNING: Trying to load file client/assets/voxels/player/shot/player_basic_shot.vox...
 INFO: FILEIO: [client/assets/voxels/player/shot/player_basic_shot.vox] File loaded successfully
 INFO: MODEL: [client/assets/voxels/player/shot/player_basic_shot.vox] VOX data loaded successfully : 168 vertices/1 meshes
 INFO: VAO: [ID 11] Mesh uploaded successfully to VRAM (GPU)
-WARNING: Loaded file client/assets/voxels/player/shot/player_basic_shot.vox in 0.156106 ms.
+WARNING: Loaded file client/assets/voxels/player/shot/player_basic_shot.vox in 0.097761 ms.
 MODEL ID : 12
-INFO: Applied shader to model of entity 15.
+INFO: Applied shader to model of entity 13.
+INFO: Applied shader to model of entity 21.
 INFO: Applied shader to model of entity 22.
 INFO: Applied shader to model of entity 23.
-INFO: Applied shader to model of entity 24.
 INFO: Applied shader to model of entity 11.
 INFO: Applied shader to model of entity 12.
-INFO: Applied shader to model of entity 13.
 INFO: FILEIO: [./client/assets/health_bar/health_00.png] File loaded successfully
 INFO: IMAGE: Data loaded successfully (91x16 | R8G8B8 | 1 mipmaps)
 INFO: TEXTURE: [ID 9] Texture loaded successfully (91x16 | R8G8B8 | 1 mipmaps)
@@ -191,6 +188,9 @@ INFO: TEXTURE: [ID 19] Texture loaded successfully (91x16 | R8G8B8 | 1 mipmaps)
 INFO: FILEIO: [./client/assets/health_bar/health_danger.png] File loaded successfully
 INFO: IMAGE: Data loaded successfully (91x16 | R8G8B8 | 1 mipmaps)
 INFO: TEXTURE: [ID 20] Texture loaded successfully (91x16 | R8G8B8 | 1 mipmaps)
+INFO: FILEIO: [client/assets/images/settings.png] File loaded successfully
+INFO: IMAGE: Data loaded successfully (512x512 | R8G8B8A8 | 1 mipmaps)
+INFO: TEXTURE: [ID 21] Texture loaded successfully (512x512 | R8G8B8A8 | 1 mipmaps)
 INFO: FILEIO: [./client/assets/sound/shoot.wav] File loaded successfully
 INFO: WAVE: Data loaded successfully (48000 Hz, 16 bit, 1 channels)
 INFO: STREAM: Initialized successfully (44100 Hz, 16 bit, Stereo)
@@ -199,3 +199,79 @@ INFO:     > Sample rate:   44100 Hz
 INFO:     > Sample size:   16 bits
 INFO:     > Channels:      2 (Stereo)
 INFO:     > Total frames:  5558400
+[2025-01-16 15:16:27.694] [info] WIN !!
+INFO: TEXTURE: [ID 21] Unloaded texture data from VRAM (GPU)
+INFO: VAO: [ID 9] Unloaded vertex array data from VRAM (GPU)
+INFO: MODEL: Unloaded model (and meshes) from RAM and VRAM
+WARNING: Unloaded model for entity 13.
+INFO: VAO: [ID 8] Unloaded vertex array data from VRAM (GPU)
+INFO: MODEL: Unloaded model (and meshes) from RAM and VRAM
+WARNING: Unloaded model for entity 21.
+INFO: VAO: [ID 7] Unloaded vertex array data from VRAM (GPU)
+INFO: MODEL: Unloaded model (and meshes) from RAM and VRAM
+WARNING: Unloaded model for entity 22.
+INFO: VAO: [ID 6] Unloaded vertex array data from VRAM (GPU)
+INFO: MODEL: Unloaded model (and meshes) from RAM and VRAM
+WARNING: Unloaded model for entity 23.
+WARNING: Unloaded model for entity 2.
+INFO: VAO: [ID 10] Unloaded vertex array data from VRAM (GPU)
+INFO: MODEL: Unloaded model (and meshes) from RAM and VRAM
+WARNING: Unloaded model for entity 11.
+INFO: VAO: [ID 11] Unloaded vertex array data from VRAM (GPU)
+INFO: MODEL: Unloaded model (and meshes) from RAM and VRAM
+WARNING: Unloaded model for entity 12.
+WARNING: Unloaded model for entity 24.
+WARNING: Unloaded model for entity 26.
+WARNING: Unloaded model for entity 27.
+WARNING: Unloaded model for entity 28.
+INFO: SHADER: [ID 6] Unloaded shader program data from VRAM (GPU)
+INFO: STREAM: Unloaded audio stream data from RAM
+WARNING: Trying to load file client/assets/voxels/player/spaceship/player_spaceship_1.vox...
+INFO: FILEIO: [client/assets/voxels/player/spaceship/player_spaceship_1.vox] File loaded successfully
+INFO: MODEL: [client/assets/voxels/player/spaceship/player_spaceship_1.vox] VOX data loaded successfully : 32840 vertices/1 meshes
+INFO: VAO: [ID 12] Mesh uploaded successfully to VRAM (GPU)
+WARNING: Loaded file client/assets/voxels/player/spaceship/player_spaceship_1.vox in 7.165656 ms.
+MODEL ID : 2
+WARNING: Trying to load file client/assets/voxels/player/spaceship/player_spaceship_2.vox...
+INFO: FILEIO: [client/assets/voxels/player/spaceship/player_spaceship_2.vox] File loaded successfully
+INFO: MODEL: [client/assets/voxels/player/spaceship/player_spaceship_2.vox] VOX data loaded successfully : 12168 vertices/1 meshes
+INFO: VAO: [ID 13] Mesh uploaded successfully to VRAM (GPU)
+WARNING: Loaded file client/assets/voxels/player/spaceship/player_spaceship_2.vox in 1.002046 ms.
+MODEL ID : 23
+WARNING: Trying to load file client/assets/voxels/player/spaceship/player_spaceship_3.vox...
+INFO: FILEIO: [client/assets/voxels/player/spaceship/player_spaceship_3.vox] File loaded successfully
+INFO: MODEL: [client/assets/voxels/player/spaceship/player_spaceship_3.vox] VOX data loaded successfully : 23112 vertices/1 meshes
+INFO: VAO: [ID 14] Mesh uploaded successfully to VRAM (GPU)
+WARNING: Loaded file client/assets/voxels/player/spaceship/player_spaceship_3.vox in 1.706581 ms.
+MODEL ID : 22
+INFO: Applied shader to model of entity 2.
+INFO: Applied shader to model of entity 22.
+INFO: Applied shader to model of entity 23.
+INFO: VAO: [ID 12] Unloaded vertex array data from VRAM (GPU)
+INFO: MODEL: Unloaded model (and meshes) from RAM and VRAM
+INFO: VAO: [ID 14] Unloaded vertex array data from VRAM (GPU)
+INFO: MODEL: Unloaded model (and meshes) from RAM and VRAM
+INFO: VAO: [ID 13] Unloaded vertex array data from VRAM (GPU)
+INFO: MODEL: Unloaded model (and meshes) from RAM and VRAM
+INFO: TEXTURE: [ID 9] Unloaded texture data from VRAM (GPU)
+INFO: TEXTURE: [ID 10] Unloaded texture data from VRAM (GPU)
+INFO: TEXTURE: [ID 11] Unloaded texture data from VRAM (GPU)
+INFO: TEXTURE: [ID 12] Unloaded texture data from VRAM (GPU)
+INFO: TEXTURE: [ID 13] Unloaded texture data from VRAM (GPU)
+INFO: TEXTURE: [ID 14] Unloaded texture data from VRAM (GPU)
+INFO: TEXTURE: [ID 15] Unloaded texture data from VRAM (GPU)
+INFO: TEXTURE: [ID 16] Unloaded texture data from VRAM (GPU)
+INFO: TEXTURE: [ID 17] Unloaded texture data from VRAM (GPU)
+INFO: TEXTURE: [ID 18] Unloaded texture data from VRAM (GPU)
+INFO: TEXTURE: [ID 19] Unloaded texture data from VRAM (GPU)
+INFO: TEXTURE: [ID 20] Unloaded texture data from VRAM (GPU)
+INFO: TEXTURE: [ID 5] Unloaded texture data from VRAM (GPU)
+INFO: TEXTURE: [ID 6] Unloaded texture data from VRAM (GPU)
+INFO: TEXTURE: [ID 7] Unloaded texture data from VRAM (GPU)
+INFO: TEXTURE: [ID 8] Unloaded texture data from VRAM (GPU)
+INFO: AUDIO: Device closed successfully
+INFO: TEXTURE: [ID 2] Unloaded texture data from VRAM (GPU)
+INFO: SHADER: [ID 3] Default shader unloaded successfully
+INFO: TEXTURE: [ID 1] Default texture unloaded successfully
+INFO: Window closed successfully
+INFO: STREAM: Unloaded audio stream data from RAM

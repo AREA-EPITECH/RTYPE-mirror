@@ -281,6 +281,7 @@ namespace ecs {
     public:
         int win_score;
         int score;
+        int level = 0;
 
         ScoreComponent(int _win_score = 0, int _score = 0) : win_score(_win_score), score(_score) {};
 

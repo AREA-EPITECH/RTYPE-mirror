@@ -47,6 +47,7 @@ namespace network
         float posX, posY; ///< Position coordinates of the entity.
         uint32_t shipId; ///< Optional value to set shipId of the entity.
         int score; ///< Optional score of entity player.
+        int health; ///< Optional health of entity player.
     };
 
     /**
@@ -61,6 +62,8 @@ namespace network
         PacketHeader header; ///< Header containing metadata about the packet.
         uint16_t numEntities; ///< The number of entities included in this snapshot.
         std::vector<EntityUpdate> entities; ///< List of entity updates in the snapshot.
+        uint8_t level;
+        uint16_t maxScore;
     };
 
     /**
