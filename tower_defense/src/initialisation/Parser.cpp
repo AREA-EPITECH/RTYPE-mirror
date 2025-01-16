@@ -11,7 +11,7 @@ namespace tower_defense
 {
     void Parser::parse_filemap(const std::string &map_filename)
     {
-        std::ifstream ifs (map_filename);
+        std::ifstream ifs(map_filename);
         if (!ifs.is_open())
         {
             spdlog::error("Error: can't open following file: " + map_filename);
@@ -41,10 +41,12 @@ namespace tower_defense
             _decorations.emplace_back(decoration[0], decoration[1]);
         }
 
-        for (auto &wave : data_waves) {
+        for (auto &wave : data_waves)
+        {
             std::vector<EnemyWave> enemy_waves_in_wave;
 
-            for (auto &enemy : wave["enemies"]) {
+            for (auto &enemy : wave["enemies"])
+            {
                 EnemyWave enemy_wave{};
                 enemy_wave._enemy_type = get_enemy_type_from_string(enemy["type"]);
                 enemy_wave._start_delay = enemy["start_delay"];
@@ -83,16 +85,21 @@ namespace tower_defense
         ecs::Money money_component = {_game_rules._start_money, LoadTexture("tower_defense/assets/money.png")};
 
         ecs::GameComponent game_component = {_game_rules._start_health,
-            _game_rules._auto_increment_money, _game_rules._map_name, money_component, 3,
-            0.5};
+                                             _game_rules._auto_increment_money,
+                                             _game_rules._map_name,
+                                             money_component,
+                                             3,
+                                             0.5};
 
         game_component._enemy_waves = this->_enemy_waves;
 
-        for (const auto& pos : _enemy_path) {
+        for (const auto &pos : _enemy_path)
+        {
             path.emplace_back(ecs::Tile{pos.first, pos.second, PATH, texture_manager.get_texture(PATH)});
         }
 
-        for (const auto& pos : _decorations) {
+        for (const auto &pos : _decorations)
+        {
             decors.emplace_back(ecs::Tile{pos.first, pos.second, DECOR, texture_manager.get_texture(DECOR)});
         }
 
@@ -105,15 +112,23 @@ namespace tower_defense
         }
 
         const auto map_entity = ecs.spawn_entity();
-        ecs.add_component<ecs::MapComponent>(map_entity, {map, path, decors, {},
-            game_component});
+        ecs.add_component<ecs::MapComponent>(map_entity, {map, path, decors, {}, game_component});
+
+        std::vector<Rectangle> no_clickable = {};
+        int scale = 4;
+        for (int i = 0; i < this->_enemy_path.size(); i++)
+        {
+            no_clickable.emplace_back(Rectangle{static_cast<float>(this->_enemy_path[i].first * 32 * scale),
+                                                static_cast<float>(this->_enemy_path[i].second * 32 * scale),
+                                                static_cast<float>(32 * scale), static_cast<float>(32 * scale)});
+        }
+        no_clickable.emplace_back(Rectangle{0, 0, static_cast<float>(32 * scale), static_cast<float>(32 * scale)});
 
         const auto selector_entity = ecs.spawn_entity();
         ecs.add_component<ecs::SelectorComponent>(selector_entity,
-        {LoadTexture("tower_defense/assets/selector.png"), {}, false});
+                                                  {LoadTexture("tower_defense/assets/selector.png"), {}, false, no_clickable});
 
-        ecs::Tower tower = {2, 1, 1, 100, "Archer",
-            texture_manager.get_texture(ARCHER), ARCHER};
+        ecs::Tower tower = {2, 1, 1, 100, "Archer", texture_manager.get_texture(ARCHER), ARCHER};
 
         const auto shop_entity = ecs.spawn_entity();
         ecs.add_component<ecs::Shop>(shop_entity, {std::vector<ecs::Tower>{tower}, false});
@@ -121,4 +136,4 @@ namespace tower_defense
         return ecs;
     }
 
-}
+} // namespace tower_defense
