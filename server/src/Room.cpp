@@ -706,7 +706,23 @@ namespace server
 
     int Room::getLevel() const { return this->level; }
 
-    void Room::setLevel(const int level) { this->level = level; }
+    void Room::setLevel(const int level, server::Server &server) {
+        this->level = level;
+        this->sendUpdateRoom(server);
+        this->setState(network::LobbyGameState::Waiting);
+        auto &clients = _registry.get_components<std::shared_ptr<network::PeerWrapper>>();
+        for (int i = 0; i < clients.size(); i++)
+        {
+            if (clients[i].has_value())
+            {
+                auto &data = clients[i].value()->getData<ClientData>();
+                if (data.getReadyState()) {
+                    data.setReadyState();
+                }
+            }
+        }
+        server.changeRoomToWaiting(this->_id);
+    }
 
     bool Room::isClientinsideRoom()
     {

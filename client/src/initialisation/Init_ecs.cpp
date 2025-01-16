@@ -82,10 +82,18 @@ Registry init_ecs()
                 {
                     if (event.packetType == network::PacketType::LobbySnapshotPacket)
                     {
+                        spdlog::info("New lobby snapshot packet");
                         auto received_packet = std::any_cast<struct network::LobbySnapshotPacket>(event.data);
-                        auto &gameStateCps = ecs.get_components<game::GameState>();
                         auto gameState = getGameState(ecs);
                         auto user = gameState->get().getUser();
+                        if (gameState->get().getGameState() == game::GameState::LobbyGameState::Playing) {
+                            spdlog::info("WIN !!");
+                            gameState->get().updateGameState(game::GameState::LobbyGameState::Waiting);
+                            user.is_ready = false;
+                            gameState->get().updateUser(user);
+                            ecs::change_window(ecs, ecs::WindowType::LOBBY);
+                            return;
+                        }
                         std::vector<game::GameState::Player> other_players;
                         gameState->get().setRoomId(received_packet.roomId);
                         for (auto player: received_packet.players) {
@@ -109,6 +117,7 @@ Registry init_ecs()
                     }
                     else if (event.packetType == network::PacketType::SnapshotPacket)
                     {
+                        spdlog::info("New snapshot packet");
                         auto received_packet = std::any_cast<struct network::SnapshotPacket>(event.data);
                         auto gameState = getGameState(ecs);
                         if (gameState->get().getGameState() == game::GameState::LobbyGameState::Menu) {
