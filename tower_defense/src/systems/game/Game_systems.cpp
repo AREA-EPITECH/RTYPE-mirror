@@ -56,9 +56,15 @@ namespace ecs
             if (map._game._enemy_waves[map._game._current_wave][i]._amount > 0)
             {
                 std::chrono::time_point<std::chrono::steady_clock> now = std::chrono::steady_clock::now();
-                double elapsed_time = std::chrono::duration<double>(now - map._game._wave_start_time).count();
-                spdlog::info("Start delay entity {}", map._game._enemy_waves[map._game._current_wave][i]._start_delay);
-                if (elapsed_time < map._game._enemy_waves[map._game._current_wave][i]._start_delay)
+                double elapsed_time_since_start_round =
+                    std::chrono::duration<double>(now - map._game._wave_start_time).count();
+                double elapsed_time_since_last_spawn =
+                    std::chrono::duration<double>(
+                        now - map._game._enemy_waves[map._game._current_wave][i]._time_since_last_spawn)
+                        .count();
+
+                if (elapsed_time_since_start_round < map._game._enemy_waves[map._game._current_wave][i]._start_delay ||
+                    elapsed_time_since_last_spawn < map._game._enemy_waves[map._game._current_wave][i]._spawn_delay)
                 {
                     continue;
                 }
@@ -66,27 +72,33 @@ namespace ecs
                 int start_x = map._path[0]._x;
                 int start_y = map._path[0]._y;
 
-                for (int amount = 0; amount < map._game._enemy_waves[map._game._current_wave][i]._spawn_amount; amount ++)
+                for (int amount = 0; amount < map._game._enemy_waves[map._game._current_wave][i]._spawn_amount;
+                     amount++)
                 {
                     switch (map._game._enemy_waves[map._game._current_wave][i]._enemy_type)
                     {
                     case tower_defense::Basic_slime:
-                        map._enemies.emplace_back(EnemyComponent{1, 300, 0, 1, 1, texture_manager.get_texture(tower_defense::BASIC_SLIME),
-                                                               start_x, start_y, 0, 0});
+                        map._enemies.emplace_back(
+                            EnemyComponent{1, 300, 0, 1, 1, texture_manager.get_texture(tower_defense::BASIC_SLIME),
+                                           start_x, start_y, 0, 0});
                         break;
                     case tower_defense::Bat:
-                        map._enemies.emplace_back(
-                            EnemyComponent{1, 100, 0, 1, 1, texture_manager.get_texture(tower_defense::BAT), start_x, start_y, 0, 0});
+                        map._enemies.emplace_back(EnemyComponent{
+                            1, 100, 0, 1, 1, texture_manager.get_texture(tower_defense::BAT), start_x, start_y, 0, 0});
                         break;
                     case tower_defense::Zombie:
-                        map._enemies.emplace_back(
-                            EnemyComponent{1, 100, 0, 1, 1, texture_manager.get_texture(tower_defense::ZOMBIE), start_x, start_y, 0, 0});
+                        map._enemies.emplace_back(EnemyComponent{1, 100, 0, 1, 1,
+                                                                 texture_manager.get_texture(tower_defense::ZOMBIE),
+                                                                 start_x, start_y, 0, 0});
                         break;
                     default:
                         break;
                     }
                 }
-                map._game._enemy_waves[map._game._current_wave][i]._amount -= map._game._enemy_waves[map._game._current_wave][i]._spawn_amount;
+                map._game._enemy_waves[map._game._current_wave][i]._amount -=
+                    map._game._enemy_waves[map._game._current_wave][i]._spawn_amount;
+                map._game._enemy_waves[map._game._current_wave][i]._time_since_last_spawn =
+                    std::chrono::steady_clock::now();
                 return;
             }
         }
