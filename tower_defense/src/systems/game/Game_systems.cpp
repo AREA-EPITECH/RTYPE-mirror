@@ -55,27 +55,39 @@ namespace ecs
         {
             if (map._game._enemy_waves[map._game._current_wave][i]._amount > 0)
             {
+                std::chrono::time_point<std::chrono::steady_clock> now = std::chrono::steady_clock::now();
+                double elapsed_time = std::chrono::duration<double>(now - map._game._wave_start_time).count();
+                spdlog::info("Start delay entity {}", map._game._enemy_waves[map._game._current_wave][i]._start_delay);
+                if (elapsed_time < map._game._enemy_waves[map._game._current_wave][i]._start_delay)
+                {
+                    continue;
+                }
+
                 int start_x = map._path[0]._x;
                 int start_y = map._path[0]._y;
 
-                switch (map._game._enemy_waves[map._game._current_wave][i]._enemy_type)
+                for (int amount = 0; amount < map._game._enemy_waves[map._game._current_wave][i]._spawn_amount; amount ++)
                 {
-                case tower_defense::Basic_slime:
-                    map._enemies.emplace_back(EnemyComponent{1, 100, 0, 1, 1, texture_manager.get_texture(tower_defense::BASIC_SLIME),
-                                                           start_x, start_y, 0, 0});
-                    break;
-                case tower_defense::Bat:
-                    map._enemies.emplace_back(
-                        EnemyComponent{1, 100, 0, 1, 1, texture_manager.get_texture(tower_defense::BAT), start_x, start_y, 0, 0});
-                    break;
-                case tower_defense::Zombie:
-                    map._enemies.emplace_back(
-                        EnemyComponent{1, 100, 0, 1, 1, texture_manager.get_texture(tower_defense::ZOMBIE), start_x, start_y, 0, 0});
-                    break;
-                default:
-                    break;
+                    switch (map._game._enemy_waves[map._game._current_wave][i]._enemy_type)
+                    {
+                    case tower_defense::Basic_slime:
+                        map._enemies.emplace_back(EnemyComponent{1, 300, 0, 1, 1, texture_manager.get_texture(tower_defense::BASIC_SLIME),
+                                                               start_x, start_y, 0, 0});
+                        break;
+                    case tower_defense::Bat:
+                        map._enemies.emplace_back(
+                            EnemyComponent{1, 100, 0, 1, 1, texture_manager.get_texture(tower_defense::BAT), start_x, start_y, 0, 0});
+                        break;
+                    case tower_defense::Zombie:
+                        map._enemies.emplace_back(
+                            EnemyComponent{1, 100, 0, 1, 1, texture_manager.get_texture(tower_defense::ZOMBIE), start_x, start_y, 0, 0});
+                        break;
+                    default:
+                        break;
+                    }
                 }
-                map._game._enemy_waves[map._game._current_wave][i]._amount -= 1;
+                map._game._enemy_waves[map._game._current_wave][i]._amount -= map._game._enemy_waves[map._game._current_wave][i]._spawn_amount;
+                return;
             }
         }
     }
@@ -154,7 +166,7 @@ namespace ecs
                           str_button_round.c_str()))
             {
                 map._game._wave_started = true;
-                map._game._wave_start_time = clock();
+                map._game._wave_start_time = std::chrono::steady_clock::now();
             }
         }
         GuiButton({static_cast<float>(GetScreenWidth() - str_button_round.length() * 10),
