@@ -130,7 +130,7 @@ namespace ecs {
             DrawRing(center, 80, 190, startAngle, endAngle, 0, Fade(RED, 0.5f));
         }
 
-        if (gameState->get().getShowScore() || true) {
+        if (gameState->get().getShowScore()) {
             int scoreBoardWidth = screenWidth / 1.5;
             int scoreBoardHeight = screenHeight / 1.5;
             int headerHeight = scoreBoardHeight / 10;
