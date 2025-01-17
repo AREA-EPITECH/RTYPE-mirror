@@ -30,7 +30,7 @@ namespace server
      * Server constructor
      * @param argv - command line argument corresponding to port number
      */
-    Server::Server(char *argv[]) : _thread_pool(std::thread::hardware_concurrency())
+    Server::Server(char *argv[])
     {
         if (argv[1] == nullptr)
         {

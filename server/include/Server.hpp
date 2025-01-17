@@ -33,7 +33,6 @@ namespace server
         network::NetworkServer _server;
         std::vector<std::shared_ptr<Room>> _waiting_rooms;
         std::vector<std::shared_ptr<Room>> _playing_rooms;
-        ThreadPool _thread_pool;
     public:
         explicit Server(char *argv[]);
         Server(const Server &other) = delete;

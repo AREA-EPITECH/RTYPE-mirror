@@ -587,7 +587,7 @@ namespace server
                         auto &data = clients[i].value()->getData<ClientData>();
                         Pos hitbox = data.getHitbox();
                         if (pos[i].value().x < pos[j].value().x + enemies[j].value().hitbox.x &&
-                            pos[i].value().x + hitbox.x > pos[j].value().x - enemies[j].value().hitbox.x / 2 &&
+                            pos[i].value().x + data.getHitbox().x > pos[j].value().x - enemies[j].value().hitbox.x / 2 &&
                             pos[i].value().y - hitbox.y < pos[j].value().y &&
                             pos[i].value().y > pos[j].value().y - enemies[j].value().hitbox.y) {
                             spdlog::info("Enemy {} is dead by vessel", j);

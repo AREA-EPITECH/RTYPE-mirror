@@ -15,9 +15,14 @@ namespace server
     void gameAction(Server &server, std::shared_ptr<network::PeerWrapper> &peer,
         const struct network::InputPacket &input_packet) {
         const auto client_id = peer->getData<ClientData>().getId();
-        const auto ecs_client = peer->getData<ClientData>().getRoom()->getClient(client_id);
+        const auto room = peer->getData<ClientData>().getRoom();
+        if (!room) {
+            spdlog::error("Error client {} not in a Room", client_id);
+            return;
+        }
+        auto ecs_client = room->getClient(client_id);
         if (!ecs_client) {
-            spdlog::error("Error client {} not in ecs", client_id);
+            spdlog::error("Error client {} not in ECS", client_id);
             return;
         }
         server.moveActionRoom(client_id, ecs_client->getData<ClientData>().getRoom()->getId(), input_packet.move);
