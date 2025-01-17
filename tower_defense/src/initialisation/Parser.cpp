@@ -116,12 +116,24 @@ namespace tower_defense
 
         std::vector<Rectangle> no_clickable = {};
         int scale = 4;
+        Texture2D path_texture = *texture_manager.get_texture(PATH);
+        Texture2D decor_texture = *texture_manager.get_texture(DECOR);
+
+
         for (int i = 0; i < this->_enemy_path.size(); i++)
         {
-            no_clickable.emplace_back(Rectangle{static_cast<float>(this->_enemy_path[i].first * 32 * scale),
-                                                static_cast<float>(this->_enemy_path[i].second * 32 * scale),
-                                                static_cast<float>(32 * scale), static_cast<float>(32 * scale)});
+            no_clickable.emplace_back(Rectangle{static_cast<float>(this->_enemy_path[i].first * path_texture.width * scale),
+                                                static_cast<float>(this->_enemy_path[i].second * path_texture.height * scale),
+                                                static_cast<float>(path_texture.width * scale), static_cast<float>(path_texture.height * scale)});
         }
+
+        for (int i = 0; i < this->_decorations.size(); i++)
+        {
+            no_clickable.emplace_back(Rectangle{static_cast<float>(this->_decorations[i].first * decor_texture.width * scale),
+                                    static_cast<float>(this->_decorations[i].second * decor_texture.height * scale),
+                                    static_cast<float>(decor_texture.width * scale), static_cast<float>(decor_texture.height * scale)});
+        }
+
         no_clickable.emplace_back(Rectangle{0, 0, static_cast<float>(32 * scale), static_cast<float>(32 * scale)});
 
         const auto selector_entity = ecs.spawn_entity();
