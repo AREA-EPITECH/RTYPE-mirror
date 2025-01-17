@@ -35,6 +35,7 @@ namespace server {
         Registry _registry;
         long _accumulated_time = 0;
         long _enemy_accumulated_time = 0;
+        long _projectile_accumulated_time = 0;
         std::vector<Enemy> _enemies;
         int level = 1;
     public:
@@ -67,6 +68,7 @@ namespace server {
         void checkCollisionProjectiles();
 
         bool checkWin();
+        void resetScore();
         bool checkLose();
 
         bool getClientsReadiness() const;
@@ -89,6 +91,7 @@ namespace server {
     struct Enemy {
         EnemyType type;
         int spawn_rate;
+        int shot_rate;
         long clock;
         int score;
         Pos hitbox;

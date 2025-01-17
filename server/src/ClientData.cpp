@@ -7,6 +7,8 @@
 
 #include "ClientData.hpp"
 
+#include <spdlog/spdlog.h>
+
 namespace server {
     ClientData::ClientData(u_int32_t id): _id(id), _ship() {
     }
@@ -117,7 +119,16 @@ namespace server {
      */
     void ClientData::setScore(const int score) {
         this->_score += score;
+        spdlog::info("Client {} has score {}", this->_id, this->_score);
     }
+
+    /**
+     * Reset score
+     */
+    void ClientData::resetScore() {
+        this->_score = 0;
+    }
+
 
     /**
      * Getter client life

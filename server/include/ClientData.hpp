@@ -38,6 +38,7 @@ namespace server {
         void setAlive();
         bool getAlive() const;
         void setScore(int score);
+        void resetScore();
         int getScore() const;
         std::shared_ptr<Room> getRoom() const;
         void setRoom(const std::shared_ptr<Room> &room);

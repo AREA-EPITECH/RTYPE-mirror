@@ -11,6 +11,8 @@
 #include <Server.hpp>
 #include <spdlog/spdlog.h>
 
+#include "../../client/include/ecs/Display.hpp"
+
 namespace server
 {
     Room::Room(const uint32_t id) : _id(id), _state(network::LobbyGameState::Waiting)
@@ -53,7 +55,7 @@ namespace server
             }
         }
 
-        auto &proj = _registry.get_components<Enemy>();
+        auto &proj = _registry.get_components<Projectile>();
         for (int i = 0; i < proj.size(); i++)
         {
             if (proj[i].has_value())
@@ -170,20 +172,24 @@ namespace server
      * Call updateProjectile every 100ms
      * @param elapsed_time time from runMainLoop
      */
-    void Room::run(long elapsed_time)
-    {
+    void Room::run(long elapsed_time) {
         _accumulated_time += elapsed_time;
         _enemy_accumulated_time += elapsed_time;
+        _projectile_accumulated_time += elapsed_time;
 
         this->updateEnemy();
         this->updateProjectile();
         this->checkCollisionProjectiles();
         this->checkCollisionVessels();
 
-        if (_enemy_accumulated_time >= 100)
-        {
+        if (_enemy_accumulated_time >= 100) {
             this->spawnEnemy();
             _enemy_accumulated_time = 0;
+        }
+
+        if (_projectile_accumulated_time >= 500) {
+            this->spawnEnemyProjectile();
+            _projectile_accumulated_time = 0;
         }
     }
 
@@ -531,7 +537,7 @@ namespace server
                 enemy.init_pos.y = random_y;
                 enemy.init_pos.x = ENDX_MAP;
                 _registry.add_component<Enemy>(new_enemy,
-                                               {enemy.type, enemy.spawn_rate, enemy.clock, enemy.score, enemy.hitbox,
+                                               {enemy.type, enemy.spawn_rate, enemy.shot_rate, enemy.clock, enemy.score, enemy.hitbox,
                                                 enemy.acc, enemy.init_pos, enemy.moveFunction});
                 _registry.add_component<Pos>(new_enemy, {ENDX_MAP, random_y});
                 this->addProjectileEnemy(enemy, enemy.init_pos);
@@ -566,17 +572,15 @@ namespace server
         _registry.add_component<Projectile>(new_proj, {pos, acc, network::FireType::NormalFire, false, 0});
     }
 
-    void Room::spawnEnemyProjectile()
-    {
+    void Room::spawnEnemyProjectile() {
         auto &enemies = _registry.get_components<Enemy>();
         auto &pos = _registry.get_components<Pos>();
-        for (int i = 0; i < enemies.size(); i++)
-        {
-            if (enemies[i].has_value())
-            {
-                if (pos[i].has_value())
-                {
+        for (int i = 0; i < enemies.size(); i++) {
+            if (enemies[i].has_value() && pos[i].has_value()) {
+                enemies[i].value().clock += 100;
+                if (enemies[i].value().clock >= enemies[i].value().shot_rate * 1000) {
                     this->addProjectileEnemy(enemies[i].value(), pos[i].value());
+                    enemies[i].value().clock = 0;
                 }
             }
         }
@@ -616,7 +620,7 @@ namespace server
                         auto &data = clients[i].value()->getData<ClientData>();
                         Pos hitbox = data.getHitbox();
                         if (pos[i].value().x < pos[j].value().x + enemies[j].value().hitbox.x &&
-                            pos[i].value().x + hitbox.x > pos[j].value().x &&
+                            pos[i].value().x + hitbox.x > pos[j].value().x - enemies[j].value().hitbox.x / 2 &&
                             pos[i].value().y - hitbox.y < pos[j].value().y &&
                             pos[i].value().y > pos[j].value().y - enemies[j].value().hitbox.y) {
                             spdlog::info("Enemy {} is dead by vessel", j);
@@ -650,8 +654,8 @@ namespace server
                         if (enemies[j].has_value() && pos[j].has_value()) {
                             if (proj[i].value().pos.x >= pos[j].value().x - enemies[j].value().hitbox.x &&
                                 proj[i].value().pos.x <= pos[j].value().x + enemies[j].value().hitbox.x &&
-                                proj[i].value().pos.y >= pos[j].value().y - enemies[j].value().hitbox.y / 2 &&
-                                proj[i].value().pos.y <= pos[j].value().y + enemies[j].value().hitbox.y / 2) {
+                                proj[i].value().pos.y >= pos[j].value().y - enemies[j].value().hitbox.y &&
+                                proj[i].value().pos.y <= pos[j].value().y + enemies[j].value().hitbox.y) {
                                 spdlog::info("Enemy {} is dead by shot", j);
                                 if (clients[proj[i].value().player_id].has_value()) {
                                     clients[proj[i].value().player_id].value()->getData<ClientData>().setScore(enemies[j].value().score);
@@ -706,6 +710,16 @@ namespace server
         return false;
     }
 
+    void Room::resetScore() {
+        auto &clients = _registry.get_components<std::shared_ptr<network::PeerWrapper>>();
+        for (int i = 0; i < clients.size(); i++) {
+            if (clients[i].has_value()) {
+                clients[i].value()->getData<ClientData>().resetScore();
+            }
+        }
+    }
+
+
     bool Room::checkLose() {
         auto &clients = _registry.get_components<std::shared_ptr<network::PeerWrapper>>();
         for (int i = 0; i < clients.size(); i++) {
@@ -726,14 +740,18 @@ namespace server
 
     void Room::setLevel(const int level, server::Server &server) {
         this->sendUpdateRoom(server);
+        this->resetScore();
         this->level = level;
         this->setState(network::LobbyGameState::Waiting);
+        kill_entities_with_component<Level>(_registry);
         auto &clients = _registry.get_components<std::shared_ptr<network::PeerWrapper>>();
         for (int i = 0; i < clients.size(); i++)
         {
             if (clients[i].has_value())
             {
                 auto &data = clients[i].value()->getData<ClientData>();
+                data.resetScore();
+                spdlog::info("Reset score");
                 if (data.getReadyState()) {
                     data.setReadyState();
                 }
@@ -781,6 +799,7 @@ namespace server
             enemy.score = enemyData.at("score").get<int>();
             enemy.acc.x = enemyData.at("acc").get<int>();
             enemy.acc.y = enemyData.at("acc").get<int>();
+            enemy.shot_rate = enemyData.at("shot_rate").get<int>();
             enemy.clock = 0;
             switch (enemy.type)
             {
