@@ -53,14 +53,7 @@ namespace server
             }
         }
 
-        auto &level = _registry.get_components<Level>();
-        for (int i = 0; i < level.size(); i++)
-        {
-            if (level[i].has_value())
-            {
-                _registry.kill_entity(i);
-            }
-        }
+        kill_entities_with_component<Level>(_registry);
     }
 
     void Room::addClient(std::shared_ptr<network::PeerWrapper> &peer)
@@ -710,7 +703,7 @@ namespace server
         this->sendUpdateRoom(server);
         this->level = level;
         this->setState(network::LobbyGameState::Waiting);
-        kill_entities_with_component<Level>(_registry);
+        this->kill_entities();
         auto &clients = _registry.get_components<std::shared_ptr<network::PeerWrapper>>();
         auto &life = _registry.get_components<int>();
         for (int i = 0; i < clients.size(); i++)
