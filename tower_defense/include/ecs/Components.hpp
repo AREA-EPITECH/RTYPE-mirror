@@ -60,16 +60,22 @@ namespace ecs {
 
     struct Money
     {
+        bool _auto_increment_money;
         unsigned int _value;
+        Texture2D _texture;
+    };
+
+    struct Life
+    {
+        unsigned int _health;
         Texture2D _texture;
     };
 
     struct GameComponent
     {
-        unsigned int _health;
-        bool _auto_increment_money;
         std::string _map_name;
         Money _money;
+        Life _life;
         int _frame_counter;
         float _frame_time;
         std::vector<std::vector<tower_defense::EnemyWave>> _enemy_waves = {};

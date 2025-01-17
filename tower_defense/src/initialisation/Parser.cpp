@@ -82,14 +82,13 @@ namespace tower_defense
         std::vector<ecs::Tile> path;
         std::vector<ecs::Tile> decors;
 
-        ecs::Money money_component = {_game_rules._start_money, LoadTexture("tower_defense/assets/money.png")};
+        ecs::Money money_component = {_game_rules._auto_increment_money, _game_rules._start_money,
+                                      LoadTexture("tower_defense/assets/infos/money.png")};
 
-        ecs::GameComponent game_component = {_game_rules._start_health,
-                                             _game_rules._auto_increment_money,
-                                             _game_rules._map_name,
-                                             money_component,
-                                             3,
-                                             0.5};
+        ecs::Life life_component = {_game_rules._start_health, LoadTexture("tower_defense/assets/infos/life.png")};
+
+
+        ecs::GameComponent game_component = {_game_rules._map_name, money_component, life_component, 3, 0.5};
 
         game_component._enemy_waves = this->_enemy_waves;
 
@@ -122,23 +121,25 @@ namespace tower_defense
 
         for (int i = 0; i < this->_enemy_path.size(); i++)
         {
-            no_clickable.emplace_back(Rectangle{static_cast<float>(this->_enemy_path[i].first * path_texture.width * scale),
-                                                static_cast<float>(this->_enemy_path[i].second * path_texture.height * scale),
-                                                static_cast<float>(path_texture.width * scale), static_cast<float>(path_texture.height * scale)});
+            no_clickable.emplace_back(Rectangle{
+                static_cast<float>(this->_enemy_path[i].first * path_texture.width * scale),
+                static_cast<float>(this->_enemy_path[i].second * path_texture.height * scale),
+                static_cast<float>(path_texture.width * scale), static_cast<float>(path_texture.height * scale)});
         }
 
         for (int i = 0; i < this->_decorations.size(); i++)
         {
-            no_clickable.emplace_back(Rectangle{static_cast<float>(this->_decorations[i].first * decor_texture.width * scale),
-                                    static_cast<float>(this->_decorations[i].second * decor_texture.height * scale),
-                                    static_cast<float>(decor_texture.width * scale), static_cast<float>(decor_texture.height * scale)});
+            no_clickable.emplace_back(Rectangle{
+                static_cast<float>(this->_decorations[i].first * decor_texture.width * scale),
+                static_cast<float>(this->_decorations[i].second * decor_texture.height * scale),
+                static_cast<float>(decor_texture.width * scale), static_cast<float>(decor_texture.height * scale)});
         }
 
         no_clickable.emplace_back(Rectangle{0, 0, static_cast<float>(32 * scale), static_cast<float>(32 * scale)});
 
         const auto selector_entity = ecs.spawn_entity();
-        ecs.add_component<ecs::SelectorComponent>(selector_entity,
-                                                  {LoadTexture("tower_defense/assets/selector.png"), {}, false, no_clickable});
+        ecs.add_component<ecs::SelectorComponent>(
+            selector_entity, {LoadTexture("tower_defense/assets/infos/selector.png"), {}, false, no_clickable});
 
         ecs::Tower tower = {2, 1, 1, 100, "Archer", texture_manager.get_texture(ARCHER), ARCHER};
 

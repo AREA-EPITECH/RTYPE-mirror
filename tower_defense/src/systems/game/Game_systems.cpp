@@ -10,6 +10,24 @@
 namespace ecs
 {
     /**
+     * @brief
+     * @param map
+     */
+    void check_enemies_path(MapComponent &map)
+    {
+        for (int i = 0; i < map._enemies.size(); i++)
+        {
+            if (map._enemies[i]._pos_x == map._path[map._path.size() - 1]._x &&
+                map._enemies[i]._pos_y == map._path[map._path.size() - 1]._y)
+            {
+                map._game._life._health -= map._enemies[i]._damage;
+                map._enemies.erase(map._enemies.begin() + i);
+                break;
+            }
+        }
+    }
+
+    /**
      * @brief Update the enemies position
      * @param map
      */
@@ -18,8 +36,7 @@ namespace ecs
         for (auto &enemy : map._enemies)
         {
             std::chrono::time_point<std::chrono::steady_clock> now = std::chrono::steady_clock::now();
-            double elapsed_time_since_start_round =
-                std::chrono::duration<double>(now - enemy._last_move).count();
+            double elapsed_time_since_start_round = std::chrono::duration<double>(now - enemy._last_move).count();
             if (elapsed_time_since_start_round < enemy._speed)
             {
                 continue;
@@ -81,17 +98,16 @@ namespace ecs
                     {
                     case tower_defense::Basic_slime:
                         map._enemies.emplace_back(
-                            EnemyComponent{1, 3, 1, 1, texture_manager.get_texture(tower_defense::BASIC_SLIME),
-                                           start_x, start_y, 0, 0});
+                            EnemyComponent{1, 3, 1, 1, texture_manager.get_texture(tower_defense::BASIC_SLIME), start_x,
+                                           start_y, 0, 0});
                         break;
                     case tower_defense::Bat:
                         map._enemies.emplace_back(EnemyComponent{
-                            1, 2, 1, 1, texture_manager.get_texture(tower_defense::BAT), start_x, start_y, 0, 0});
+                            1, 2, 2, 1, texture_manager.get_texture(tower_defense::BAT), start_x, start_y, 0, 0});
                         break;
                     case tower_defense::Zombie:
-                        map._enemies.emplace_back(EnemyComponent{1, 3, 1, 1,
-                                                                 texture_manager.get_texture(tower_defense::ZOMBIE),
-                                                                 start_x, start_y, 0, 0});
+                        map._enemies.emplace_back(EnemyComponent{
+                            1, 3, 3, 1, texture_manager.get_texture(tower_defense::ZOMBIE), start_x, start_y, 0, 0});
                         break;
                     default:
                         break;
@@ -162,6 +178,14 @@ namespace ecs
                       {2, static_cast<float>(GetScreenHeight() - 130 - map._game._money._texture.height)}, 0, 4, WHITE);
         DrawText(std::to_string(map._game._money._value).c_str(), 5 + map._game._money._texture.width * 2,
                  GetScreenHeight() - 80 - map._game._money._texture.height, 32, GOLD);
+
+        DrawTextureEx(map._game._life._texture,
+                      {2, static_cast<float>(GetScreenHeight() - 200 - map._game._life._texture.height)}, 0, 4, WHITE);
+
+        const std::string str_life = std::to_string(map._game._life._health);
+        DrawText(str_life.c_str(),
+                 static_cast<int>(map._game._life._texture.width * 1.5 - static_cast<double>(str_life.length())),
+                 GetScreenHeight() - 150 - map._game._life._texture.height, 32, WHITE);
 
         if (!map._game._wave_started)
         {
@@ -335,11 +359,17 @@ namespace ecs
                             auto &m = map.value();
                             const int scale = 4;
 
+                            if (m._game._life._health <= 0)
+                            {
+                                exit(84);
+                            }
+
                             draw_map(m, scale);
                             draw_game_infos(s, m, scale);
                             handle_shop(ecs, scale, m._game._frame_time);
                             draw_enemies(m, scale);
                             update_enemies_pos(m);
+                            check_enemies_path(m);
 
                             // Check if wave is clear
 
