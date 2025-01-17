@@ -53,14 +53,7 @@ namespace server
             }
         }
 
-        auto &level = _registry.get_components<Level>();
-        for (int i = 0; i < level.size(); i++)
-        {
-            if (level[i].has_value())
-            {
-                _registry.kill_entity(i);
-            }
-        }
+        kill_entities_with_component<Level>(_registry);
     }
 
     void Room::addClient(std::shared_ptr<network::PeerWrapper> &peer)
