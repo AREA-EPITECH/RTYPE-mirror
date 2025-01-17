@@ -127,7 +127,7 @@ namespace ecs
      * @param map
      * @param scale
      */
-    void draw_enemies(MapComponent &map, const int scale)
+    void draw_enemies(MapComponent &map, int scale)
     {
         for (auto &enemy : map._enemies)
         {
@@ -145,11 +145,15 @@ namespace ecs
                 }
             }
 
-            Rectangle sourceRect = {0.0f, static_cast<float>(enemy._frame * 32), 32.0f, 32.0f};
-            Rectangle destRect = {enemy._pos_x * sourceRect.width * scale, enemy._pos_y * sourceRect.height * scale,
-                                  sourceRect.width * scale, sourceRect.height * scale};
+            Rectangle sourceRect = {0.0f, static_cast<float>(enemy._frame * enemy._texture->height),
+                                    static_cast<float>(enemy._texture->width),
+                                    static_cast<float>(enemy._texture->height)};
+            Rectangle destRect = {static_cast<float>(enemy._pos_x * enemy._texture->width * scale),
+                                  static_cast<float>(enemy._pos_y * enemy._texture->height * scale),
+                                  sourceRect.width * static_cast<float>(scale),
+                                  sourceRect.height * static_cast<float>(scale)};
 
-            Vector2 origin = {destRect.width / 2.0f, destRect.height / 2.0f};
+            Vector2 origin = {0.0f, 0.0f};
             DrawTexturePro(texture, sourceRect, destRect, origin, 0.0f, WHITE);
         }
     }
@@ -224,26 +228,20 @@ namespace ecs
         for (auto &g : map._grass)
         {
             const Texture2D texture = *g._texture;
-            DrawTextureEx(
-                texture,
-                {static_cast<float>(texture.width * scale * g._x), static_cast<float>(texture.height * scale * g._y)},
-                0, 4, WHITE);
+            DrawTextureEx(texture, {static_cast<float>(32 * scale * g._x), static_cast<float>(32 * scale * g._y)}, 0, 4,
+                          WHITE);
         }
         for (auto &p : map._path)
         {
             const Texture2D texture = *p._texture;
-            DrawTextureEx(
-                texture,
-                {static_cast<float>(texture.width * scale * p._x), static_cast<float>(texture.height * scale * p._y)},
-                0, 4, WHITE);
+            DrawTextureEx(texture, {static_cast<float>(32 * scale * p._x), static_cast<float>(32 * scale * p._y)}, 0,
+                          scale, WHITE);
         }
         for (auto &d : map._decors)
         {
             const Texture2D texture = *d._texture;
-            DrawTextureEx(
-                texture,
-                {static_cast<float>(texture.width * scale * d._x), static_cast<float>(texture.height * scale * d._y)},
-                0, 4, WHITE);
+            DrawTextureEx(texture, {static_cast<float>(32 * scale * d._x), static_cast<float>(32 * scale * d._y)}, 0,
+                          scale, WHITE);
         }
     }
 
@@ -363,13 +361,12 @@ namespace ecs
                             {
                                 exit(84);
                             }
-
                             draw_map(m, scale);
                             draw_game_infos(s, m, scale);
                             handle_shop(ecs, scale, m._game._frame_time);
                             draw_enemies(m, scale);
-                            update_enemies_pos(m);
                             check_enemies_path(m);
+                            update_enemies_pos(m);
 
                             // Check if wave is clear
 
