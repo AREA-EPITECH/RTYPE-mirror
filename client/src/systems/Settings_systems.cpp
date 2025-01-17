@@ -85,7 +85,7 @@ namespace ecs {
         }
     }
 
-    void createColorBlindModeButton(Registry &ecs, const Rectangle &buttonRect,
+    void drawFiltersButtons(Registry &ecs, const Rectangle &buttonRect,
                                     const std::string &buttonText,
                                     ecs::ColorBlindMode mode) {
         auto &filterComponents = ecs.get_components<ecs::FilterComponent>();
@@ -194,15 +194,15 @@ namespace ecs {
 
         DrawText("General", s_width / 2, 125, 50, WHITE);
         drawSoundAndMusicSliders(ecs, s_width / 2, s_height / 4 + 10, 300, 20);
-        drawResolutionButton(s_width / 2, s_height / 2, 300, 100, 2560, 1440);
-        drawResolutionButton(s_width / 2, s_height / 2 + 150, 300, 100, 1920, 1080);
-        drawResolutionButton(s_width / 2, s_height / 2 + 300, 300, 100, 1680, 1050);
+        drawResolutionButton(s_width / 2, s_height / 4 + 310, 300, 100, 2560, 1440);
+        drawResolutionButton(s_width / 2, s_height / 4 + 460, 300, 100, 1920, 1080);
+        drawResolutionButton(s_width / 2, s_height / 4 + 610, 300, 100, 1680, 1050);
 
         DrawText("Filters", (int)(s_width / 1.3), 125, 50, WHITE);
-        createColorBlindModeButton(ecs, {(float)(s_width / 1.3), (float)(s_height / 4), 300, 100}, "Normal", ecs::ColorBlindMode::NONE);
-        createColorBlindModeButton(ecs, {(float)(s_width / 1.3), (float)(s_height / 4 + 150), 300, 100}, "Protanopia", ecs::ColorBlindMode::PROTANOPIA);
-        createColorBlindModeButton(ecs, {(float)(s_width / 1.3), (float)(s_height / 4 + 300), 300, 100}, "Deuteranopia", ecs::ColorBlindMode::DEUTERANOPIA);
-        createColorBlindModeButton(ecs, {(float)(s_width / 1.3), (float)(s_height / 4 + 450), 300, 100}, "Tritanopia", ecs::ColorBlindMode::TRITANOPIA);
+        drawFiltersButtons(ecs, {(float)(s_width / 1.3), (float)(s_height / 4), 300, 100}, "Normal", ecs::ColorBlindMode::NONE);
+        drawFiltersButtons(ecs, {(float)(s_width / 1.3), (float)(s_height / 4 + 150), 300, 100}, "Protanopia", ecs::ColorBlindMode::PROTANOPIA);
+        drawFiltersButtons(ecs, {(float)(s_width / 1.3), (float)(s_height / 4 + 300), 300, 100}, "Deuteranopia", ecs::ColorBlindMode::DEUTERANOPIA);
+        drawFiltersButtons(ecs, {(float)(s_width / 1.3), (float)(s_height / 4 + 450), 300, 100}, "Tritanopia", ecs::ColorBlindMode::TRITANOPIA);
 
     }
 }

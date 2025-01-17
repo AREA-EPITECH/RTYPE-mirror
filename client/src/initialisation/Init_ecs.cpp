@@ -41,6 +41,7 @@ Registry init_ecs()
     ecs.register_component<ecs::HealthBarComponent>();
     ecs.register_component<game::GameState>();
     ecs.register_component<ecs::ScoreComponent>();
+    ecs.register_component<ecs::ExplosionComponent>();
 
     ecs.register_event<ecs::CreateWindowEvent>();
     ecs.register_event<ecs::WindowOpenEvent>();
@@ -364,6 +365,9 @@ Registry init_ecs()
                                     }
                                 }
                                 if (!found) {
+                                    auto explosion = ecs.spawn_entity();
+                                    Vector3 pos = vessels[i].value().position;
+                                    ecs.add_component<ecs::ExplosionComponent>(explosion, {"./client/assets/images/explosion.png", 64, 64, 15, 0.1f, pos});
                                     ecs.kill_entity(i);
                                     for (auto &sound : sounds) {
                                         if (sound.has_value()) {
