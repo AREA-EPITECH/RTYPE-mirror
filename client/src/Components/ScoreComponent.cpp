@@ -10,7 +10,7 @@
 namespace ecs {
 
     void ScoreComponent::draw_ingame() {
-        std::string scoreText = "Score : " + std::to_string(score) + " / " + std::to_string(win_score);
+        std::string scoreText = fmt::format("Level {} - Score : {} / {}", level, score, win_score);
 
         int fontSize = 30;
         int textWidth = MeasureText(scoreText.c_str(), fontSize);

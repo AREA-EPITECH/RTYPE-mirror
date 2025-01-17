@@ -103,6 +103,7 @@ namespace network
         Waiting = 1, ///< The lobby is waiting for players to join or ready up.
         Starting = 2, ///< The game is starting but not yet active.
         Playing = 3, ///< The game is currently in progress.
+        Ending = 4, ///< The game is currently ending.
     };
 
     /**

@@ -295,9 +295,20 @@ namespace ecs {
             }
         }
 
-        auto score = ecs.spawn_entity();
-        ecs.add_component<ScoreComponent>(score, {500, 0});
+        bool has_score_component = false;
 
+        auto &scores = ecs.get_components<ScoreComponent>();
+
+        for (auto &score : scores) {
+            if (score.has_value()) {
+                has_score_component = true;
+            }
+        }
+
+        if (!has_score_component) {
+            auto score = ecs.spawn_entity();
+            ecs.add_component<ScoreComponent>(score, {500, 0});
+        }
     }
 
     /**
@@ -354,7 +365,14 @@ namespace ecs {
                 musics[i].value().stop("game_music");
             }
         }
-        gameState->get().updateGameState(game::GameState::LobbyGameState::Menu);
+
+        auto &scores = ecs.get_components<ScoreComponent>();
+
+        for (auto &score : scores) {
+            if (score.has_value()) {
+                score->score = 0;
+            }
+        }
     }
 
 }
