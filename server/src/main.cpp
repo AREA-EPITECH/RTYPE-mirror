@@ -57,6 +57,24 @@ static void runMainLoop(server::Server &server)
                     if ((*it)->checkWin()) {
                         spdlog::info("Win ! Go to level {}", (*it)->getLevel() + 1);
                         (*it)->setLevel((*it)->getLevel() + 1, server);
+                        std::string level_map = fmt::format("./server/levels/map{}.json", (*it)->getLevel());
+                        if (!std::filesystem::exists(level_map)) {
+                            spdlog::info("Game Over no more level");
+                            struct network::ErrorPacket error_packet;
+                            error_packet.message = std::string("Game over");
+                            error_packet.type = network::ErrorType::NoMoreLevel;
+                            auto &clients = (*it)->getClients();
+                            for (int i = 0; i < clients.size(); i++)
+                            {
+                                if (clients[i].has_value())
+                                {
+                                    server.getServer().sendErrorPacket(error_packet, clients[i].value());
+                                }
+                            }
+                            it->reset();
+                            it = server.getWaitingRooms().erase(it);
+                            it++;
+                        }
                         continue;
                     }
                     if ((*it)->checkLose()) {

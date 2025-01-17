@@ -53,6 +53,7 @@ namespace server {
 
         void addClient(std::shared_ptr<network::PeerWrapper> &peer);
         std::shared_ptr<network::PeerWrapper> getClient(uint32_t id);
+        Sparse_array<std::shared_ptr<network::PeerWrapper>> &getClients();
         void removeClient(uint32_t id);
 
         void addPos(uint32_t client_id, network::MoveDirection type);

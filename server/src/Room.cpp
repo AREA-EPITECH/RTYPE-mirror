@@ -106,6 +106,11 @@ namespace server
         return nullptr;
     }
 
+    Sparse_array<std::shared_ptr<network::PeerWrapper>> &Room::getClients()
+    {
+        return _registry.get_components<std::shared_ptr<network::PeerWrapper>>();
+    }
+
     void Room::removeClient(uint32_t id)
     {
         auto &clients = _registry.get_components<std::shared_ptr<network::PeerWrapper>>();
@@ -327,6 +332,7 @@ namespace server
             {
                 server.changeRoomToPlaying(this->_id);
                 if (!this->initPlaying()) {
+                    spdlog::info("Game Over no more level");
                     struct network::ErrorPacket error_packet;
                     error_packet.message = std::string("Game over");
                     error_packet.type = network::ErrorType::NoMoreLevel;
@@ -335,6 +341,13 @@ namespace server
                         if (clients[i].has_value())
                         {
                             server.getServer().sendErrorPacket(error_packet, clients[i].value());
+                        }
+                    }
+                    auto &rooms = server.getPlayingRooms();
+                    for (auto it = rooms.begin(); it != rooms.end(); it++) {
+                        if ((*it)->getId() == _id) {
+                            (*it).reset();
+                            rooms.erase(it);
                         }
                     }
                 }

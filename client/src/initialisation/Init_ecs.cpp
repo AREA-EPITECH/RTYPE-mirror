@@ -375,6 +375,15 @@ Registry init_ecs()
                         }
                         gameState->get().updateOtherPlayer(players);
                     }
+                    else if (event.packetType == network::PacketType::ErrorPacket)
+                    {
+                        auto received_packet = std::any_cast<struct network::ErrorPacket>(event.data);
+                        if (received_packet.type == network::ErrorType::NoMoreLevel) {
+                            spdlog::info("GAME OVER");
+                            exit(0);
+                            ecs::change_window(ecs, ecs::WindowType::END_GAME);
+                        }
+                    }
                     else
                     {
                         spdlog::info("Data received");
