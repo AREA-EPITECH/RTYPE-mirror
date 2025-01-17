@@ -338,4 +338,69 @@ namespace ecs {
         ~FilterComponent() = default;
     };
 
+    class ExplosionComponent {
+    public:
+        Texture2D spriteSheet;
+        int frameWidth;
+        int frameHeight;
+        int totalFrames;
+        int currentFrame;
+        float frameTime;
+        float elapsedTime;
+        bool active;
+        Vector3 position;
+        float scale;
+
+        ExplosionComponent(const std::string &spritePath, int frameWidth, int frameHeight, int totalFrames, float frameTime, Vector3 position)
+                : frameWidth(frameWidth), frameHeight(frameHeight), totalFrames(totalFrames),
+                  currentFrame(0), frameTime(frameTime), elapsedTime(0.0f), active(true), position(position), scale(2.0f) {
+            spriteSheet = LoadTexture(spritePath.c_str());
+        }
+
+        void UnloadExploision () {
+            UnloadTexture(spriteSheet);
+        }
+
+        ~ExplosionComponent() = default;
+
+        void update(float deltaTime) {
+            if (!active) return;
+
+            elapsedTime += deltaTime;
+
+            if (elapsedTime >= frameTime) {
+                elapsedTime = 0.0f;
+                currentFrame++;
+
+                if (currentFrame >= totalFrames) {
+                    active = false;
+                    currentFrame = 0;
+                }
+            }
+        }
+
+        void draw(Camera camera, Vector3 maxHitbox, Vector3 minHitbox) {
+            if (!active) return;
+
+            Rectangle sourceRect = {
+                    static_cast<float>(currentFrame * frameWidth),
+                    0.0f,
+                    static_cast<float>(frameWidth),
+                    static_cast<float>(frameHeight)
+            };
+
+            Vector2 pos2d = GetWorldToScreen(position, camera);
+            Vector2 maxhitbox2d = GetWorldToScreen(maxHitbox, camera);
+            Vector2 minhitbox2d = GetWorldToScreen(minHitbox, camera);
+            Rectangle destRect = {
+                    pos2d.x - 80,
+                    pos2d.y - 50,
+                    static_cast<float>(frameWidth) * scale,
+                    static_cast<float>(frameHeight) * scale
+            };
+
+            DrawTexturePro(spriteSheet, sourceRect, destRect, {0.0f, 0.0f}, 0.0f, WHITE);
+        }
+    };
+
 }

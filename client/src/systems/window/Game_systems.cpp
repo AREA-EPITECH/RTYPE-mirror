@@ -166,9 +166,30 @@ namespace ecs {
                     }
                 }
                 EndMode3D();
+                auto &explosions = ecs.get_components<ExplosionComponent>();
+                for (int i = 0; i < explosions.size(); i++) {
+                    if (explosions[i].has_value()) {
+                        auto &explosion = explosions[i].value();
+                        if (!explosion.active) {
+                            explosion.UnloadExploision();
+                            ecs.kill_entity(i);
+                        } else {
+                            for (auto & model : models) {
+                                if (model.has_value()) {
+                                    BoundingBox hitbox = GetModelBoundingBox(model->model);
+
+                                    explosion.update(deltaTime);
+                                    explosion.draw(camera_i->camera, hitbox.max, hitbox.min);
+                                }
+                            }
+                        }
+
+                    }
+                }
                 break;
             }
         }
+
 
         DrawText(TextFormat("FPS: %d", GetFPS()), 10, 10, 20, DARKGRAY);
 

@@ -70,6 +70,7 @@ static void runMainLoop(server::Server &server)
                             {
                                 if (clients[i].has_value())
                                 {
+                                    clients[i].value()->getData<server::ClientData>().unsetRoom();
                                     server.getServer().sendErrorPacket(error_packet, clients[i].value());
                                     registry.kill_entity(i);
                                 }
