@@ -44,7 +44,6 @@ namespace ecs
             break;
         }
 
-
         ecs.run_event(WindowOpenEvent{});
     }
 

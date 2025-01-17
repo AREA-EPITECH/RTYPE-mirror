@@ -453,9 +453,9 @@ std::vector<uint8_t> network::Packet::serializeErrorPacket(const struct network:
 }
 
 /**
- * @brief Deserializes a binary format into a `LobbySnapshotPacket`.
+ * @brief Deserializes a binary format into a `ErrorPacket`.
  * @param data The binary data to deserialize.
- * @return The deserialized `LobbySnapshotPacket`.
+ * @return The deserialized `ErrorPacket`.
  */
 struct network::ErrorPacket network::Packet::deserializeErrorPacket(const std::vector<uint8_t> &data)
 {
@@ -481,7 +481,7 @@ struct network::ErrorPacket network::Packet::deserializeErrorPacket(const std::v
 
     ensureValidOffset(offset, messageLength, data.size());
     packet.message.resize(messageLength);
-    std::memcpy(&packet.message, data.data() + offset, messageLength);
+    std::memcpy(&packet.message[0], data.data() + offset, messageLength);
     offset += messageLength;
 
     return packet;

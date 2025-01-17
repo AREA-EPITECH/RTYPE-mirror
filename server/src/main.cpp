@@ -11,6 +11,7 @@
 #include <chrono>
 #include "spdlog/spdlog.h"
 #include "Server.hpp"
+#include "ClientData.hpp"
 
 std::atomic<bool> shutdown_requested(false);
 
@@ -64,22 +65,26 @@ static void runMainLoop(server::Server &server)
                             error_packet.message = std::string("Game over");
                             error_packet.type = network::ErrorType::NoMoreLevel;
                             auto &clients = (*it)->getClients();
+                            auto &registry = (*it)->getRegistry();
                             for (int i = 0; i < clients.size(); i++)
                             {
                                 if (clients[i].has_value())
                                 {
                                     server.getServer().sendErrorPacket(error_packet, clients[i].value());
+                                    registry.kill_entity(i);
                                 }
                             }
                             it->reset();
-                            it = server.getWaitingRooms().erase(it);
-                            it++;
+                            it = server.getPlayingRooms().erase(it);
+                            continue;
                         }
+                        server.changeRoomToWaiting((*it)->getId());
                         continue;
                     }
                     if ((*it)->checkLose()) {
                         spdlog::info("Lose ! Go back to level {}", (*it)->getLevel());
                         (*it)->setLevel((*it)->getLevel(), server);
+                        server.changeRoomToWaiting((*it)->getId());
                         continue;
                     }
                     (*it)->sendUpdateRoom(server);

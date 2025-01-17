@@ -311,26 +311,7 @@ namespace server
             if (this->_state == network::LobbyGameState::Playing)
             {
                 server.changeRoomToPlaying(this->_id);
-                if (!this->initPlaying()) {
-                    spdlog::info("Game Over no more level");
-                    struct network::ErrorPacket error_packet;
-                    error_packet.message = std::string("Game over");
-                    error_packet.type = network::ErrorType::NoMoreLevel;
-                    for (int i = 0; i < clients.size(); i++)
-                    {
-                        if (clients[i].has_value())
-                        {
-                            server.getServer().sendErrorPacket(error_packet, clients[i].value());
-                        }
-                    }
-                    auto &rooms = server.getPlayingRooms();
-                    for (auto it = rooms.begin(); it != rooms.end(); it++) {
-                        if ((*it)->getId() == _id) {
-                            (*it).reset();
-                            rooms.erase(it);
-                        }
-                    }
-                }
+                this->initPlaying();
             }
         }
     }
@@ -723,7 +704,7 @@ namespace server
         this->sendUpdateRoom(server);
         this->level = level;
         this->setState(network::LobbyGameState::Waiting);
-        kill_entities_with_component<Level>(_registry);
+        this->kill_entities();
         auto &clients = _registry.get_components<std::shared_ptr<network::PeerWrapper>>();
         auto &life = _registry.get_components<int>();
         for (int i = 0; i < clients.size(); i++)
@@ -741,7 +722,6 @@ namespace server
                 life[i].value() = MAX_HEALTH;
             }
         }
-        server.changeRoomToWaiting(this->_id);
     }
 
     bool Room::isClientinsideRoom()
@@ -760,6 +740,10 @@ namespace server
     network::LobbyGameState Room::getState() const { return this->_state; }
 
     void Room::setState(const network::LobbyGameState state) { this->_state = state; }
+
+    Registry &Room::getRegistry() {
+        return this->_registry;
+    }
 
     MapComponent::MapComponent(const std::string &filePath)
     {

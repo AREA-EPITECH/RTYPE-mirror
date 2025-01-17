@@ -186,7 +186,9 @@ bool network::NetworkClient::pollEvent(ClientEvent &event)
                 {
                     spdlog::error("Failed to deserialize packet: {}", e.what());
                 }
-                enet_packet_destroy(enetEvent.packet);
+                if (enetEvent.packet) {
+                    enet_packet_destroy(enetEvent.packet);
+                }
                 break;
             }
 

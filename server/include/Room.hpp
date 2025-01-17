@@ -79,6 +79,8 @@ namespace server {
         bool isClientinsideRoom();
         network::LobbyGameState getState() const;
         void setState(network::LobbyGameState state);
+
+        Registry &getRegistry();
     };
 
     enum EnemyType
