@@ -1,24 +1,24 @@
 {
-  "name" : "level 2",
-  "win_score" : 1000,
+  "name" : "level 3",
+  "win_score" : 2000,
   "enemies" : [
     {
       "type" : 0,
-      "spawn_rate": 4,
+      "spawn_rate": 3,
       "score" : 10,
       "acc": 1,
-      "shot_rate": 6
+      "shot_rate": 5
     },
     {
       "type" : 1,
-      "spawn_rate": 7,
+      "spawn_rate": 5,
       "score" : 50,
       "acc": 2,
       "shot_rate": 3
     },
     {
       "type" : 2,
-      "spawn_rate": 13,
+      "spawn_rate": 7,
       "score" : 100,
       "acc": 3,
       "shot_rate": 1

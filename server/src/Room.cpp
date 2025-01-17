@@ -35,17 +35,6 @@ namespace server
 
     void Room::kill_entities()
     {
-        auto &clients = _registry.get_components<std::shared_ptr<network::PeerWrapper>>();
-        for (int i = 0; i < clients.size(); i++)
-        {
-            if (clients[i].has_value())
-            {
-                clients[i].value()->getData<ClientData>().unsetRoom();
-                clients[i].value().reset();
-                _registry.kill_entity(i);
-            }
-        }
-
         auto &enemies = _registry.get_components<Enemy>();
         for (int i = 0; i < enemies.size(); i++)
         {
@@ -72,15 +61,6 @@ namespace server
                 _registry.kill_entity(i);
             }
         }
-
-        auto &life = _registry.get_components<int>();
-        for (int i = 0; i < life.size(); i++)
-        {
-            if (life[i].has_value())
-            {
-                _registry.kill_entity(i);
-            }
-        }
     }
 
     void Room::addClient(std::shared_ptr<network::PeerWrapper> &peer)
@@ -88,7 +68,7 @@ namespace server
         const auto new_player = _registry.spawn_entity();
         auto &data = peer->getData<ClientData>();
         _registry.add_component<ClientData>(new_player, std::move(data));
-        _registry.add_component<int>(new_player, 10);
+        _registry.add_component<int>(new_player, MAX_HEALTH);
         _registry.add_component<std::shared_ptr<network::PeerWrapper>>(new_player, std::move(peer));
     }
 
@@ -187,7 +167,7 @@ namespace server
             _enemy_accumulated_time = 0;
         }
 
-        if (_projectile_accumulated_time >= 500) {
+        if (_projectile_accumulated_time >= 100) {
             this->spawnEnemyProjectile();
             _projectile_accumulated_time = 0;
         }
@@ -513,8 +493,8 @@ namespace server
     {
         for (auto &enemy : _enemies)
         {
-            enemy.clock += 100;
-            if (enemy.clock >= enemy.spawn_rate * 1000)
+            enemy.spawn_clock += 100;
+            if (enemy.spawn_clock >= enemy.spawn_rate * 1000)
             {
                 const auto new_enemy = _registry.spawn_entity();
                 int random_y;
@@ -537,13 +517,13 @@ namespace server
                 enemy.init_pos.y = random_y;
                 enemy.init_pos.x = ENDX_MAP;
                 _registry.add_component<Enemy>(new_enemy,
-                                               {enemy.type, enemy.spawn_rate, enemy.shot_rate, enemy.clock, enemy.score, enemy.hitbox,
-                                                enemy.acc, enemy.init_pos, enemy.moveFunction});
+                        {enemy.type, enemy.spawn_rate, enemy.shot_rate, enemy.spawn_clock, enemy.shot_clock, enemy.score, enemy.hitbox,
+                        enemy.acc, enemy.init_pos, enemy.moveFunction});
                 _registry.add_component<Pos>(new_enemy, {ENDX_MAP, random_y});
                 this->addProjectileEnemy(enemy, enemy.init_pos);
                 spdlog::info("Spawned enemy of type {} with spawn rate {} at [{};{}]", static_cast<int>(enemy.type),
                              enemy.spawn_rate, enemy.init_pos.x, random_y);
-                enemy.clock = 0;
+                enemy.spawn_clock = 0;
             }
         }
     }
@@ -577,10 +557,10 @@ namespace server
         auto &pos = _registry.get_components<Pos>();
         for (int i = 0; i < enemies.size(); i++) {
             if (enemies[i].has_value() && pos[i].has_value()) {
-                enemies[i].value().clock += 100;
-                if (enemies[i].value().clock >= enemies[i].value().shot_rate * 1000) {
+                enemies[i].value().shot_clock += 100;
+                if (enemies[i].value().shot_clock >= enemies[i].value().shot_rate * 1000) {
                     this->addProjectileEnemy(enemies[i].value(), pos[i].value());
-                    enemies[i].value().clock = 0;
+                    enemies[i].value().shot_clock = 0;
                 }
             }
         }
@@ -710,16 +690,6 @@ namespace server
         return false;
     }
 
-    void Room::resetScore() {
-        auto &clients = _registry.get_components<std::shared_ptr<network::PeerWrapper>>();
-        for (int i = 0; i < clients.size(); i++) {
-            if (clients[i].has_value()) {
-                clients[i].value()->getData<ClientData>().resetScore();
-            }
-        }
-    }
-
-
     bool Room::checkLose() {
         auto &clients = _registry.get_components<std::shared_ptr<network::PeerWrapper>>();
         for (int i = 0; i < clients.size(); i++) {
@@ -730,8 +700,6 @@ namespace server
         return true;
     }
 
-
-
     uint32_t Room::getId() const { return this->_id; }
 
     void Room::setId(const uint32_t id) { this->_id = id; }
@@ -740,11 +708,11 @@ namespace server
 
     void Room::setLevel(const int level, server::Server &server) {
         this->sendUpdateRoom(server);
-        this->resetScore();
         this->level = level;
         this->setState(network::LobbyGameState::Waiting);
         kill_entities_with_component<Level>(_registry);
         auto &clients = _registry.get_components<std::shared_ptr<network::PeerWrapper>>();
+        auto &life = _registry.get_components<int>();
         for (int i = 0; i < clients.size(); i++)
         {
             if (clients[i].has_value())
@@ -755,6 +723,9 @@ namespace server
                 if (data.getReadyState()) {
                     data.setReadyState();
                 }
+            }
+            if (life[i].has_value()) {
+                life[i].value() = MAX_HEALTH;
             }
         }
         server.changeRoomToWaiting(this->_id);
@@ -800,7 +771,8 @@ namespace server
             enemy.acc.x = enemyData.at("acc").get<int>();
             enemy.acc.y = enemyData.at("acc").get<int>();
             enemy.shot_rate = enemyData.at("shot_rate").get<int>();
-            enemy.clock = 0;
+            enemy.spawn_clock = 0;
+            enemy.shot_clock = 0;
             switch (enemy.type)
             {
             case Easy:

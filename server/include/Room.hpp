@@ -26,7 +26,7 @@ namespace server {
 #define ENDX_MAP 950
 #define MINY_MAP 0
 #define MAXY_MAP 332
-#define RAY 100
+#define MAX_HEALTH 10
     class Server;
     struct Enemy;
     class Room {
@@ -68,7 +68,6 @@ namespace server {
         void checkCollisionProjectiles();
 
         bool checkWin();
-        void resetScore();
         bool checkLose();
 
         bool getClientsReadiness() const;
@@ -92,7 +91,8 @@ namespace server {
         EnemyType type;
         int spawn_rate;
         int shot_rate;
-        long clock;
+        long spawn_clock;
+        long shot_clock;
         int score;
         Pos hitbox;
         Acceleration acc;
