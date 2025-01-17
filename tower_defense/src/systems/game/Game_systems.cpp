@@ -17,7 +17,13 @@ namespace ecs
     {
         for (auto &enemy : map._enemies)
         {
-            if (enemy._current_step >= enemy._speed)
+            std::chrono::time_point<std::chrono::steady_clock> now = std::chrono::steady_clock::now();
+            double elapsed_time_since_start_round =
+                std::chrono::duration<double>(now - enemy._last_move).count();
+            if (elapsed_time_since_start_round < enemy._speed)
+            {
+                continue;
+            }
             {
                 for (size_t j = 0; j < map._path.size(); j++)
                 {
@@ -28,14 +34,10 @@ namespace ecs
                             enemy._pos_x = map._path[j + 1]._x;
                             enemy._pos_y = map._path[j + 1]._y;
                         }
-                        enemy._current_step = 0;
+                        enemy._last_move = std::chrono::steady_clock::now();
                         break;
                     }
                 }
-            }
-            else
-            {
-                enemy._current_step += 1;
             }
         }
     }
@@ -79,15 +81,15 @@ namespace ecs
                     {
                     case tower_defense::Basic_slime:
                         map._enemies.emplace_back(
-                            EnemyComponent{1, 300, 0, 1, 1, texture_manager.get_texture(tower_defense::BASIC_SLIME),
+                            EnemyComponent{1, 3, 1, 1, texture_manager.get_texture(tower_defense::BASIC_SLIME),
                                            start_x, start_y, 0, 0});
                         break;
                     case tower_defense::Bat:
                         map._enemies.emplace_back(EnemyComponent{
-                            1, 100, 0, 1, 1, texture_manager.get_texture(tower_defense::BAT), start_x, start_y, 0, 0});
+                            1, 2, 1, 1, texture_manager.get_texture(tower_defense::BAT), start_x, start_y, 0, 0});
                         break;
                     case tower_defense::Zombie:
-                        map._enemies.emplace_back(EnemyComponent{1, 100, 0, 1, 1,
+                        map._enemies.emplace_back(EnemyComponent{1, 3, 1, 1,
                                                                  texture_manager.get_texture(tower_defense::ZOMBIE),
                                                                  start_x, start_y, 0, 0});
                         break;

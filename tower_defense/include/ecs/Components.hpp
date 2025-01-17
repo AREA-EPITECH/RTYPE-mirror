@@ -88,8 +88,7 @@ namespace ecs {
     struct EnemyComponent
     {
         unsigned int _health;
-        unsigned int _speed;
-        unsigned int _current_step;
+        unsigned int _speed; // Moves every _speed second(s)
         unsigned int _damage;
         unsigned int _reward;
         std::shared_ptr<Texture2D> _texture;
@@ -97,6 +96,7 @@ namespace ecs {
         int _pos_y;
         int _frame = 0;
         float _frame_counter = 0.0f;
+        std::chrono::time_point<std::chrono::steady_clock> _last_move = std::chrono::steady_clock::now();
     };
 
     struct MapComponent {
