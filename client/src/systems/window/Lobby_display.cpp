@@ -18,6 +18,15 @@ void update_board_component(Registry &ecs, int screenWidth, int screenHeight) {
     game::GameState::Player user = gameState->get().getUser();
     std::vector<game::GameState::Player> other_user = gameState->get().getOtherPlayer();
 
+    auto &scores = ecs.get_components<ecs::ScoreComponent>();
+    int level = 0;
+    for (auto &score_i: scores) {
+        if (score_i.has_value()) {
+            level = score_i->level;
+            break;
+        }
+    }
+
     for (int i = 0; i < texts.size(); i++) {
         if (texts[i].has_value()) {
             auto &text = texts[i].value();
@@ -47,7 +56,7 @@ void update_board_component(Registry &ecs, int screenWidth, int screenHeight) {
                 }
                 players_ids++;
             } else if (text.type == 2) {
-                std::string idStr = fmt::format("ID: {}", gameState->get().getRoomId());
+                std::string idStr = fmt::format("ID: {} - Level {}", gameState->get().getRoomId(), level);
                 text.text = idStr;
             }
         }

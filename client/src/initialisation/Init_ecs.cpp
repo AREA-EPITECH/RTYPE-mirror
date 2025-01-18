@@ -405,6 +405,8 @@ Registry init_ecs()
 
     auto gameState = ecs.spawn_entity();
     ecs.add_component<game::GameState>(gameState, {});
+    auto score = ecs.spawn_entity();
+    ecs.add_component<ecs::ScoreComponent>(score, {0, 0});
 
     init_menu_window(ecs);
 

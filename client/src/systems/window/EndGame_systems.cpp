@@ -81,17 +81,15 @@ namespace ecs {
                 break;
             }
         }
-        std::string level_str = fmt::format("Level {}", level);
         DrawText("LEADERBOARD", center.x - MeasureText("LEADERBOARD", fontSize) / 2, center.y - scoreBoardHeight / 2 + headerHeight / 2 - fontSize / 2, fontSize, WHITE);
-        DrawText(level_str.c_str(), center.x - scoreBoardWidth / 2 + 20, center.y - scoreBoardHeight / 2 + headerHeight / 2 - fontSize / 2, fontSize, WHITE);
         std::vector<std::tuple<std::string, int, bool>> lines;
         int startY = center.y - scoreBoardHeight / 2 + headerHeight + 10;
         fontSize = 64;
         auto user = gameState->get().getUser();
-        lines.push_back({user.name, user.score, true});
+        lines.push_back({user.name, user.total_score, true});
         auto other_players = gameState->get().getOtherPlayer();
         for (auto &player: other_players) {
-            lines.push_back({player.name, player.score, false});
+            lines.push_back({player.name, player.total_score, false});
         }
         std::sort(lines.begin(), lines.end(), [](std::tuple<std::string, int, bool> a, std::tuple<std::string, int, bool> b){
             return std::get<1>(a) > std::get<1>(b);
@@ -185,8 +183,27 @@ namespace ecs {
         kill_entities_with_component<ecs::ButtonComponent>(ecs);
         kill_entities_with_component<ecs::BackgroundComponent>(ecs);
         kill_entities_with_component<ecs::DecorElementComponent>(ecs);
+
+        // Reset gamestate;
+        auto gameState = getGameState(ecs);
+        auto user = gameState->get().getUser();
+        game::GameState::Player cpy_user;
+        cpy_user.id = user.id;
         kill_entities_with_component<game::GameState>(ecs);
-        auto gameState = ecs.spawn_entity();
-        ecs.add_component<game::GameState>(gameState, {});
+        auto gamestateEntity = ecs.spawn_entity();
+        ecs.add_component<game::GameState>(gamestateEntity, {});
+        gameState = getGameState(ecs);
+        gameState->get().updateUser(cpy_user);
+
+        // Reset Score component
+        auto &scores = ecs.get_components<ecs::ScoreComponent>();
+        for (auto &score : scores) {
+            if (score.has_value()) {
+                score->level = 1;
+                score->score = 0;
+                score->win_score = 0;
+                break;
+            }
+        }
     }
 }

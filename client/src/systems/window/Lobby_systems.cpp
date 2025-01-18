@@ -157,7 +157,7 @@ namespace ecs {
                     break;
                 }
             }
-            std::string level_str = fmt::format("Level {}", level);
+            std::string level_str = fmt::format("Level {}", level - 1);
             DrawText("LEADERBOARD", center.x - MeasureText("LEADERBOARD", fontSize) / 2, center.y - scoreBoardHeight / 2 + headerHeight / 2 - fontSize / 2, fontSize, WHITE);
             DrawText(level_str.c_str(), center.x - scoreBoardWidth / 2 + 20, center.y - scoreBoardHeight / 2 + headerHeight / 2 - fontSize / 2, fontSize, WHITE);
             auto &buttons = ecs.get_components<ecs::CloseLeaderBoard>();

@@ -35,6 +35,7 @@ namespace game
             bool is_ready = false;
             std::tuple<uint, uint> position;
             int score = 0;
+            int total_score = 0;
         };
 
         std::map<uint32_t, entity_t> enemy_entities;

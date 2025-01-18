@@ -171,7 +171,7 @@ namespace ecs {
                     if (explosions[i].has_value()) {
                         auto &explosion = explosions[i].value();
                         if (!explosion.active) {
-                            explosion.UnloadExploision();
+                            explosion.UnloadExplosion();
                             ecs.kill_entity(i);
                         } else {
                             for (auto & model : models) {
@@ -315,21 +315,6 @@ namespace ecs {
                 break;
             }
         }
-
-        bool has_score_component = false;
-
-        auto &scores = ecs.get_components<ScoreComponent>();
-
-        for (auto &score : scores) {
-            if (score.has_value()) {
-                has_score_component = true;
-            }
-        }
-
-        if (!has_score_component) {
-            auto score = ecs.spawn_entity();
-            ecs.add_component<ScoreComponent>(score, {500, 0});
-        }
     }
 
     /**
@@ -342,6 +327,7 @@ namespace ecs {
         auto &shaders = ecs.get_components<ShaderComponent>();
         auto &backgrounds = ecs.get_components<BackgroundComponent>();
         auto &decors = ecs.get_components<DecorElementComponent>();
+        auto &explosions = ecs.get_components<ExplosionComponent>();
 
         auto gameState = getGameState(ecs);
 
@@ -364,6 +350,12 @@ namespace ecs {
                 if (!projectiles_models[i]->drawable)
                     UnloadModel(projectiles_models[i]->model);
                 TraceLog(LOG_WARNING, TextFormat("Unloaded model for entity %zu.", i));
+                ecs.kill_entity(i);
+            }
+        }
+        for (std::size_t i = 0; i < explosions.size(); i++) {
+            if (explosions[i].has_value()) {
+                explosions[i]->UnloadExplosion();
                 ecs.kill_entity(i);
             }
         }
@@ -394,6 +386,16 @@ namespace ecs {
                 score->score = 0;
             }
         }
+
+        auto user = gameState->get().getUser();
+        user.total_score += user.score;
+        gameState->get().updateUser(user);
+
+        auto players = gameState->get().getOtherPlayer();
+        for (auto &player: players) {
+            player.total_score + player.score;
+        }
+        gameState->get().updateOtherPlayer(players);
     }
 
 }
