@@ -6,15 +6,18 @@
 */
 
 #include "ecs/Systems.hpp"
+#include "raylib/kbd_layout.h"
 
-namespace ecs {
+namespace ecs
+{
 
     /**
      * Change the window
      * @param ecs
      * @param type
      */
-    void change_window(Registry &ecs, WindowType type) {
+    void change_window(Registry &ecs, WindowType type)
+    {
         ecs.run_event(WindowCloseEvent{});
 
         ecs.unsubscribe_all<WindowOpenEvent>();
@@ -22,18 +25,23 @@ namespace ecs {
         ecs.unsubscribe_all<WindowDrawEvent>();
         ecs.unsubscribe_all<ControlsEvent>();
 
-        switch (type) {
-            case MENU:
-                init_menu_window(ecs);
-                break;
+        switch (type)
+        {
+        case MENU:
+            init_menu_window(ecs);
+            break;
 
-            case LOBBY:
-                init_lobby_window(ecs);
-                break;
+        case LOBBY:
+            init_lobby_window(ecs);
+            break;
 
-            case GAME:
-                init_game_window(ecs);
-                break;
+        case GAME:
+            init_game_window(ecs);
+            break;
+
+        case END_GAME:
+            init_end_game_window(ecs);
+            break;
         }
 
         ecs.run_event(WindowOpenEvent{});
@@ -43,94 +51,37 @@ namespace ecs {
      * Get controls in the menu
      * @param ecs
      */
-    void menu_controls_system(Registry &ecs, const ControlsEvent &) {
-
-        /*if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+    void menu_controls_system(Registry &ecs, const ControlsEvent &)
+    {
+        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+        {
+            auto &images = ecs.get_components<ImageComponent>();
             Vector2 mousePosition = GetMousePosition();
-            auto &buttons = ecs.get_components<ButtonComponent>();
-            auto &box = ecs.get_components<ShowBoxComponent>();
-
-            for (auto &button : buttons) {
-                if (button.has_value()) {
-                    button->isButtonPressed(mousePosition);
+            for (auto &image : images)
+            {
+                if (image.has_value())
+                {
+                    image.value().handleClick(mousePosition, get_focus(ecs));
                 }
             }
-
-            for (auto &b : box) {
-                if (b.has_value()) {
-                    b.value().handleClick(mousePosition);
-                }
-            }
-        }*/
+        }
     }
 
     /**
      * Get controls in the lobby
      * @param ecs
      */
-    void lobby_controls_system(Registry &ecs, const ControlsEvent &) {
-        auto &models = ecs.get_components<VesselsComponent>();
-
-        if (IsKeyPressed(KEY_LEFT)) {
-            size_t current = -1;
-            size_t to_change = 0;
-            for (size_t i = 0; i < models.size() ;i++) {
-                if (models[i].has_value()) {
-                    if (models[i].value().drawable)
-                        if (current == -1) {
-                            to_change = i;
-                            continue;
-                        } else {
-                            models[current].value().drawable = true;
-                            models[i].value().drawable = false;
-                            return;
-                        }
-                    if (!models[i].value().drawable)
-                        current = i;
-                }
-            }
-            if (current != -1 && models[current].has_value()) {
-                models[current].value().drawable = true;
-                models[to_change].value().drawable = false;
-            }
+    void lobby_controls_system(Registry &ecs, const ControlsEvent &)
+    {
+        if (Kbd_IsKeyPressed(KBD_Layout::FR, KEY_LEFT))
+        {
+            previous_ship(ecs);
         }
 
-        if (IsKeyPressed(KEY_RIGHT)) {
-            size_t current = -1;
-            size_t to_change = 0;
-
-            for (size_t i = models.size(); i-- > 0;) {
-                if (models[i].has_value()) {
-                    if (models[i].value().drawable) {
-                        if (current == -1) {
-                            to_change = i;
-                            continue;
-                        } else {
-                            models[current].value().drawable = true;
-                            models[i].value().drawable = false;
-                            return;
-                        }
-                    }
-                    if (!models[i].value().drawable)
-                        current = i;
-                }
-            }
-
-            if (current != -1 && models[current].has_value()) {
-                models[current].value().drawable = true;
-                models[to_change].value().drawable = false;
-            }
+        if (Kbd_IsKeyPressed(KBD_Layout::FR, KEY_RIGHT))
+        {
+            next_ship(ecs);
         }
-        /*if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-            Vector2 mousePosition = GetMousePosition();
-            auto &buttons = ecs.get_components<ButtonComponent>();
-
-            for (auto &button : buttons) {
-                if (button.has_value()) {
-                    button->isButtonPressed(mousePosition);
-                }
-            }
-        }*/
     }
 
     /**
@@ -141,36 +92,61 @@ namespace ecs {
      * @param velocity
      * @param player
      * @param path
+     * @param target
+     * @param nb
+     * @param shader
      */
-    void create_projectile(Registry &ecs, Model model, Vector3 position, Vector3 velocity, bool player,
-        std::string &path) {
+    void create_player_basic_projectile(Registry &ecs, uint32_t id, Model model, Vector3 position, Vector3 velocity, bool player,
+                                        std::string &path, Vector3 target, int nb, Shader shader)
+    {
         auto entity = ecs.spawn_entity();
-        ecs.add_component<ProjectilesComponent>(entity, {model, true, path, position, player, velocity});
+        ecs.add_component<ProjectilesComponent>(
+            entity, {id, model, true, path, position, player, velocity, target, DARKBLUE, nb, shader});
     }
 
     /**
      * @brief Get controls in the game
      * @param ecs
      */
-    void game_controls_system(Registry &ecs, const ControlsEvent &) {
+    void game_controls_system(Registry &ecs, const ControlsEvent &)
+    {
+        struct network::InputPacket input_packet;
+        input_packet.move = network::MoveDirection::NoneDirection;
+        input_packet.fire = network::FireType::NoneFire;
         auto &cameras = ecs.get_components<CameraComponent>();
         auto &models = ecs.get_components<VesselsComponent>();
         auto &controllables = ecs.get_components<ControllableComponent>();
-        VesselsComponent *modelComponent = nullptr;
-        for (auto & model : models) {
-            for (auto & controllable: controllables)
+        auto &lights = ecs.get_components<LightComponent>();
+        auto &projectiles = ecs.get_components<ProjectilesComponent>();
+        auto &shaders = ecs.get_components<ShaderComponent>();
+        int nb_lights = 0;
+
+        auto &controls = ecs.get_components<KeyBindingComponent>();
+
+        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+        {
+            auto &images = ecs.get_components<ImageComponent>();
+            Vector2 mousePosition = GetMousePosition();
+            for (auto &image : images)
             {
-                if (controllable.has_value())
+                if (image.has_value())
                 {
-                    if (model.has_value()) {
-                        modelComponent = &model.value();
-                        break;
-                    }
+                    image.value().handleClick(mousePosition, get_focus(ecs));
                 }
             }
         }
+
+        VesselsComponent *modelComponent = nullptr;
+        for (int i = 0; i < models.size(); i++) {
+            if (models[i].has_value() && controllables[i].has_value()) {
+                modelComponent = &models[i].value();
+                break;
+            }
+        }
+
         CameraComponent *cameraComponent = nullptr;
-        for (auto & camera : cameras) {
+        for (auto &camera : cameras)
+        {
             if (camera.has_value())
             {
                 cameraComponent = &camera.value();
@@ -178,35 +154,88 @@ namespace ecs {
             }
         }
 
-        if (modelComponent == nullptr || cameraComponent == nullptr)
-            return;
-        if (IsKeyPressed(KEY_ENTER)) {
-            change_window(ecs, MENU);
+        Shader shader = {};
+        for (auto &shader_i : shaders)
+        {
+            if (shader_i.has_value())
+            {
+                shader = *shader_i->shader;
+                break;
+            }
         }
-        if (IsKeyPressed(KEY_SPACE)) {
-            auto &projectiles = ecs.get_components<ProjectilesComponent>();
-            for (auto &projectile : projectiles) {
-                if (projectile.has_value()) {
-                    if (projectile->player && !projectile->drawable) {
-                        create_projectile(ecs, projectile->model,
-                            {modelComponent->position.x + 10, modelComponent->position.y + 2, 0},
-                            {0.5, 0, 0}, true, projectile->path);
-                    }
+
+        for (auto &light : lights)
+        {
+            if (light.has_value())
+            {
+                nb_lights += 1;
+            }
+        }
+
+        for (auto &projectile : projectiles)
+        {
+            if (projectile.has_value())
+            {
+                if (projectile->drawable)
+                {
+                    nb_lights += 1;
                 }
             }
         }
-        if (IsKeyPressed(KEY_LEFT) || IsKeyDown(KEY_LEFT)) {
-            modelComponent->Move(client::Direction::LEFT, cameraComponent->camera);
-        }
-        if (IsKeyPressed(KEY_RIGHT) || IsKeyDown(KEY_RIGHT)) {
-            modelComponent->Move(client::Direction::RIGHT, cameraComponent->camera);
-        }
-        if (IsKeyPressed(KEY_UP) || IsKeyDown(KEY_UP)) {
-            modelComponent->Move(client::Direction::UP, cameraComponent->camera);
-        }
-        if (IsKeyPressed(KEY_DOWN) || IsKeyDown(KEY_DOWN)) {
-            modelComponent->Move(client::Direction::DOWN, cameraComponent->camera);
-        }
 
+        if (Kbd_IsKeyPressed(KBD_Layout::FR, KEY_ESCAPE)) {
+            auto settingEntity = ecs.spawn_entity();
+
+            std::string back_path = ASSET_FILE("backgrounds/menu/setting_back.jpg");
+            ImageComponent setting_back(back_path, SETTINGS_FOCUS,
+                                        [](int screenWidth, int screenHeight) {return 0;},
+                                        [](int screenWidth, int screenHeight) {return 0;}, GetScreenWidth(), GetScreenHeight());
+            ecs.add_component<SettingsComponent>(settingEntity, {setting_back});
+            ecs.run_event(ChangeFocusEvent{SETTINGS_FOCUS});
+        }
+        if (modelComponent == nullptr || cameraComponent == nullptr)
+            return;
+        if (Kbd_IsKeyPressed(KBD_Layout::FR, KEY_ENTER))
+        {
+            change_window(ecs, MENU);
+        }
+        for (auto &key : controls)
+        {
+            if (key.has_value())
+            {
+                int move_up = key.value().getKey("Move Up");
+                int move_down = key.value().getKey("Move Down");
+                int move_left = key.value().getKey("Move Left");
+                int move_right = key.value().getKey("Move Right");
+
+                if (Kbd_IsKeyPressed(KBD_Layout::FR, move_left) || Kbd_IsKeyDown(KBD_Layout::FR, move_left))
+                {
+                    modelComponent->Move(client::Direction::LEFT, cameraComponent->camera);
+                    input_packet.move = network::MoveDirection::LeftDirection;
+                }
+                if (Kbd_IsKeyPressed(KBD_Layout::FR, move_right) || Kbd_IsKeyDown(KBD_Layout::FR, move_right))
+                {
+                    modelComponent->Move(client::Direction::RIGHT, cameraComponent->camera);
+                    input_packet.move = network::MoveDirection::RightDirection;
+                }
+                if (Kbd_IsKeyPressed(KBD_Layout::FR, move_up) || Kbd_IsKeyDown(KBD_Layout::FR, move_up))
+                {
+                    modelComponent->Move(client::Direction::UP, cameraComponent->camera);
+                    input_packet.move = network::MoveDirection::UpDirection;
+                }
+                if (Kbd_IsKeyPressed(KBD_Layout::FR, move_down) || Kbd_IsKeyDown(KBD_Layout::FR, move_down))
+                {
+                    modelComponent->Move(client::Direction::DOWN, cameraComponent->camera);
+                    input_packet.move = network::MoveDirection::DownDirection;
+                }
+
+                if (Kbd_IsKeyPressed(KBD_Layout::FR, key.value().getKey("Basic Shoot")))
+                {
+                    input_packet.fire = network::FireType::NormalFire;
+                }
+            }
+        }
+        ecs.run_event(input_packet);
     }
-}
+
+} // namespace ecs

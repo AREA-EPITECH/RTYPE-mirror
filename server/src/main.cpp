@@ -11,6 +11,7 @@
 #include <chrono>
 #include "spdlog/spdlog.h"
 #include "Server.hpp"
+#include "ClientData.hpp"
 
 std::atomic<bool> shutdown_requested(false);
 
@@ -39,7 +40,7 @@ static void runMainLoop(server::Server &server)
             std::chrono::duration_cast<std::chrono::milliseconds>(current_time - last_lobby_snapshot).count();
         if (elapsed_time >= 100)
         {
-            for (auto room : server.getWaitingRooms())
+            for (auto &room : server.getWaitingRooms())
             {
                 room->sendUpdateRoom(server);
             }
@@ -48,12 +49,52 @@ static void runMainLoop(server::Server &server)
         elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(current_time - last_snapshot).count();
         if (elapsed_time >= 20)
         {
-            for (auto room : server.getPlayingRooms())
-            {
-                room->sendUpdateRoom(server);
+            for (auto it = server.getPlayingRooms().begin(); it != server.getPlayingRooms().end(); ) {
+                if (!(*it)->isClientinsideRoom()) {
+                    it->reset();
+                    it = server.getPlayingRooms().erase(it);
+                } else {
+                    (*it)->run(elapsed_time);
+                    if ((*it)->checkWin()) {
+                        spdlog::info("Win ! Go to level {}", (*it)->getLevel() + 1);
+                        (*it)->setLevel((*it)->getLevel() + 1, server);
+                        std::string level_map = fmt::format("./server/levels/map{}.json", (*it)->getLevel());
+                        if (!std::filesystem::exists(level_map)) {
+                            spdlog::info("Game Over no more level");
+                            struct network::ErrorPacket error_packet;
+                            error_packet.message = std::string("Game over");
+                            error_packet.type = network::ErrorType::NoMoreLevel;
+                            auto &clients = (*it)->getClients();
+                            auto &registry = (*it)->getRegistry();
+                            for (int i = 0; i < clients.size(); i++)
+                            {
+                                if (clients[i].has_value())
+                                {
+                                    clients[i].value()->getData<server::ClientData>().unsetRoom();
+                                    server.getServer().sendErrorPacket(error_packet, clients[i].value());
+                                    registry.kill_entity(i);
+                                }
+                            }
+                            it->reset();
+                            it = server.getPlayingRooms().erase(it);
+                            continue;
+                        }
+                        server.changeRoomToWaiting((*it)->getId());
+                        continue;
+                    }
+                    if ((*it)->checkLose()) {
+                        spdlog::info("Lose ! Go back to level {}", (*it)->getLevel());
+                        (*it)->setLevel((*it)->getLevel(), server);
+                        server.changeRoomToWaiting((*it)->getId());
+                        continue;
+                    }
+                    (*it)->sendUpdateRoom(server);
+                    ++it;
+                }
             }
             last_snapshot = current_time;
         }
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
 }
 

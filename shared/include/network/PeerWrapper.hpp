@@ -73,9 +73,9 @@ namespace network
          * @throws std::bad_any_cast If the type of the stored data does not match T.
          */
         template <typename T>
-        T getData() const
+        T &getData()
         {
-            return std::any_cast<T>(_data);
+            return std::any_cast<T&>(_data);
         }
 
         /**

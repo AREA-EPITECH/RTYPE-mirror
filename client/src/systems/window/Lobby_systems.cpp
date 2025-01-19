@@ -6,6 +6,7 @@
 */
 
 #include "ecs/Systems.hpp"
+#include "game/GameState.hpp"
 
 namespace ecs {
 
@@ -17,6 +18,30 @@ namespace ecs {
         ecs.run_event(ControlsEvent{});
         auto &backgrounds = ecs.get_components<BackgroundComponent>();
         auto &decors = ecs.get_components<DecorElementComponent>();
+        auto &musics = ecs.get_components<MusicComponent>();
+        auto &lights = ecs.get_components<LightComponent>();
+        auto &shaders = ecs.get_components<ShaderComponent>();
+
+        Shader shader = {};
+
+        for (auto &shader_i : shaders) {
+            if (shader_i.has_value()) {
+                shader = *shader_i->shader;
+                break;
+            }
+        }
+
+        for (auto &light : lights) {
+            if (light.has_value()) {
+                light->light->UpdateLightValues(shader, light->light->_enabled);
+            }
+        }
+
+        for (auto &music : musics) {
+            if (music.has_value()) {
+                music.value().update("menu_music");
+            }
+        }
 
         for (auto & background : backgrounds) {
             if (background.has_value()) {
@@ -36,6 +61,7 @@ namespace ecs {
         }
 
         BeginDrawing();
+
         ClearBackground(RAYWHITE);
 
         for (auto & background : backgrounds) {
@@ -66,6 +92,7 @@ namespace ecs {
                 BeginMode3D(camera);
 
                 auto &models = ecs.get_components<VesselsComponent>();
+                int j = 0;
                 for (auto &model : models) {
                     if (model.has_value()) {
                         VesselsComponent &modelComponent = model.value();
@@ -75,6 +102,7 @@ namespace ecs {
                             DrawModel(modelComponent.model, {0, 0, 0}, 1.0f, WHITE);
                         }
                     }
+                    j++;
                 }
 
                 EndMode3D();
@@ -82,6 +110,82 @@ namespace ecs {
             }
         }
 
+        auto gameState = getGameState(ecs);
+
+        if (gameState->get().getGameState() == game::GameState::LobbyGameState::Starting) {
+            int ringWidth = 400;
+            int ringHeight = 400;
+            int fontSize = 24;
+            static float startAngle = 0;
+            static float endAngle = 270;
+            startAngle += 2;
+            endAngle += 2;
+            if (startAngle >= 360) {
+                startAngle = 0;
+                endAngle = 270;
+            }
+            Color blackTransparent = {0, 48, 73, 200};
+            DrawRectangle(0, 0, screenWidth, screenHeight, blackTransparent);
+            Vector2 center = {screenWidth / 2.0f, screenHeight / 2.0f};
+            DrawText("Starting...", center.x - MeasureText("Starting...", fontSize) / 2, center.y - fontSize / 2, fontSize, WHITE);
+            DrawRing(center, 80, 190, startAngle, endAngle, 0, Fade(RED, 0.5f));
+        }
+
+
+        if (gameState->get().getShowScore()) {
+            int scoreBoardWidth = screenWidth / 1.5;
+            int scoreBoardHeight = screenHeight / 1.5;
+            int headerHeight = scoreBoardHeight / 10;
+            int fontSize = 52;
+            Color blackTransparent = {0, 48, 73, 200};
+            DrawRectangle(0, 0, screenWidth, screenHeight, blackTransparent);
+            Vector2 center = {screenWidth / 2.0f, screenHeight / 2.0f};
+            DrawRectangle(center.x - scoreBoardWidth / 2, center.y - scoreBoardHeight / 2, scoreBoardWidth, scoreBoardHeight, BLACK);
+            DrawRectangleLines(center.x - scoreBoardWidth / 2, center.y - scoreBoardHeight / 2, scoreBoardWidth, scoreBoardHeight, WHITE);
+            DrawRectangleLines(center.x - scoreBoardWidth / 2, center.y - scoreBoardHeight / 2, scoreBoardWidth, headerHeight, WHITE);
+            auto &scores = ecs.get_components<ecs::ScoreComponent>();
+            int level = 0;
+            for (auto &score_i: scores) {
+                if (score_i.has_value()) {
+                    level = score_i->level;
+                    break;
+                }
+            }
+            std::string level_str = fmt::format("Level {}", level - 1);
+            DrawText("LEADERBOARD", center.x - MeasureText("LEADERBOARD", fontSize) / 2, center.y - scoreBoardHeight / 2 + headerHeight / 2 - fontSize / 2, fontSize, WHITE);
+            DrawText(level_str.c_str(), center.x - scoreBoardWidth / 2 + 20, center.y - scoreBoardHeight / 2 + headerHeight / 2 - fontSize / 2, fontSize, WHITE);
+            auto &buttons = ecs.get_components<ecs::CloseLeaderBoard>();
+            for (int i = 0; i < buttons.size(); i++) {
+                if (buttons[i].has_value()) {
+                    auto &button = buttons[i].value();
+                    button.drawButton(ecs::get_focus(ecs));
+                }
+            }
+            std::vector<std::tuple<std::string, int, bool>> lines;
+            int startY = center.y - scoreBoardHeight / 2 + headerHeight + 10;
+            fontSize = 64;
+            auto user = gameState->get().getUser();
+            lines.push_back({user.name, user.score, true});
+            auto other_players = gameState->get().getOtherPlayer();
+            for (auto &player: other_players) {
+                lines.push_back({player.name, player.score, false});
+            }
+            std::sort(lines.begin(), lines.end(), [](std::tuple<std::string, int, bool> a, std::tuple<std::string, int, bool> b){
+                return std::get<1>(a) > std::get<1>(b);
+            });
+            for (auto &line: lines) {
+                DrawText(std::get<0>(line).c_str(), center.x - scoreBoardWidth / 2 + 20, startY, fontSize, std::get<2>(line) ? GREEN : WHITE);
+                DrawText(std::to_string(std::get<1>(line)).c_str(), center.x + scoreBoardWidth / 2 - 20 - MeasureText(std::to_string(std::get<1>(line)).c_str(), fontSize), startY, fontSize, WHITE);
+                startY += fontSize + 10;
+            }
+        }
+
+        auto &filters = ecs.get_components<FilterComponent>();
+        for (auto &filter : filters) {
+            if (filter.has_value()) {
+                filter.value().applyFilter();
+            }
+        }
         EndDrawing();
 
         if (WindowShouldClose()) {
@@ -94,16 +198,17 @@ namespace ecs {
      * @param ecs
      */
     void open_lobby_system(Registry &ecs, const WindowOpenEvent &) {
-        ecs.run_event(InitCameraEvent{{10.0f, 10.0f, 30.0f},
-                                      {-10.0f, 0.0f, 0.0f},
-                                      {0.0f, 30.0f, 0.0f},
-                                      45.0f,
-                                      CAMERA_PERSPECTIVE});
-
         auto &cameras = ecs.get_components<CameraComponent>();
         Camera camera = {};
-        for (auto & camera_i : cameras) {
-            if (camera_i.has_value()) {
+        for (auto &camera_i : cameras)
+        {
+            if (camera_i.has_value())
+            {
+                camera_i->camera.position = {10.0f, 10.0f, 30.0f};
+                camera_i->camera.target = {-10.0f, 0.0f, 0.0f};
+                camera_i->camera.up = {0.0f, 30.0f, 0.0f};
+                camera_i->camera.fovy = 45.0f;
+                camera_i->camera.projection = CAMERA_PERSPECTIVE;
                 camera = camera_i->camera;
                 break;
             }
@@ -115,28 +220,41 @@ namespace ecs {
         ecs.run_event(InitModelEvent{});
         ecs.run_event(InitShaderEvent{});
 
-        auto &shaders = ecs.get_components<ShaderComponent>();
-        Shader shader = {};
-        for (auto & shader_i : shaders) {
-            if (shader_i.has_value()) {
-                shader = shader_i->shader;
-                break;
-            }
-        }
-        auto &lights = ecs.get_components<LightComponent>();
-        for (auto & light : lights) {
-            if (light.has_value()) {
-                light->light->UpdateLightValues(shader);
+        auto &backgrounds = ecs.get_components<BackgroundComponent>();
+        for (auto & background : backgrounds) {
+            if (background.has_value()) {
+                background->speed = 50;
             }
         }
 
-        // Init background
-        ecs.run_event(InitBackgroundEvent{"client/assets/backgrounds/game/space_background.png", 2,
-            200, 0});
-        ecs.run_event(InitDecorElementEvent{"client/assets/backgrounds/game/space_midground.png", 300});
-        ecs.run_event(InitDecorElementEvent{"client/assets/backgrounds/game/space_midground_2.png", 300});
-        ecs.run_event(InitDecorElementEvent{"client/assets/backgrounds/game/space_foreground.png", 400});
+        auto &decors = ecs.get_components<DecorElementComponent>();
+        for (auto & decor : decors) {
+            if (decor.has_value()) {
+                switch (decor->depth)
+                {
+                    case 1:
+                        decor->speed = 75;
+                        break;
+                    case 2:
+                        decor->speed = 100;
+                        break;
+                    case 3:
+                        decor->speed = 125;
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
 
+        auto &musics = ecs.get_components<MusicComponent>();
+        for (int i = 0; i < musics.size();i++) {
+            if (musics[i].has_value()) {
+                if (!musics[i].value().isPlaying("menu_music")) {
+                    musics[i].value().play("menu_music");
+                }
+            }
+        }
     }
 
     /**
@@ -144,35 +262,16 @@ namespace ecs {
      * @param ecs
      */
     void close_lobby_system(Registry &ecs, const WindowCloseEvent &) {
-        auto &models = ecs.get_components<VesselsComponent>();
-        auto &backgrounds = ecs.get_components<BackgroundComponent>();
-        auto &decors = ecs.get_components<DecorElementComponent>();
-
-        for (std::size_t i = 0; i < models.size(); ++i) {
-            if (models[i].has_value()) {
-                if (!models[i].value().drawable) {
-                    UnloadModel(models[i]->model);
-                    TraceLog(LOG_INFO, TextFormat("Unloaded model for entity %zu.", i));
-                    ecs.kill_entity(i);
-                }
-            }
-        }
-
-        for (std::size_t i = 0; i < backgrounds.size(); ++i) {
-            if (backgrounds[i].has_value()) {
-                UnloadTexture(backgrounds[i]->texture);
-                ecs.kill_entity(i);
-            }
-        }
-        for (std::size_t i = 0; i < decors.size(); ++i) {
-            if (decors[i].has_value()) {
-                UnloadTexture(decors[i]->texture);
-                ecs.kill_entity(i);
-            }
-        }
         kill_entities_with_component<LightComponent>(ecs);
-        kill_entities_with_component<CameraComponent>(ecs);
         kill_entities_with_component<TextComponent>(ecs);
         kill_entities_with_component<ButtonComponent>(ecs);
+
+        auto &musics = ecs.get_components<MusicComponent>();
+
+        for (int i = 0; i < musics.size();i++) {
+            if (musics[i].has_value()) {
+                musics[i].value().pause("menu_music");
+            }
+        }
     }
 }

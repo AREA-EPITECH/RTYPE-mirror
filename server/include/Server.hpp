@@ -16,6 +16,7 @@
 #include <network/PeerWrapper.hpp>
 #include <network/Server.hpp>
 #include <network/packet/PacketHeader.hpp>
+#include <network/packet/ClientPacket.hpp>
 #include <string>
 #include <sys/types.h>
 #include <vector>
@@ -32,8 +33,6 @@ namespace server
         network::NetworkServer _server;
         std::vector<std::shared_ptr<Room>> _waiting_rooms;
         std::vector<std::shared_ptr<Room>> _playing_rooms;
-        ThreadPool _thread_pool;
-
     public:
         explicit Server(char *argv[]);
         Server(const Server &other) = delete;
@@ -44,16 +43,21 @@ namespace server
         void stopServer();
 
         void pollEvent();
-        void checkRoomState();
         void updateRooms();
+
+        void changeRoomToPlaying(uint32_t room_id);
+        void changeRoomToWaiting(uint32_t room_id);
 
         void clientDisconnect(std::shared_ptr<network::PeerWrapper> &peer);
         void createClientRoom(std::shared_ptr<network::PeerWrapper> &client);
-        void assignClientToRoom(std::shared_ptr<network::PeerWrapper> &client, uint8_t room_id);
-        void leaveClientRoom(std::shared_ptr<network::PeerWrapper> &client, uint16_t room_id);
+        bool assignClientToRoom(std::shared_ptr<network::PeerWrapper> &client, uint32_t room_id);
+        void leaveClientRoom(std::shared_ptr<network::PeerWrapper> &client, uint32_t room_id);
 
-        std::vector<std::shared_ptr<Room>> getWaitingRooms();
-        std::vector<std::shared_ptr<Room>> getPlayingRooms();
+        void moveActionRoom(uint32_t client_id, uint32_t room_id, network::MoveDirection type);
+        void fireActionRoom(uint32_t client_id, uint32_t room_id, network::FireType type);
+
+        std::vector<std::shared_ptr<Room>>& getWaitingRooms();
+        std::vector<std::shared_ptr<Room>>& getPlayingRooms();
         std::vector<std::shared_ptr<Room>> getAllRooms();
         network::NetworkServer &getServer();
 
@@ -68,5 +72,5 @@ namespace server
         };
     };
     void handleClientData(Server &server, std::shared_ptr<network::PeerWrapper> &peer, const std::any &data,
-                          network::PacketType type);
+        network::PacketType type);
 } // namespace server

@@ -56,6 +56,9 @@ bool network::NetworkServer::start(uint16_t port)
 void network::NetworkServer::stop()
 {
     host.reset();
+    for (auto &peer: peerMap) {
+        peer.second.reset();
+    }
     peerMap.clear();
 }
 
@@ -94,6 +97,9 @@ bool network::NetworkServer::sendSnapshotPacket(const struct SnapshotPacket &pac
     newPacket.numEntities = packet.entities.size();
     newPacket.entities = packet.entities;
 
+    newPacket.maxScore = packet.maxScore;
+    newPacket.level = packet.level;
+
     const std::vector<uint8_t> binary = Packet::serializeSnapshotPacket(newPacket);
     return sendPacket(binary, peer);
 }
@@ -122,6 +128,32 @@ bool network::NetworkServer::sendLobbyPacket(const struct LobbySnapshotPacket &p
     newPacket.gameState = packet.gameState;
 
     const std::vector<uint8_t> binary = Packet::serializeLobbySnapshotPacket(newPacket);
+    return sendPacket(binary, peer);
+}
+
+/**
+ * @brief Sends a lobby snapshot packet to a specific peer.
+ *
+ * @param packet The lobby snapshot packet to send.
+ * @param peer A shared pointer to the target PeerWrapper.
+ * @return True if the packet is sent successfully, false otherwise.
+ */
+bool network::NetworkServer::sendErrorPacket(const struct ErrorPacket &packet, std::shared_ptr<PeerWrapper> peer)
+{
+    struct ErrorPacket newPacket;
+
+    lastPacketId++;
+    newPacket.header.packetId = lastPacketId;
+
+    auto now = std::chrono::steady_clock::now();
+    newPacket.header.timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count();
+
+    newPacket.header.type = PacketType::ErrorPacket;
+
+    newPacket.type = packet.type;
+    newPacket.message = packet.message;
+
+    const std::vector<uint8_t> binary = Packet::serializeErrorPacket(newPacket);
     return sendPacket(binary, peer);
 }
 
@@ -191,6 +223,7 @@ bool network::NetworkServer::pollEvent(network::ServerEvent &event)
                     event.peer = it->second;
                     event.packetType = PacketType::NoPacket;
                     event.data = nullptr;
+                    it->second.reset();
                     peerMap.erase(it);
                 }
                 break;

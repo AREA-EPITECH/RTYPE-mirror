@@ -10,15 +10,18 @@
 #include "Room.hpp"
 
 namespace server {
-    // ENetPeer.data
+    struct Ship {
+        uint16_t id;
+        Pos hitbox;
+    };
     class ClientData {
-        uint32_t _id;
-        uint16_t _health = 100;
-        std::string _name;
-        uint16_t _ship_id = 0;
+        uint32_t _id = 0;
+        std::string _name = "";
         bool _is_ready = false;
-        // release room
-        std::shared_ptr<Room> _room;
+        bool _is_alive = true;
+        int _score = 0;
+        Ship _ship;
+        std::shared_ptr<Room> _room = nullptr;
     public:
         ClientData(u_int32_t id);
         ~ClientData();
@@ -28,10 +31,17 @@ namespace server {
         std::string getName() const;
         void setShip(uint16_t ship_id);
         uint16_t getShipId() const;
+        void setHitbox();
+        Pos getHitbox() const;
         void setReadyState();
         bool getReadyState() const;
+        void setAlive();
+        bool getAlive() const;
+        void setScore(int score);
+        void resetScore();
+        int getScore() const;
         std::shared_ptr<Room> getRoom() const;
-        void setRoom(std::shared_ptr<Room> &room);
+        void setRoom(const std::shared_ptr<Room> &room);
         void unsetRoom();
     };
 } // namespace server

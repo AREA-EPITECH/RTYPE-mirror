@@ -83,6 +83,20 @@ namespace network
         static struct LobbySnapshotPacket deserializeLobbySnapshotPacket(const std::vector<uint8_t> &data);
 
         /**
+         * @brief Serializes a `ErrorPacket` to a binary format.
+         * @param packet The `ErrorPacket` to serialize.
+         * @return A binary representation of the `ErrorPacket`.
+         */
+        static std::vector<uint8_t> serializeErrorPacket(const struct ErrorPacket &packet);
+
+        /**
+         * @brief Deserializes a binary format into a `ErrorPacket`.
+         * @param data The binary data to deserialize.
+         * @return The deserialized `ErrorPacket`.
+         */
+        static struct ErrorPacket deserializeErrorPacket(const std::vector<uint8_t> &data);
+
+        /**
          * @brief Deserializes a binary format into a recognized packet type.
          *
          * The function inspects the binary data to determine the packet type based on its

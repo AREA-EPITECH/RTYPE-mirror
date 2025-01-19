@@ -23,7 +23,6 @@ namespace client
         _nb = nb;
         if (nb < MAX_LIGHTS)
         {
-            TraceLog(LOG_WARNING, TextFormat("Creating light number %d.", nb));
             _enabled = true;
             _type = type;
             _position = position;
@@ -38,9 +37,11 @@ namespace client
     /**
      * @brief Update the light values
      * @param shader
+     * @param enabled
      */
-    void Light::UpdateLightValues(const Shader shader)
+    void Light::UpdateLightValues(const Shader shader, const bool enabled)
     {
+        _enabled = enabled;
         _enabledLoc = GetShaderLocation(shader, TextFormat("lights[%i].enabled", _nb));
         _typeLoc = GetShaderLocation(shader, TextFormat("lights[%i].type", _nb));
         _positionLoc = GetShaderLocation(shader, TextFormat("lights[%i].position", _nb));

@@ -6,12 +6,26 @@
 */
 
 #include "ecs/Systems.hpp"
+#include "game/GameState.hpp"
 
 void update_board_component(Registry &ecs, int screenWidth, int screenHeight) {
 
     auto &texts = ecs.get_components<ecs::TextComponent>();
     auto &buttons = ecs.get_components<ecs::ButtonComponent>();
+    auto gameState = getGameState(ecs);
     int players_ids = 0;
+
+    game::GameState::Player user = gameState->get().getUser();
+    std::vector<game::GameState::Player> other_user = gameState->get().getOtherPlayer();
+
+    auto &scores = ecs.get_components<ecs::ScoreComponent>();
+    int level = 0;
+    for (auto &score_i: scores) {
+        if (score_i.has_value()) {
+            level = score_i->level;
+            break;
+        }
+    }
 
     for (int i = 0; i < texts.size(); i++) {
         if (texts[i].has_value()) {
@@ -21,7 +35,29 @@ void update_board_component(Registry &ecs, int screenWidth, int screenHeight) {
             if (text.type == 1) {
                 int lineY = 50 + text.fontSize + 50;
                 text.posY = lineY + 50 + (100 * players_ids);
+                if (players_ids == 0) {
+                    text.text = user.name;
+                    if (user.is_ready) {
+                        text.color = GREEN;
+                    } else {
+                        text.color = WHITE;
+                    }
+                } else {
+                    if (other_user.size() >= players_ids) {
+                        text.text = other_user[players_ids - 1].name;
+                        if (other_user[players_ids - 1].is_ready) {
+                            text.color = GREEN;
+                        } else {
+                            text.color = WHITE;
+                        }
+                    } else {
+                        text.text = "";
+                    }
+                }
                 players_ids++;
+            } else if (text.type == 2) {
+                std::string idStr = fmt::format("ID: {} - Level {}", gameState->get().getRoomId(), level);
+                text.text = idStr;
             }
         }
     }
@@ -30,7 +66,6 @@ void update_board_component(Registry &ecs, int screenWidth, int screenHeight) {
             buttons[i].value().updateButton(screenWidth, screenHeight);
         }
     }
-
 }
 
 void display_board(Registry &ecs, int screenWidth, int screenHeight) {
@@ -62,7 +97,7 @@ void display_board(Registry &ecs, int screenWidth, int screenHeight) {
     for (int i = 0; i < buttons.size(); i++) {
         if (buttons[i].has_value()) {
             auto &button = buttons[i].value();
-            button.drawButton();
+            button.drawButton(ecs::get_focus(ecs));
         }
     }
 

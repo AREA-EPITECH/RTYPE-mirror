@@ -7,11 +7,16 @@
 
 #pragma once
 
+#define MAX_HEALTH 10
+
 #include <utility>
 
 #include "Events.hpp"
+#include "Components/Selectors.hpp"
+#include "Components/Controls.hpp"
 #include "core/ParticleSystem.hpp"
 #include <cstring>
+#include <spdlog/spdlog.h>
 
 namespace ecs {
     struct Window {
@@ -26,7 +31,7 @@ namespace ecs {
     };
 
     struct ShaderComponent {
-        Shader shader;
+        std::shared_ptr<Shader> shader;
         std::string vs_file;
         std::string fs_file;
     };
@@ -77,65 +82,29 @@ namespace ecs {
         }
     };
 
-    class ButtonComponent {
-    public:
-        ButtonComponent(int _buttonWidth, int _buttonHeight, std::string _text,
-                        std::function<void()> _onClick,
-                        std::function<int(int, int)> _dynamicX = nullptr,
-                        std::function<int(int, int)> _dynamicY = nullptr,
-                        Color _buttonColor = GRAY)
-                : buttonWidth(_buttonWidth),
-                  buttonHeight(_buttonHeight),
-                  text(std::move(_text)),
-                  onClick(std::move(_onClick)),
-                  dynamicX(std::move(_dynamicX)),
-                  dynamicY(std::move(_dynamicY)),
-                  buttonColor(_buttonColor)
-        {
-            updateButton(GetScreenWidth(), GetScreenHeight());
-        }
-
-        void updateButton(int screenWidth, int screenHeight) {
-            if (dynamicX) buttonX = dynamicX(screenWidth, screenHeight);
-            if (dynamicY) buttonY = dynamicY(screenWidth, screenHeight);
-        }
-
-        void drawButton() {
-            if (GuiButton({static_cast<float>(buttonX), static_cast<float>(buttonY),
-                           static_cast<float>(buttonWidth), static_cast<float>(buttonHeight)},
-                          text.c_str())) {
-                if (onClick) onClick();
-            }
-        }
-
-    private:
-        int buttonX = 0;
-        int buttonY = 0;
-        int buttonWidth;
-        int buttonHeight;
-        std::string text;
-        std::function<void()> onClick;
-        std::function<int(int, int)> dynamicX;
-        std::function<int(int, int)> dynamicY;
-        Color buttonColor;
-    };
-
     class VesselsComponent {
     public:
+        uint32_t id;
         Model model{};
         bool drawable;
         std::string path;
         TextComponent name;
         Vector3 position = {0, 0, 0};
+        int health = MAX_HEALTH;
+        int ship_id = 0;
+        bool is_enemy = false;
 
-        VesselsComponent(Model _model, bool _drawable, std::string _path, TextComponent _name) {
+        VesselsComponent(uint32_t _id, Model _model, bool _drawable, std::string _path, TextComponent _name, int _ship_id, bool _is_enemy) {
+            id = _id;
             model = _model;
             drawable = _drawable;
             path = std::move(_path);
             name = std::move(_name);
+            ship_id = _ship_id;
+            is_enemy = _is_enemy;
         }
 
-        void Move(const client::Direction direction, Camera &camera)
+        void Move(const client::Direction direction, const Camera &camera)
         {
             Vector2 screen_pos = GetWorldToScreen(position, camera);
             const float max_height = static_cast<float>(GetScreenHeight()) * 0.1f;
@@ -224,27 +193,29 @@ namespace ecs {
     {
     public:
         Texture2D texture{};
-        int x{};
+        float x{};
         int y{};
         int speed;
+        size_t depth;
 
-        explicit DecorElementComponent(const std::string &path, const int speed)
+        explicit DecorElementComponent(const std::string &path, const int speed, const size_t depth)
         {
             texture = LoadTexture(path.c_str());
             this->speed = speed;
+            this->depth = depth;
         }
 
         void ResetPosition(const int screen_width, const int screen_height)
         {
-            x = screen_width;
+            x = static_cast<float>(screen_width);
             y = GetRandomValue(0, screen_height - 50);
         }
 
         void Update(const float deltaTime, const int screen_width, const int screen_height)
         {
-            x -= static_cast<int>(static_cast<float>(speed) * deltaTime);
+            x -= static_cast<float>(speed) * deltaTime;
 
-            if (static_cast<float>(x) + static_cast<float>(texture.width) * (static_cast<float>(screen_height) /
+            if (x + static_cast<float>(texture.width) * (static_cast<float>(screen_height) /
                 static_cast<float>(texture.height)) < 0) {
                 ResetPosition(screen_width, screen_height);
             }
@@ -256,7 +227,7 @@ namespace ecs {
             const float scaled_width = static_cast<float>(texture.width) * scale_factor;
 
             DrawTexturePro(texture, {0, 0, static_cast<float>(texture.width),
-                static_cast<float>(texture.height)}, {static_cast<float>(x), 0, scaled_width,
+                static_cast<float>(texture.height)}, {x, 0, scaled_width,
                 static_cast<float>(screen_height)}, {0, 0}, 0.0f, WHITE
             );
         }
@@ -264,26 +235,33 @@ namespace ecs {
 
     class ProjectilesComponent {
     public:
+        uint32_t id;
         Model model{};
         bool drawable;
         std::string path;
         Vector3 position{};
         bool player;
         Vector3 velocity{};
+        std::shared_ptr<client::Light> light;
 
-        ProjectilesComponent(Model _model, bool _drawable, std::string _path, Vector3 _position, bool _player,
-            Vector3 _velocity) {
+        ProjectilesComponent(uint32_t _id, Model _model, bool _drawable, std::string _path, Vector3 _position, bool _player,
+            Vector3 _velocity, Vector3 _target, Color _color, int _nb, Shader _shader) {
+            id = _id;
             model = _model;
             drawable = _drawable;
             path = std::move(_path);
             position = _position;
             player = _player;
             velocity = _velocity;
+            light = std::make_shared<client::Light>(client::LIGHT_DIRECTIONAL, position, _target, _color, _nb);
+            light->UpdateLightValues(_shader);
         }
 
-        void ApplyVelocity() {
-            position.x += velocity.x;
-            position.y += velocity.y;
+        void ApplyVelocity(const float deltaTime) {
+            position.x += velocity.x * deltaTime;
+            position.y += velocity.y * deltaTime;
+            light->_position.x += velocity.x * deltaTime;
+            light->_position.y += velocity.y * deltaTime;
         }
 
         [[nodiscard]] bool IsAlive(const Camera &camera) const {
@@ -294,56 +272,132 @@ namespace ecs {
         }
     };
 
+    struct HealthBarComponent
+    {
+        std::vector<Texture> textures;
+    };
 
-    class TextInputComponent {
+    class ScoreComponent {
     public:
-        Rectangle inputBox{};
-        std::string text;
-        std::string placeholder;
-        Color boxColor{};
-        Color textColor{};
-        Color borderColor{};
-        bool isFocused{};
-        size_t maxLength{};
+        int win_score;
+        int score;
+        int level = 1;
 
-        std::function<int(int screenWidth, int screenHeight)> dynamicX;
-        std::function<int(int screenWidth, int screenHeight)> dynamicY;
+        ScoreComponent(int _win_score = 0, int _score = 0) : win_score(_win_score), score(_score) {};
 
-        explicit TextInputComponent(Rectangle _inputBox, std::string  _defaultText = "", size_t _maxLength = 256,
-                           Color _boxColor = LIGHTGRAY, Color _textColor = BLACK, Color _borderColor = DARKGRAY,
-                           std::function<int(int screenWidth, int screenHeight)> _dynamicX = nullptr,
-                           std::function<int(int screenWidth, int screenHeight)> _dynamicY = nullptr);
+        void draw_ingame();
+    };
 
-        TextInputComponent() = default;
+    class FilterComponent {
+    private:
+        ColorBlindMode currentMode;
 
-        void drawTextInput();
+    public:
+        FilterComponent(ColorBlindMode mode = ColorBlindMode::NONE)
+                : currentMode(mode) {
 
-        void handleInput();
+        }
+
+        ~FilterComponent() = default;
+
+        void setMode(ColorBlindMode mode) {
+            currentMode = mode;
+        }
+
+        void applyFilter() {
+            if (currentMode == ColorBlindMode::NONE) return;
+
+            applyColorFilter();
+        }
+
+    private:
+        void applyColorFilter() {
+            Color filterColor;
+
+            switch (currentMode) {
+                case ColorBlindMode::PROTANOPIA:
+                    filterColor = Color{255, 180, 180, 50};
+                    break;
+                case ColorBlindMode::DEUTERANOPIA:
+                    filterColor = Color{180, 255, 180, 50};
+                    break;
+                case ColorBlindMode::TRITANOPIA:
+                    filterColor = Color{180, 180, 255, 50};
+                    break;
+                case ColorBlindMode::NONE:
+                default:
+                    return;
+            }
+
+            DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), filterColor);
+        }
+
     };
 
 
-    class ShowBoxComponent {
+    class ExplosionComponent {
     public:
-        Rectangle boxRect;
-        std::string message;
-        Color boxColor;
-        Color textColor;
-        bool isVisible;
-        std::function<int(int screenWidth, int screenHeight)> dynamicX;
-        std::function<int(int screenWidth, int screenHeight)> dynamicY;
+        Texture2D spriteSheet;
+        int frameWidth;
+        int frameHeight;
+        int totalFrames;
+        int currentFrame;
+        float frameTime;
+        float elapsedTime;
+        bool active;
+        Vector3 position;
+        float scale;
 
-        TextInputComponent textInput;
-        std::string closeButtonText;
-        std::string continueButtonText;
+        ExplosionComponent(const std::string &spritePath, int frameWidth, int frameHeight, int totalFrames, float frameTime, Vector3 position)
+                : frameWidth(frameWidth), frameHeight(frameHeight), totalFrames(totalFrames),
+                  currentFrame(0), frameTime(frameTime), elapsedTime(0.0f), active(true), position(position), scale(2.0f) {
+            spriteSheet = LoadTexture(spritePath.c_str());
+        }
 
-        ShowBoxComponent(Rectangle _boxRect, std::string _message, Color _boxColor, Color _textColor,
-                         std::string _textInput = "", std::string _closeButtonText = "Close",
-                         std::string _continueButtonText = "Continue",
-                         std::function<int(int screenWidth, int screenHeight)> _dynamicX = nullptr,
-                         std::function<int(int screenWidth, int screenHeight)> _dynamicY = nullptr);
+        void UnloadExplosion () {
+            UnloadTexture(spriteSheet);
+        }
 
-        void draw();
-        void handleClick(Vector2 mousePosition);
-        void updateBox(int screenWidth, int screenHeight);
+        ~ExplosionComponent() = default;
+
+        void update(float deltaTime) {
+            if (!active) return;
+
+            elapsedTime += deltaTime;
+
+            if (elapsedTime >= frameTime) {
+                elapsedTime = 0.0f;
+                currentFrame++;
+
+                if (currentFrame >= totalFrames) {
+                    active = false;
+                    currentFrame = 0;
+                }
+            }
+        }
+
+        void draw(Camera camera, Vector3 maxHitbox, Vector3 minHitbox) {
+            if (!active) return;
+
+            Rectangle sourceRect = {
+                    static_cast<float>(currentFrame * frameWidth),
+                    0.0f,
+                    static_cast<float>(frameWidth),
+                    static_cast<float>(frameHeight)
+            };
+
+            Vector2 pos2d = GetWorldToScreen(position, camera);
+            Vector2 maxhitbox2d = GetWorldToScreen(maxHitbox, camera);
+            Vector2 minhitbox2d = GetWorldToScreen(minHitbox, camera);
+            Rectangle destRect = {
+                    pos2d.x - 80,
+                    pos2d.y - 50,
+                    static_cast<float>(frameWidth) * scale,
+                    static_cast<float>(frameHeight) * scale
+            };
+
+            DrawTexturePro(spriteSheet, sourceRect, destRect, {0.0f, 0.0f}, 0.0f, WHITE);
+        }
     };
+
 }

@@ -30,6 +30,7 @@ namespace network
         Opponent = 2, ///< Represents an opponent entity.
         Rocket = 3, ///< Represents a basic rocket or projectile.
         ChargedRocket = 4, ///< Represents a charged rocket or enhanced projectile.
+        OpponentRocket = 5, ///< Represents a rocket from an opponent.
     };
 
     /**
@@ -41,10 +42,12 @@ namespace network
      */
     struct EntityUpdate
     {
-        uint16_t entityId; ///< Unique identifier for the entity.
+        uint32_t entityId; ///< Unique identifier for the entity.
         EntityType type; ///< The type of the entity (e.g., Player, Opponent).
         float posX, posY; ///< Position coordinates of the entity.
-        float velocityX, velocityY; ///< Optional velocity of the entity.
+        uint32_t shipId; ///< Optional value to set shipId of the entity.
+        int score; ///< Optional score of entity player.
+        int health; ///< Optional health of entity player.
     };
 
     /**
@@ -59,7 +62,34 @@ namespace network
         PacketHeader header; ///< Header containing metadata about the packet.
         uint16_t numEntities; ///< The number of entities included in this snapshot.
         std::vector<EntityUpdate> entities; ///< List of entity updates in the snapshot.
+        uint8_t level;
+        uint16_t maxScore;
     };
+
+    /**
+     * @enum ErrorType
+     * @brief Represents the type of an error.
+     *
+     */
+    enum ErrorType
+    {
+        RoomNotFound = 1, ///< Represents an room not found error.
+        NoMoreLevel = 2, ///< Represents no more level error.
+    };
+
+    /**
+     * @struct ErrorPacket
+     * @brief Represents an error.
+     *
+     * This packet is sent to notify client that an error occured.
+     */
+    struct ErrorPacket
+    {
+        PacketHeader header; ///< Header containing metadata about the packet.
+        ErrorType type; ///< The error type.
+        std::string message; ///< The error message.
+    };
+
 
     /**
      * @enum LobbyGameState
@@ -73,6 +103,7 @@ namespace network
         Waiting = 1, ///< The lobby is waiting for players to join or ready up.
         Starting = 2, ///< The game is starting but not yet active.
         Playing = 3, ///< The game is currently in progress.
+        Ending = 4, ///< The game is currently ending.
     };
 
     /**

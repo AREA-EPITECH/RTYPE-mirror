@@ -48,6 +48,7 @@ cmake-build-default/
 *.app
 r-type_client
 r-type_server
+r-type-tower_defense
 
 # Cmake user presets
 CMakeUserPresets.json

@@ -1,0 +1,27 @@
+{
+  "name" : "level 2",
+  "win_score" : 1000,
+  "enemies" : [
+    {
+      "type" : 0,
+      "spawn_rate": 4,
+      "score" : 100,
+      "acc": 1,
+      "shot_rate": 6
+    },
+    {
+      "type" : 1,
+      "spawn_rate": 7,
+      "score" : 100,
+      "acc": 2,
+      "shot_rate": 3
+    },
+    {
+      "type" : 2,
+      "spawn_rate": 13,
+      "score" : 100,
+      "acc": 3,
+      "shot_rate": 1
+    }
+  ]
+}
