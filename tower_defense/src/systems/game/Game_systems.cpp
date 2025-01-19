@@ -159,7 +159,7 @@ namespace ecs
      * @param map
      * @param scale
      */
-    void draw_enemies(MapComponent &map, int scale)
+    void draw_enemies(MapComponent &map, const int scale)
     {
         for (auto &enemy : map._enemies)
         {
@@ -184,6 +184,13 @@ namespace ecs
                                   static_cast<float>(enemy._pos_y * enemy._texture->height * scale),
                                   sourceRect.width * static_cast<float>(scale),
                                   sourceRect.height * static_cast<float>(scale)};
+            Rectangle sourceRect = {0.0f, static_cast<float>(enemy._frame * 32), 32, 32};
+            Rectangle destRect = {
+                static_cast<float>(enemy._pos_x * 32 * scale),
+                static_cast<float>(enemy._pos_y * 32 * scale),
+                sourceRect.width * static_cast<float>(scale),
+                sourceRect.height * static_cast<float>(scale)
+            };
 
             Vector2 origin = {0.0f, 0.0f};
             DrawTexturePro(texture, sourceRect, destRect, origin, 0.0f, WHITE);
