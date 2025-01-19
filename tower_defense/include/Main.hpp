@@ -14,5 +14,6 @@
 #include "ecs/Systems.hpp"
 #include "ecs/Components.hpp"
 #include "initialisation/Parser.hpp"
+#include "raylib/raygui.h"
 
 Registry init_ecs();

@@ -9,6 +9,7 @@
 
 #include <map>
 #include <spdlog/spdlog.h>
+#include <chrono>
 
 namespace tower_defense
 {
@@ -34,7 +35,27 @@ namespace tower_defense
         exit(84);
     }
 
-#define ASSETS_PATH "client/assets/"
-#define ASSET_FILE(file) ASSETS_PATH file
+    enum TileType
+    {
+        GRASS = 0,
+        PATH,
+        DECOR,
+        ARCHER,
+        BASE_TOWER,
+        BAT,
+        BASIC_SLIME,
+        ZOMBIE
+    };
+
+    struct EnemyWave
+    {
+        EnemyType _enemy_type;
+        float _start_delay; // in seconds
+        float _spawn_delay; // in seconds
+        unsigned int _spawn_amount;
+        unsigned int _amount;
+        bool _finished;
+        std::chrono::time_point<std::chrono::steady_clock> _time_since_last_spawn = std::chrono::steady_clock::now();
+    };
 
 } // namespace tower_defense

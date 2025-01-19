@@ -20,25 +20,15 @@
 namespace tower_defense {
     struct Game_rules {
         unsigned int _start_money;
-        unsigned int _start_health;
-        bool _auto_increment_money;
+        int _start_health;
         std::string _map_name;
-    };
-
-    struct EnemyWave
-    {
-        EnemyType _enemy_type;
-        float _start_delay; // in seconds
-        float _spawn_delay; // in seconds
-        unsigned int _spawn_amount;
-        unsigned int _amount;
     };
 
     class Parser {
         Game_rules _game_rules;
         std::vector<std::pair<int, int>> _enemy_path;
         std::vector<std::pair<int, int>> _decorations;
-        std::vector<std::vector<EnemyWave>> _enemy_waves;
+        std::vector<std::vector<tower_defense::EnemyWave>> _enemy_waves;
 
         public:
             Parser() = default;
