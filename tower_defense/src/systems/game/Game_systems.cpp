@@ -176,21 +176,10 @@ namespace ecs
                     enemy._frame = 0;
                 }
             }
-
-            Rectangle sourceRect = {0.0f, static_cast<float>(enemy._frame * enemy._texture->height),
-                                    static_cast<float>(enemy._texture->width),
-                                    static_cast<float>(enemy._texture->height)};
-            Rectangle destRect = {static_cast<float>(enemy._pos_x * enemy._texture->width * scale),
-                                  static_cast<float>(enemy._pos_y * enemy._texture->height * scale),
-                                  sourceRect.width * static_cast<float>(scale),
-                                  sourceRect.height * static_cast<float>(scale)};
             Rectangle sourceRect = {0.0f, static_cast<float>(enemy._frame * 32), 32, 32};
             Rectangle destRect = {
-                static_cast<float>(enemy._pos_x * 32 * scale),
-                static_cast<float>(enemy._pos_y * 32 * scale),
-                sourceRect.width * static_cast<float>(scale),
-                sourceRect.height * static_cast<float>(scale)
-            };
+                static_cast<float>(enemy._pos_x * 32 * scale), static_cast<float>(enemy._pos_y * 32 * scale),
+                sourceRect.width * static_cast<float>(scale), sourceRect.height * static_cast<float>(scale)};
 
             Vector2 origin = {0.0f, 0.0f};
             DrawTexturePro(texture, sourceRect, destRect, origin, 0.0f, WHITE);
@@ -205,6 +194,16 @@ namespace ecs
      */
     void draw_game_infos(SelectorComponent &selector, MapComponent &map, const int scale)
     {
+        for (int i = 0; i < map._towers.size(); i++)
+        {
+            if (selector._pos._x == map._towers[i]._pos._x && selector._pos._y == map._towers[i]._pos._y)
+            {
+                DrawCircle(selector._pos._x * 32 * scale + (32 * scale / 2),
+                           selector._pos._y * 32 * scale + (32 * scale / 2),
+                           map._towers[i]._range * 32 * scale + (32 * scale / 2), Fade(GRAY, 0.3f));
+            }
+        }
+
         if (selector._drawable)
         {
             DrawTextureEx(selector._texture,
@@ -300,7 +299,7 @@ namespace ecs
             if (shop.has_value())
             {
                 auto &s = shop.value();
-                if (GuiButton((Rectangle){24, 24, 120, 30}, "Shop"))
+                if (GuiButton((Rectangle){24, 24, 100, 30}, "Shop"))
                 {
                     s._open = !s._open;
                 }
