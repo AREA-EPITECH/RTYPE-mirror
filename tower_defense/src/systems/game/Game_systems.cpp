@@ -325,11 +325,19 @@ namespace ecs
 
                                 if (GuiButton((Rectangle){x + 10, y + 100, 100, 30}, "Buy"))
                                 {
+                                    bool purchasable = true;
                                     if (!selector.value()._drawable)
                                     {
-                                        continue; // No tile selected
+                                        purchasable = false; // No tile selected
                                     }
-                                    if (map._game._money._value >= tower._cost)
+                                    for (int i = 0; i < map._towers.size(); i++)
+                                    {
+                                        if (selector.value()._pos._x == map._towers[i]._pos._x && selector.value()._pos._y == map._towers[i]._pos._y)
+                                        {
+                                            purchasable = false; // Tower already here
+                                        }
+                                    }
+                                    if (map._game._money._value >= tower._cost && purchasable)
                                     {
                                         map._game._money._value -= tower._cost;
                                         map._towers.emplace_back(
@@ -348,19 +356,7 @@ namespace ecs
                                 }
                                 const Texture2D texture = *tower._texture;
 
-                                tower._frame_counter += game_frame_time;
-                                if (tower._frame_counter >= game_frame_time * 15)
-                                {
-                                    tower._frame_counter = 0.0f;
-                                    tower._frame++;
-
-                                    if (tower._frame >= 3)
-                                    {
-                                        tower._frame = 0;
-                                    }
-                                }
-
-                                Rectangle sourceRect = {0.0f, static_cast<float>(tower._frame * 32), 32.0f, 32.0f};
+                                Rectangle sourceRect = {0.0f, static_cast<float>(2 * 32), 32.0f, 32.0f};
                                 Rectangle destRect = {x + 100, y + 10, sourceRect.width * scale,
                                                       sourceRect.height * scale};
                                 DrawTexturePro(texture, sourceRect, destRect, {0, 0}, 0.0f, WHITE);
