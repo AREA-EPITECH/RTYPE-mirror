@@ -94,7 +94,6 @@ namespace ecs {
                 auto &filter = filterComponent.value();
 
                 if (GuiButton(buttonRect, buttonText.c_str())) {
-                    filter.removeFilter();
                     filter.setMode(mode);
                 }
             }

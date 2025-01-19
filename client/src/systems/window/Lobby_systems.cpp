@@ -61,12 +61,6 @@ namespace ecs {
         }
 
         BeginDrawing();
-        auto &filters = ecs.get_components<FilterComponent>();
-        for (auto &filter : filters) {
-            if (filter.has_value()) {
-                filter.value().applyFilter();
-            }
-        }
 
         ClearBackground(RAYWHITE);
 
@@ -186,9 +180,10 @@ namespace ecs {
             }
         }
 
+        auto &filters = ecs.get_components<FilterComponent>();
         for (auto &filter : filters) {
             if (filter.has_value()) {
-                filter.value().removeFilter();
+                filter.value().applyFilter();
             }
         }
         EndDrawing();

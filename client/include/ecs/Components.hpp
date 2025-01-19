@@ -289,54 +289,51 @@ namespace ecs {
     };
 
     class FilterComponent {
-    public:
-
+    private:
         ColorBlindMode currentMode;
-        Shader colorblindShader;
-        std::unordered_map<ColorBlindMode, std::string> shaderPaths;
 
+    public:
+        FilterComponent(ColorBlindMode mode = ColorBlindMode::NONE)
+                : currentMode(mode) {
 
-        FilterComponent(ColorBlindMode mode = ColorBlindMode::NONE) : currentMode(mode) {
-            shaderPaths[ColorBlindMode::PROTANOPIA] = "./client/assets/accessibility_shaders/protanopia.fs";
-            shaderPaths[ColorBlindMode::DEUTERANOPIA] = "./client/assets/accessibility_shaders/deuteranopia.fs";
-            shaderPaths[ColorBlindMode::TRITANOPIA] = "./client/assets/accessibility_shaders/tritanopia.fs";
-            shaderPaths[ColorBlindMode::NONE] = "";
-            colorblindShader = LoadShader(0, shaderPaths[mode].c_str());
-        }
-
-        void setMode(ColorBlindMode mode) {
-            if (currentMode == mode) return;
-            currentMode = mode;
-
-            UnloadShader(colorblindShader);
-
-            if (shaderPaths[mode].empty()) {
-                colorblindShader = LoadShader(0, 0);
-            } else {
-                colorblindShader = LoadShader(0, shaderPaths[mode].c_str());
-            }
-        }
-
-        void applyFilter() {
-            if (currentMode != ColorBlindMode::NONE) {
-                BeginShaderMode(colorblindShader);
-            }
-        }
-
-        void removeFilter() {
-            if (currentMode != ColorBlindMode::NONE) {
-                EndShaderMode();
-            }
-        }
-
-        void clearShader() {
-            if (currentMode != ColorBlindMode::NONE) {
-                UnloadShader(colorblindShader);
-            }
         }
 
         ~FilterComponent() = default;
+
+        void setMode(ColorBlindMode mode) {
+            currentMode = mode;
+        }
+
+        void applyFilter() {
+            if (currentMode == ColorBlindMode::NONE) return;
+
+            applyColorFilter();
+        }
+
+    private:
+        void applyColorFilter() {
+            Color filterColor;
+
+            switch (currentMode) {
+                case ColorBlindMode::PROTANOPIA:
+                    filterColor = Color{255, 180, 180, 50};
+                    break;
+                case ColorBlindMode::DEUTERANOPIA:
+                    filterColor = Color{180, 255, 180, 50};
+                    break;
+                case ColorBlindMode::TRITANOPIA:
+                    filterColor = Color{180, 180, 255, 50};
+                    break;
+                case ColorBlindMode::NONE:
+                default:
+                    return;
+            }
+
+            DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), filterColor);
+        }
+
     };
+
 
     class ExplosionComponent {
     public:
