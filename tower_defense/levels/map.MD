@@ -4,7 +4,6 @@ All maps levels are formated in the following way:
 {
     "params": {
         "name": "Map Name",
-        "auto_increment_money": true,
         "base_money": 100,
         "health": 100,
         "map_size": [8, 8],
