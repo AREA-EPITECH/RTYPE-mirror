@@ -22,7 +22,6 @@ namespace tower_defense
         nlohmann::json data_waves = data["waves"];
 
         Game_rules games_rules{};
-        games_rules._auto_increment_money = data_params["auto_increment_money"];
         games_rules._start_health = data_params["health"];
         games_rules._start_money = data_params["base_money"];
         games_rules._map_name = data_params["name"];
@@ -83,15 +82,13 @@ namespace tower_defense
         std::vector<ecs::Tile> path;
         std::vector<ecs::Tile> decors;
 
-        ecs::Money money_component = {_game_rules._auto_increment_money, _game_rules._start_money,
-                                      LoadTexture("tower_defense/assets/infos/money.png")};
+        ecs::Money money_component = {_game_rules._start_money, LoadTexture("tower_defense/assets/infos/money.png")};
 
         ecs::Life life_component = {_game_rules._start_health, LoadTexture("tower_defense/assets/infos/life.png")};
 
 
-        ecs::GameComponent game_component = {_game_rules._map_name, money_component, life_component, 3, 0.5};
-
-        game_component._enemy_waves = this->_enemy_waves;
+        ecs::GameComponent game_component = {_game_rules._map_name, money_component, life_component, 3, 0.5,
+                                             _enemy_waves};
 
         for (const auto &pos : _enemy_path)
         {
@@ -142,7 +139,7 @@ namespace tower_defense
         ecs.add_component<ecs::SelectorComponent>(
             selector_entity, {LoadTexture("tower_defense/assets/infos/selector.png"), {}, false, no_clickable});
 
-        ecs::Tower tower = {2, 1, 1, 100, "Archer", texture_manager.get_texture(ARCHER), ARCHER};
+        ecs::Tower tower = {2, 3, 1, {}, 100, "Archer", texture_manager.get_texture(ARCHER), 0, 0, ARCHER};
 
         const auto shop_entity = ecs.spawn_entity();
         ecs.add_component<ecs::Shop>(shop_entity, {std::vector<ecs::Tower>{tower}, false});

@@ -9,6 +9,73 @@
 
 namespace ecs
 {
+    void check_wave(MapComponent &map)
+    {
+        if (map._game._life._health <= 0)
+        {
+            exit(0); // Change to game over screen -> restart game
+        }
+
+        for (int i = 0; i < map._game._enemy_waves[map._game._current_wave].size(); i++)
+        {
+            if (map._game._enemy_waves[map._game._current_wave][i]._amount != 0)
+            {
+                return; // Wave not finished spawned
+            }
+        }
+
+        if (map._enemies.empty())
+        {
+            map._game._current_wave++;
+            map._game._wave_started = false;
+        }
+
+        if (map._game._current_wave >= map._game._enemy_waves.size())
+        {
+            exit(0); // Game won, change to win screen -> restart game
+        }
+    }
+
+    /**
+     * @brief Check the towers
+     * @param map
+     */
+    void check_towers(MapComponent &map)
+    {
+        for (Tower &tower : map._towers)
+        {
+            std::chrono::time_point<std::chrono::steady_clock> now = std::chrono::steady_clock::now();
+            double elapsed_time_since_last_shot = std::chrono::duration<double>(now - tower._last_shot).count();
+
+            if (elapsed_time_since_last_shot > tower._fire_rate)
+            {
+                EnemyComponent* target_enemy = nullptr;
+                double min_distance = tower._range;
+
+                for (EnemyComponent &enemy : map._enemies)
+                {
+
+                    const double dx = std::abs(enemy._pos_x - tower._pos._x);
+                    const double dy = std::abs(enemy._pos_y - tower._pos._y);
+                    const double distance = std::sqrt(dx * dx + dy * dy);
+
+                    if (distance <= tower._range && distance < min_distance)
+                    {
+                        target_enemy = &enemy;
+                        min_distance = distance;
+                    }
+                }
+
+                if (target_enemy)
+                {
+                    target_enemy->_health -= tower._damage;
+                    tower._last_shot = std::chrono::steady_clock::now();
+                }
+            }
+        }
+    }
+
+
     /**
      * @brief Draw the towers
      * @param map
@@ -130,16 +197,16 @@ namespace ecs
                     {
                     case tower_defense::Basic_slime:
                         map._enemies.emplace_back(
-                            EnemyComponent{1, 3, 1, 1, texture_manager.get_texture(tower_defense::BASIC_SLIME), start_x,
+                            EnemyComponent{10, 2, 1, 10, texture_manager.get_texture(tower_defense::BASIC_SLIME), start_x,
                                            start_y, 0, 0});
                         break;
                     case tower_defense::Bat:
                         map._enemies.emplace_back(EnemyComponent{
-                            1, 2, 2, 1, texture_manager.get_texture(tower_defense::BAT), start_x, start_y, 0, 0});
+                            5, 3, 2, 5, texture_manager.get_texture(tower_defense::BAT), start_x, start_y, 0, 0});
                         break;
                     case tower_defense::Zombie:
                         map._enemies.emplace_back(EnemyComponent{
-                            1, 3, 3, 1, texture_manager.get_texture(tower_defense::ZOMBIE), start_x, start_y, 0, 0});
+                            15, 1, 3, 15, texture_manager.get_texture(tower_defense::ZOMBIE), start_x, start_y, 0, 0});
                         break;
                     default:
                         break;
@@ -213,7 +280,7 @@ namespace ecs
         }
 
         DrawText(map._game._map_name.c_str(), 10, GetScreenHeight() - 30, 32, RED);
-        DrawText(TextFormat("Round: %d / %d", map._game._current_wave, map._game._enemy_waves.size()), 10,
+        DrawText(TextFormat("Round: %d / %d", map._game._current_wave + 1, map._game._enemy_waves.size()), 10,
                  GetScreenHeight() - 60, 32, RED);
 
         DrawTextureEx(map._game._money._texture,
@@ -332,7 +399,8 @@ namespace ecs
                                     }
                                     for (int i = 0; i < map._towers.size(); i++)
                                     {
-                                        if (selector.value()._pos._x == map._towers[i]._pos._x && selector.value()._pos._y == map._towers[i]._pos._y)
+                                        if (selector.value()._pos._x == map._towers[i]._pos._x &&
+                                            selector.value()._pos._y == map._towers[i]._pos._y)
                                         {
                                             purchasable = false; // Tower already here
                                         }
@@ -344,6 +412,7 @@ namespace ecs
                                             Tower{tower._range,
                                                   tower._damage,
                                                   tower._fire_rate,
+                                                  std::chrono::steady_clock::now(),
                                                   tower._cost,
                                                   tower._name,
                                                   tower._texture,
@@ -356,10 +425,10 @@ namespace ecs
                                 }
                                 const Texture2D texture = *tower._texture;
 
-                                Rectangle sourceRect = {0.0f, static_cast<float>(2 * 32), 32.0f, 32.0f};
-                                Rectangle destRect = {x + 100, y + 10, sourceRect.width * scale,
-                                                      sourceRect.height * scale};
-                                DrawTexturePro(texture, sourceRect, destRect, {0, 0}, 0.0f, WHITE);
+                                Rectangle source_rect = {0.0f, static_cast<float>(2 * 32), 32.0f, 32.0f};
+                                Rectangle dest_rect = {x + 100, y + 10, source_rect.width * static_cast<float>(scale),
+                                                       source_rect.height * static_cast<float>(scale)};
+                                DrawTexturePro(texture, source_rect, dest_rect, {0, 0}, 0.0f, WHITE);
                             }
                         }
                     }
@@ -418,23 +487,16 @@ namespace ecs
                             auto &m = map.value();
                             const int scale = 4;
 
-                            if (m._game._life._health <= 0)
-                            {
-                                exit(84);
-                            }
+                            check_wave(m);
                             draw_map(m, scale);
                             draw_game_infos(s, m, scale);
-                            handle_shop(ecs, scale, m._game._frame_time, m);
                             draw_enemies(m, scale);
                             draw_towers(m, scale, tm);
+                            handle_shop(ecs, scale, m._game._frame_time, m);
                             check_enemies(m);
                             update_enemies_pos(m);
-
-                            // Check if wave is clear
-
                             spawn_enemies(m, tm);
-
-                            // Game logic
+                            check_towers(m);
                         }
                     }
                     EndDrawing();

@@ -20,8 +20,7 @@
 namespace tower_defense {
     struct Game_rules {
         unsigned int _start_money;
-        unsigned int _start_health;
-        bool _auto_increment_money;
+        int _start_health;
         std::string _map_name;
     };
 

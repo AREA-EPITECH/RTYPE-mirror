@@ -60,14 +60,13 @@ namespace ecs {
 
     struct Money
     {
-        bool _auto_increment_money;
         unsigned int _value;
         Texture2D _texture;
     };
 
     struct Life
     {
-        unsigned int _health;
+        int _health;
         Texture2D _texture;
     };
 
@@ -109,7 +108,8 @@ namespace ecs {
     {
         unsigned int _range;
         unsigned int _damage;
-        unsigned int _fire_rate;
+        unsigned int _fire_rate; // Time between each shot
+        std::chrono::time_point<std::chrono::steady_clock> _last_shot = std::chrono::steady_clock::now();
         unsigned int _cost;
         std::string _name;
         std::shared_ptr<Texture2D> _texture;
