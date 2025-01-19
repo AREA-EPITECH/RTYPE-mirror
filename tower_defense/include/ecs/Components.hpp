@@ -105,11 +105,26 @@ namespace ecs {
         std::chrono::time_point<std::chrono::steady_clock> _last_move = std::chrono::steady_clock::now();
     };
 
+    struct Tower
+    {
+        unsigned int _range;
+        unsigned int _damage;
+        unsigned int _fire_rate;
+        unsigned int _cost;
+        std::string _name;
+        std::shared_ptr<Texture2D> _texture;
+        int _frame = 0;
+        float _frame_counter = 0.0f;
+        tower_defense::TileType _tower_type;
+        Tile _pos;
+    };
+
     struct MapComponent {
         std::vector<Tile> _grass;
         std::vector<Tile> _path;
         std::vector<Tile> _decors;
         std::vector<EnemyComponent> _enemies;
+        std::vector<Tower> _towers;
         GameComponent _game;
     };
 
@@ -124,19 +139,6 @@ namespace ecs {
         Tile _pos{};
         bool _drawable{};
         std::vector<Rectangle> _no_clickable;
-    };
-
-    struct Tower
-    {
-        unsigned int _range;
-        unsigned int _damage;
-        unsigned int _fire_rate;
-        unsigned int _cost;
-        std::string _name;
-        std::shared_ptr<Texture2D> _texture;
-        int _frame = 0;
-        float _frame_counter = 0.0f;
-        tower_defense::TileType _tower_type;
     };
 
     struct Shop

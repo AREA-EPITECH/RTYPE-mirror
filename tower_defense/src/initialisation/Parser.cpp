@@ -71,6 +71,7 @@ namespace tower_defense
         texture_manager.add_texture(DECOR, "tower_defense/assets/maps/decors/rock_2.png");
         texture_manager.add_texture(DECOR, "tower_defense/assets/maps/decors/rock_3.png");
         texture_manager.add_texture(ARCHER, "tower_defense/assets/towers/archer.png");
+        texture_manager.add_texture(BASE_TOWER, "tower_defense/assets/towers/base_tower.png");
         texture_manager.add_texture(BASIC_SLIME, "tower_defense/assets/enemies/basic_slime.png");
         texture_manager.add_texture(BAT, "tower_defense/assets/enemies/bat.png");
         texture_manager.add_texture(ZOMBIE, "tower_defense/assets/enemies/zombie.png");
@@ -111,7 +112,7 @@ namespace tower_defense
         }
 
         const auto map_entity = ecs.spawn_entity();
-        ecs.add_component<ecs::MapComponent>(map_entity, {map, path, decors, {}, game_component});
+        ecs.add_component<ecs::MapComponent>(map_entity, {map, path, decors, {}, {}, game_component});
 
         std::vector<Rectangle> no_clickable = {};
         int scale = 4;

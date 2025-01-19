@@ -41,6 +41,7 @@ namespace tower_defense
         PATH,
         DECOR,
         ARCHER,
+        BASE_TOWER,
         BAT,
         BASIC_SLIME,
         ZOMBIE

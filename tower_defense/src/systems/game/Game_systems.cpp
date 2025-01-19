@@ -10,19 +10,51 @@
 namespace ecs
 {
     /**
+     * @brief Draw the towers
+     * @param map
+     * @param scale
+     * @param tm
+     */
+    void draw_towers(MapComponent &map, const int scale, TextureManager &tm)
+    {
+        for (auto &tower : map._towers)
+        {
+            const Texture2D tower_texture = *tower._texture;
+            const Texture2D base_texture = *tm.get_texture(tower_defense::BASE_TOWER);
+
+            DrawTextureEx(base_texture,
+                          {static_cast<float>(tower._pos._x * base_texture.width * scale),
+                           static_cast<float>(tower._pos._y * base_texture.height * scale)},
+                          0, scale, WHITE);
+
+            Rectangle sourceRect = {0.0f, static_cast<float>(2 * 32), 32.0f, 32.0f};
+            Rectangle destRect = {static_cast<float>(tower._pos._x * 32 * scale),
+                                  static_cast<float>(tower._pos._y * 32 * scale), sourceRect.width * scale,
+                                  sourceRect.height * scale};
+            DrawTexturePro(tower_texture, sourceRect, destRect, {0, 0}, 0.0f, WHITE);
+        }
+    }
+
+
+    /**
      * @brief
      * @param map
      */
-    void check_enemies_path(MapComponent &map)
+    void check_enemies(MapComponent &map)
     {
         for (int i = 0; i < map._enemies.size(); i++)
         {
+            if (map._enemies[i]._health <= 0)
+            {
+                map._game._money._value += map._enemies[i]._reward;
+                map._enemies.erase(map._enemies.begin() + i);
+                continue;
+            }
             if (map._enemies[i]._pos_x == map._path[map._path.size() - 1]._x &&
                 map._enemies[i]._pos_y == map._path[map._path.size() - 1]._y)
             {
                 map._game._life._health -= map._enemies[i]._damage;
                 map._enemies.erase(map._enemies.begin() + i);
-                break;
             }
         }
     }
@@ -139,7 +171,7 @@ namespace ecs
                 enemy._frame_counter = 0.0f;
                 enemy._frame++;
 
-                if (enemy._frame >= 3)
+                if (enemy._frame >= 4)
                 {
                     enemy._frame = 0;
                 }
@@ -251,9 +283,10 @@ namespace ecs
      * @param scale
      * @param game_frame_time
      */
-    void handle_shop(Registry &ecs, const int scale, const float game_frame_time)
+    void handle_shop(Registry &ecs, const int scale, const float game_frame_time, MapComponent &map)
     {
         auto &shops = ecs.get_components<Shop>();
+        auto &selectors = ecs.get_components<SelectorComponent>();
 
         for (auto &shop : shops)
         {
@@ -266,41 +299,67 @@ namespace ecs
                 }
                 if (s._open)
                 {
-                    GuiLabel((Rectangle){10, 100, 200, 200}, "Shop");
-                    for (int i = 0; i < s._towers.size(); i++)
+                    for (auto &selector : selectors)
                     {
-                        Tower &tower = s._towers[i];
-
-                        const float x = static_cast<float>(20) + static_cast<float>(i % 3) * 260;
-                        const float y = static_cast<float>(60) + static_cast<float>(i / 3) * 160;
-
-                        GuiGroupBox((Rectangle){static_cast<float>(x), static_cast<float>(y), 240, 140}, "");
-
-                        GuiLabel((Rectangle){x + 10, y + 10, 200, 20}, tower._name.c_str());
-                        GuiLabel((Rectangle){x + 10, y + 40, 200, 20}, TextFormat("Price : %d", tower._cost));
-                        GuiLabel((Rectangle){x + 10, y + 70, 200, 20}, TextFormat("Range : %d", tower._range));
-
-                        if (GuiButton((Rectangle){x + 10, y + 100, 100, 30}, "Buy"))
+                        if (selector.has_value())
                         {
-                            // Do something
-                        }
-                        const Texture2D texture = *tower._texture;
-
-                        tower._frame_counter += game_frame_time;
-                        if (tower._frame_counter >= game_frame_time * 15)
-                        {
-                            tower._frame_counter = 0.0f;
-                            tower._frame++;
-
-                            if (tower._frame >= 3)
+                            GuiLabel((Rectangle){10, 100, 200, 200}, "Shop");
+                            for (int i = 0; i < s._towers.size(); i++)
                             {
-                                tower._frame = 0;
+                                Tower &tower = s._towers[i];
+
+                                const float x = static_cast<float>(20) + static_cast<float>(i % 3) * 260;
+                                const float y = static_cast<float>(60) + static_cast<float>(i / 3) * 160;
+
+                                GuiGroupBox((Rectangle){static_cast<float>(x), static_cast<float>(y), 240, 140}, "");
+
+                                GuiLabel((Rectangle){x + 10, y + 10, 200, 20}, tower._name.c_str());
+                                GuiLabel((Rectangle){x + 10, y + 40, 200, 20}, TextFormat("Price : %d", tower._cost));
+                                GuiLabel((Rectangle){x + 10, y + 70, 200, 20}, TextFormat("Range : %d", tower._range));
+
+                                if (GuiButton((Rectangle){x + 10, y + 100, 100, 30}, "Buy"))
+                                {
+                                    if (!selector.value()._drawable)
+                                    {
+                                        continue; // No tile selected
+                                    }
+                                    if (map._game._money._value >= tower._cost)
+                                    {
+                                        map._game._money._value -= tower._cost;
+                                        map._towers.emplace_back(
+                                            Tower{tower._range,
+                                                  tower._damage,
+                                                  tower._fire_rate,
+                                                  tower._cost,
+                                                  tower._name,
+                                                  tower._texture,
+                                                  0,
+                                                  0.0f,
+                                                  tower._tower_type,
+                                                  {selector.value()._pos._x, selector.value()._pos._y}});
+                                        selector.value()._drawable = false;
+                                    }
+                                }
+                                const Texture2D texture = *tower._texture;
+
+                                tower._frame_counter += game_frame_time;
+                                if (tower._frame_counter >= game_frame_time * 15)
+                                {
+                                    tower._frame_counter = 0.0f;
+                                    tower._frame++;
+
+                                    if (tower._frame >= 3)
+                                    {
+                                        tower._frame = 0;
+                                    }
+                                }
+
+                                Rectangle sourceRect = {0.0f, static_cast<float>(tower._frame * 32), 32.0f, 32.0f};
+                                Rectangle destRect = {x + 100, y + 10, sourceRect.width * scale,
+                                                      sourceRect.height * scale};
+                                DrawTexturePro(texture, sourceRect, destRect, {0, 0}, 0.0f, WHITE);
                             }
                         }
-
-                        Rectangle sourceRect = {0.0f, static_cast<float>(tower._frame * 32), 32.0f, 32.0f};
-                        Rectangle destRect = {x + 100, y + 10, sourceRect.width * scale, sourceRect.height * scale};
-                        DrawTexturePro(texture, sourceRect, destRect, {0, 0}, 0.0f, WHITE);
                     }
                 }
             }
@@ -363,9 +422,10 @@ namespace ecs
                             }
                             draw_map(m, scale);
                             draw_game_infos(s, m, scale);
-                            handle_shop(ecs, scale, m._game._frame_time);
+                            handle_shop(ecs, scale, m._game._frame_time, m);
                             draw_enemies(m, scale);
-                            check_enemies_path(m);
+                            draw_towers(m, scale, tm);
+                            check_enemies(m);
                             update_enemies_pos(m);
 
                             // Check if wave is clear
