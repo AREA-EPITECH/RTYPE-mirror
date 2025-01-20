@@ -109,7 +109,7 @@ void display_board(Registry &ecs, int screenWidth, int screenHeight) {
             if (vessel.drawable) {
                 vessel.name.updateText(screenWidth, screenHeight);
                 int textWidth = MeasureText(vessel.name.text.c_str(), vessel.name.fontSize);
-                int posX = screenWidth * 0.66 - (textWidth / 2) + 20;
+                int posX = static_cast<int>(screenWidth * 0.66 - (textWidth / 2) + 20);
                 vessel.name.posX = posX;
                 DrawText(vessel.name.text.c_str(), vessel.name.posX, vessel.name.posY, vessel.name.fontSize, vessel.name.color);
             }

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "raylib.h"
 #include "../DataType.hpp"
 
 namespace ecs
@@ -68,11 +69,11 @@ namespace ecs
     class TextInputComponent
     {
     public:
-        Rectangle inputBox{};
+        Rectangle inputBox = {};
         std::string text;
         std::string placeholder;
-        bool isFocused{};
-        size_t maxLength{};
+        bool isFocused;
+        size_t maxLength;
         WindowFocus focus;
 
         std::function<int(int screenWidth, int screenHeight)> dynamicX;
@@ -117,15 +118,15 @@ namespace ecs
     class NumberInputComponent
     {
     public:
-        Rectangle inputBox{};
+        Rectangle inputBox;
         int value;
         int minValue;
         int maxValue;
         std::string placeholder;
-        Color boxColor{};
-        Color textColor{};
-        Color borderColor{};
-        bool isFocused{};
+        Color boxColor;
+        Color textColor;
+        Color borderColor;
+        bool isFocused;
         WindowFocus focus;
 
         std::function<int(int screenWidth, int screenHeight)> dynamicX;

@@ -11,6 +11,7 @@
 
 #include <utility>
 
+#include "raylib/raygui.h"
 #include "Events.hpp"
 #include "Registry.hpp"
 #include "Components/Selectors.hpp"

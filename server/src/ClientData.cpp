@@ -10,7 +10,7 @@
 #include <spdlog/spdlog.h>
 
 namespace server {
-    ClientData::ClientData(u_int32_t id): _id(id), _ship() {
+    ClientData::ClientData(uint32_t id): _id(id), _ship() {
     }
 
     ClientData::~ClientData() {

@@ -2,8 +2,8 @@
 // Created by lferraro on 12/24/24.
 //
 
-#include "Main.hpp"
 #include "game/GameState.hpp"
+#include "Main.hpp"
 
 float map_value(float x, float in_min, float in_max, float out_min, float out_max)
 {
@@ -194,8 +194,8 @@ Registry init_ecs()
                         for (auto &entity: received_packet.entities) {
                             if (entity.type == network::EntityType::Player) {
                                 if (entity.entityId == user.id) {
-                                    float posX = map_value(entity.posX, 0, 350, -27.30, 7.79);
-                                    float posY = map_value(entity.posY, 0, 332, 16.60, -16.60);
+                                    float posX = map_value(entity.posX, 0.0f, 350.0f, -27.30f, 7.79f);
+                                    float posY = map_value(entity.posY, 0.0f, 332.0f, 16.60f, -16.60f);
                                     user.position = {posX, posY};
                                     user.score = entity.score;
                                     if (vessels[user.entity].has_value()) {
@@ -213,8 +213,8 @@ Registry init_ecs()
                                     }
                                     gameState->get().updateUser(user);
                                 } else {
-                                    float posX = map_value(entity.posX, 0, 350, -27.30, 7.79);
-                                    float posY = map_value(entity.posY, 0, 332, 16.60, -16.60);
+                                    float posX = map_value(entity.posX, 0.0f, 350.0f, -27.30f, 7.79f);
+                                    float posY = map_value(entity.posY, 0.0f, 332.0f, 16.60f, -16.60f);
                                     for (auto &score_i: scores) {
                                         if (score_i.has_value()) {
                                             if (score_i->score < entity.score) {
@@ -244,8 +244,8 @@ Registry init_ecs()
                                     if (projectiles[i].has_value()) {
                                         if (projectiles[i]->id == entity.entityId) {
                                             newShoot = false;
-                                            float posX = map_value(entity.posX, 0, 500, -27.30, 7.79);
-                                            float posY = map_value(entity.posY, 0, 332, 16.60, -16.60);
+                                            float posX = map_value(entity.posX, 0.0f, 500.0f, -27.30f, 7.79f);
+                                            float posY = map_value(entity.posY, 0.0f, 332.0f, 16.60f, -16.60f);
                                             projectiles[i]->position = {posX, posY, 0};
                                             projectiles[i]->drawable = true;
                                             break;
@@ -266,8 +266,8 @@ Registry init_ecs()
                                         {
                                             if (projectile->player && !projectile->drawable)
                                             {
-                                                float posX = map_value(entity.posX, 0, 500, -27.30, 7.79);
-                                                float posY = map_value(entity.posY, 0, 332, 16.60, -16.60);
+                                                float posX = map_value(entity.posX, 0.0f, 500.0f, -27.30f, 7.79f);
+                                                float posY = map_value(entity.posY, 0.0f, 332.0f, 16.60f, -16.60f);
                                                 ecs::create_player_basic_projectile(
                                                     ecs, entity.entityId, projectile->model,
                                                     {posX, posY, 0}, {35, 0, 0},
@@ -284,8 +284,8 @@ Registry init_ecs()
                                     if (projectiles[i].has_value()) {
                                         if (projectiles[i]->id == entity.entityId) {
                                             newShoot = false;
-                                            float posX = map_value(entity.posX, 0, 500, -27.30, 7.79);
-                                            float posY = map_value(entity.posY, 0, 332, 16.60, -16.60);
+                                            float posX = map_value(entity.posX, 0.0f, 500.0f, -27.30f, 7.79f);
+                                            float posY = map_value(entity.posY, 0.0f, 332.0f, 16.60f, -16.60f);
                                             projectiles[i]->position = {posX, posY, 0};
                                             projectiles[i]->drawable = true;
                                             break;
@@ -306,8 +306,8 @@ Registry init_ecs()
                                         {
                                             if (!projectile->player && !projectile->drawable)
                                             {
-                                                float posX = map_value(entity.posX, 0, 500, -27.30, 7.79);
-                                                float posY = map_value(entity.posY, 0, 332, 16.60, -16.60);
+                                                float posX = map_value(entity.posX, 0.0f, 500.0f, -27.30f, 7.79f);
+                                                float posY = map_value(entity.posY, 0.0f, 332.0f, 16.60f, -16.60f);
                                                 ecs::create_player_basic_projectile(
                                                     ecs, entity.entityId, projectile->model,
                                                     {posX, posY, 0}, {-35, 0, 0},
@@ -324,8 +324,8 @@ Registry init_ecs()
                                     if (vessels[i].has_value()) {
                                         if (vessels[i]->id == entity.entityId && vessels[i]->is_enemy) {
                                             newOpponent = false;
-                                            float posX = map_value(entity.posX, 0, 500, -27.30, 7.79);
-                                            float posY = map_value(entity.posY, 0, 332, 16.60, -16.60);
+                                            float posX = map_value(entity.posX, 0.0f, 500.0f, -27.30f, 7.79f);
+                                            float posY = map_value(entity.posY, 0.0f, 332.0f, 16.60f, -16.60f);
                                             vessels[i]->position = {posX, posY, 0};
                                             vessels[i]->drawable = true;
                                             break;
@@ -334,8 +334,8 @@ Registry init_ecs()
                                 }
 
                                 if (newOpponent) {
-                                    float posX = map_value(entity.posX, 0, 500, -27.30, 7.79);
-                                    float posY = map_value(entity.posY, 0, 332, 16.60, -16.60);
+                                    float posX = map_value(entity.posX, 0.0f, 500.0f, -27.30f, 7.79f);
+                                    float posY = map_value(entity.posY, 0.0f, 332.0f, 16.60f, -16.60f);
                                     auto EnemyEntity = ecs.spawn_entity();
                                     ecs::VesselsComponent selectedOpponent = vessels[enemy_entities[entity.shipId]].value();
                                     ecs.add_component<ecs::VesselsComponent>(EnemyEntity, {entity.entityId, selectedOpponent.model, true, selectedOpponent.path, selectedOpponent.name, selectedOpponent.ship_id, true});

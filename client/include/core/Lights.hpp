@@ -7,7 +7,10 @@
 
 #pragma once
 
-#include "raylib.h"
+extern "C"
+{
+    #include "raylib.h"
+}
 #include <string>
 
 namespace client

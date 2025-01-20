@@ -90,11 +90,11 @@ bool network::NetworkServer::sendSnapshotPacket(const struct SnapshotPacket &pac
     newPacket.header.packetId = lastPacketId;
 
     auto now = std::chrono::steady_clock::now();
-    newPacket.header.timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count();
+    newPacket.header.timestamp = static_cast<uint32_t>(std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count());
 
     newPacket.header.type = PacketType::SnapshotPacket;
 
-    newPacket.numEntities = packet.entities.size();
+    newPacket.numEntities = static_cast<uint16_t>(packet.entities.size());
     newPacket.entities = packet.entities;
 
     newPacket.maxScore = packet.maxScore;
@@ -119,7 +119,7 @@ bool network::NetworkServer::sendLobbyPacket(const struct LobbySnapshotPacket &p
     newPacket.header.packetId = lastPacketId;
 
     auto now = std::chrono::steady_clock::now();
-    newPacket.header.timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count();
+    newPacket.header.timestamp = static_cast<uint32_t>(std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count());
 
     newPacket.header.type = PacketType::LobbySnapshotPacket;
 
@@ -146,7 +146,7 @@ bool network::NetworkServer::sendErrorPacket(const struct ErrorPacket &packet, s
     newPacket.header.packetId = lastPacketId;
 
     auto now = std::chrono::steady_clock::now();
-    newPacket.header.timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count();
+    newPacket.header.timestamp = static_cast<uint32_t>(std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count());
 
     newPacket.header.type = PacketType::ErrorPacket;
 
