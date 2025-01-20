@@ -12,66 +12,50 @@ on:
       - dev
 
 jobs:
-#  linter:
-#    if: github.repository == 'AREA-EPITECH/RTYPE-mirror'
-#    name: Run Clang-Tidy
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: Checkout code
-#        uses: actions/checkout@v3
-#
-#      - name: Install dependencies
-#        run: sudo apt-get install clang-tidy
-#
-#      - name: Run Clang-Tidy
-#        run: |
-#          mkdir -p build
-#          cd build
-#          cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ..
-#          cd ..
-#          clang-tidy -p build $(find . -name '*.cpp')
-#
-#  formatter:
-#    if: github.repository == 'AREA-EPITECH/RTYPE-mirror'
-#    name: Run Clang-Format
-#    runs-on: ubuntu-latest
-#    needs: linter
-#    steps:
-#      - name: Checkout code
-#        uses: actions/checkout@v3
-#
-#      - name: Install dependencies
-#        run: sudo apt-get install clang-format
-#
-#      - name: Run Clang-Format
-#        run: |
-#          find . -name '*.cpp' -o -name '*.h' | xargs clang-format -i
-
-  build:
-    if: github.repository == 'AREA-EPITECH/RTYPE-mirror'
-    name: Build project using CMake
+  lint:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout source code
         uses: actions/checkout@v3
 
-      - name: Set up vcpkg
-        uses: lukka/run-vcpkg@v11
-        with:
-          vcpkgJsonGlob: '**/vcpkg.json'
-          vcpkgGitCommitId: 'eba7c6a894fce24146af4fdf161fef8e90dd6be3'
-
-      - name: Install CMake
+      - name: Install clang-tidy
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential cmake libxinerama-dev libxcursor-dev xorg-dev libglu1-mesa-dev pkg-config
+          sudo apt-get install -y clang-tidy
 
-      - name: Configure CMake
-        run: cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=${{ env.VCPKG_ROOT }}/scripts/buildsystems/vcpkg.cmake
+      - name: Generate compile_commands.json using CMake
+        run: |
+          cmake -S . -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=YES
 
-      - name: Build project
-        run: cmake --build build
+      - name: Run clang-tidy on source code
+        run: |
+          find . -name "*.cpp" -or -name "*.h" | xargs clang-tidy -checks='*' -p=build
+
+#  build:
+#    if: github.repository == 'AREA-EPITECH/RTYPE-mirror'
+#    name: Build project using CMake
+#    runs-on: ubuntu-latest
+#
+#    steps:
+#      - name: Checkout source code
+#        uses: actions/checkout@v3
+#
+#      - name: Set up vcpkg
+#        uses: lukka/run-vcpkg@v11
+#        with:
+#          vcpkgJsonGlob: '**/vcpkg.json'
+#          vcpkgGitCommitId: 'eba7c6a894fce24146af4fdf161fef8e90dd6be3'
+#
+#      - name: Install CMake
+#        run: |
+#          sudo apt-get update
+#          sudo apt-get install -y build-essential cmake libxinerama-dev libxcursor-dev xorg-dev libglu1-mesa-dev pkg-config
+#
+#      - name: Configure CMake
+#        run: cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=${{ env.VCPKG_ROOT }}/scripts/buildsystems/vcpkg.cmake
+#
+#      - name: Build project
+#        run: cmake --build build
 
 #  deploy_docs:
 #    if: github.repository == 'AREA-EPITECH/RTYPE-mirror'
