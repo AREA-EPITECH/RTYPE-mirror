@@ -18,18 +18,25 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v3
 
-      - name: Install clang-tidy
+      - name: Install required tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y clang-tidy
+          sudo apt-get install -y build-essential cmake clang-tidy
+
+      - name: Set up vcpkg
+        uses: lukka/run-vcpkg@v11
+        with:
+          vcpkgJsonGlob: '**/vcpkg.json'
+          vcpkgGitCommitId: 'dcf046e3737b56a96f274782ae4ad3c899ad6e4d' # Replace with your specific commit ID if needed
 
       - name: Generate compile_commands.json using CMake
         run: |
-          cmake -S . -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=YES
+          cmake -S . -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=YES \
+            -DCMAKE_TOOLCHAIN_FILE=${{ env.VCPKG_ROOT }}/scripts/buildsystems/vcpkg.cmake
 
       - name: Run clang-tidy on source code
         run: |
-          find . -name "*.cpp" -or -name "*.h" | xargs clang-tidy -checks='*' -p=build
+          find . -name "*.cpp" -or -name "*.h" | xargs clang-tidy -p=build
 
 #  build:
 #    if: github.repository == 'AREA-EPITECH/RTYPE-mirror'
