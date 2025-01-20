@@ -7,6 +7,10 @@
 
 namespace ecs {
 
+    /**
+* get key string
+* @param key
+*/
     std::string getPrintableKeyName(int key) {
         if (nonPrintableKeyNames.find(key) != nonPrintableKeyNames.end()) {
             return nonPrintableKeyNames.at(key);
@@ -20,6 +24,14 @@ namespace ecs {
     }
 
 
+    /**
+* Draw sound and musics slider in settings
+* @param ecs
+* @param xOffset
+* @param yOffset
+* @param sliderWidth
+* @param sliderHeight
+*/
     void drawSoundAndMusicSliders(Registry &ecs, int xOffset, int yOffset, int sliderWidth, int sliderHeight) {
         Vector2 mousePosition = GetMousePosition();
 
@@ -76,6 +88,15 @@ namespace ecs {
 
     }
 
+    /**
+* draw resolutions buttons in settings
+* @param x
+* @param y
+* @param width
+* @param height
+* @param res_w
+* @param res_h
+*/
     void drawResolutionButton(int x, int y, int width, int height, int res_w, int res_h) {
         Rectangle buttonBounds = {static_cast<float>(x), static_cast<float>(y),
                                   static_cast<float>(width), static_cast<float>(height)};
@@ -85,6 +106,13 @@ namespace ecs {
         }
     }
 
+    /**
+* Draw filters buttons in settings for daltonian mode
+* @param ecs
+* @param buttonRect
+* @param buttonText
+* @param mode
+*/
     void drawFiltersButtons(Registry &ecs, const Rectangle &buttonRect,
                                     const std::string &buttonText,
                                     ecs::ColorBlindMode mode) {
@@ -100,6 +128,11 @@ namespace ecs {
         }
     }
 
+    /**
+* Display the settings
+* @param ecs
+* @param event
+*/
     void display_settings_system (Registry &ecs, const DisplaySettingEvent &) {
         int s_width = GetScreenWidth();
         int s_height = GetScreenHeight();

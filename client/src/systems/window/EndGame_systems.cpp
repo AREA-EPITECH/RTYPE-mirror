@@ -9,6 +9,11 @@
 #include "game/GameState.hpp"
 
 namespace ecs {
+    /**
+ * Draw the endgame screen.
+ * @param ecs
+ * @param event
+ */
     void draw_endgame_system(Registry &ecs, const WindowDrawEvent &) {
         auto &musics = ecs.get_components<ecs::MusicComponent>();
         auto &backgrounds = ecs.get_components<BackgroundComponent>();
@@ -109,6 +114,12 @@ namespace ecs {
         EndDrawing();
     }
 
+    /**
+ * Open the endgame screen.
+
+ * @param ecs
+ * @param event
+ */
     void open_endgame_system(Registry &ecs, const WindowOpenEvent &) {
         kill_entities_with_component<ecs::ShowBoxComponent>(ecs);
         kill_entities_with_component<ecs::TextInputComponent>(ecs);
@@ -172,6 +183,11 @@ namespace ecs {
             ecs::ButtonStyleColors.at(ecs::BUTTON_BORDER_COLOR_FOCUSED)));
     }
 
+    /**
+ * Close the endgame screen.
+ * @param ecs
+ * @param event
+ */
     void close_endgame_system(Registry &ecs, const WindowCloseEvent &) {
         auto &musics = ecs.get_components<ecs::MusicComponent>();
         for (auto &music : musics) {

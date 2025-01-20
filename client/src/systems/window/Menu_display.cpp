@@ -7,6 +7,12 @@
 
 #include "ecs/Systems.hpp"
 
+/**
+ * Update the menu selectors, including buttons and boxes.
+ * @param ecs
+ * @param screenWidth
+ * @param screenHeight
+ */
 void update_menu_selectors(Registry &ecs, int screenWidth, int screenHeight) {
     auto &buttons = ecs.get_components<ecs::ButtonComponent>();
 
@@ -25,6 +31,10 @@ void update_menu_selectors(Registry &ecs, int screenWidth, int screenHeight) {
     }
 }
 
+/**
+ * Display the menu selectors, including buttons, text inputs, boxes, images, and settings.
+ * @param ecs
+ */
 void display_menu_selectors(Registry &ecs) {
     auto &buttons = ecs.get_components<ecs::ButtonComponent>();
     auto &inputs = ecs.get_components<ecs::TextInputComponent>();

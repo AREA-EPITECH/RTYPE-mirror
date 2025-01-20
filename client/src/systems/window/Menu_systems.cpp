@@ -141,6 +141,11 @@ namespace ecs
         }
     }
 
+    /**
+ * Open the menu system
+ * @param ecs
+ * @param event
+ */
     void open_menu_system(Registry &ecs, const WindowOpenEvent &)
     {
         ecs.run_event(InitCameraEvent{
@@ -206,6 +211,11 @@ namespace ecs
 
     }
 
+    /**
+* Close the menu system
+* @param ecs
+* @param event
+*/
     void close_menu_system(Registry &ecs, const WindowCloseEvent &)
     {
         auto &images = ecs.get_components<ImageComponent>();

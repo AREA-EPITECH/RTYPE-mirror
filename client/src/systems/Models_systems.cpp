@@ -133,7 +133,6 @@ namespace ecs {
 
     void load_enemys_for_game(Registry &ecs, const InitModelEvent &)
     {
-        auto &vessels = ecs.get_components<VesselsComponent>();
         std::vector<std::string> vox_files;
         auto gameState = getGameState(ecs);
         const int screenWidth = GetScreenWidth();
@@ -172,87 +171,6 @@ namespace ecs {
             ecs.add_component<VesselsComponent>(EnemyEntity, {0, model, false, vox_files[i], vessel_name, static_cast<int>(i), true});
         }
         gameState->get().setEnemyEntities(enemy_entities);
-    }
-
-    /**
-    * Load vessels by filepath
-    * @param ecs
-    */
-    void load_model_from_file_system(Registry &ecs, const InitModelEvent &) {
-        auto &vessels = ecs.get_components<VesselsComponent>();
-        auto gameState = getGameState(ecs);
-        int ship_id = gameState->get().getUser().ship_id;
-        for (std::size_t i = 0; i < vessels.size(); ++i) {
-            if (vessels[i].has_value()) {
-                auto &modelComponent = vessels[i].value();
-
-                UnloadModel(modelComponent.model);
-
-                if (!std::filesystem::exists(modelComponent.path)) {
-                    TraceLog(LOG_ERROR, TextFormat("File %s does not exist!", modelComponent.path.c_str()));
-                    continue;
-                }
-
-                const double t0 = GetTime() * 1000.0;
-                TraceLog(LOG_WARNING, TextFormat("Reloading model from %s...", modelComponent.path.c_str()));
-                modelComponent.model = LoadModel(modelComponent.path.c_str());
-                const double t1 = GetTime() * 1000.0;
-                TraceLog(LOG_WARNING, TextFormat("Reloaded model from %s in %f ms.", modelComponent.path.c_str(), t1 - t0));
-
-                auto [min, max] = GetModelBoundingBox(modelComponent.model);
-                Vector3 center = {};
-                center.x = min.x + (max.x - min.x) / 2;
-                center.z = min.z + (max.z - min.z) / 2;
-
-                const Matrix matTranslate = MatrixTranslate(-center.x, 0, -center.z);
-                const Matrix matRotate = MatrixRotateY(DEG2RAD * 90.0f);
-                modelComponent.model.transform = MatrixMultiply(matTranslate, matRotate);
-
-                if (vessels[i].value().ship_id == ship_id) {
-                    ecs.add_component<ControllableComponent>(i, {});
-                }
-                TraceLog(LOG_INFO, TextFormat("Model reloaded and centered from %s", modelComponent.path.c_str()));
-            }
-        }
-    }
-
-
-
-    /**
-    * Load shaders by filepath
-    * @param ecs
-    */
-    void load_shader_from_file_system(Registry &ecs, const InitShaderEvent &) {
-        auto &shaders = ecs.get_components<ShaderComponent>();
-        for (std::size_t i = 0; i < shaders.size(); ++i) {
-            if (shaders[i].has_value()) {
-                auto &shader_component = shaders[i].value();
-                std::string vs_file = shader_component.vs_file;
-                std::string fs_file = shader_component.fs_file;
-
-                UnloadShader(*shader_component.shader);
-
-                TraceLog(LOG_WARNING, TextFormat("Trying to load shader from files %s and %s.",
-                    shader_component.vs_file.c_str(), shader_component.fs_file.c_str()));
-                if (!std::filesystem::exists(vs_file) ||
-                    !std::filesystem::exists(fs_file)) {
-                    TraceLog(LOG_ERROR, TextFormat("\n\nFile %s nor %s do not exist!", shader_component.vs_file.c_str(),
-                        shader_component.fs_file.c_str()));
-                    continue;
-                }
-
-                const double t0 = GetTime() * 1000.0;
-                shader_component.shader = std::make_shared<Shader>(LoadShader(vs_file.c_str(),
-                    fs_file.c_str()));
-                const double t1 = GetTime() * 1000.0;
-                TraceLog(LOG_WARNING, TextFormat("Reloaded shader in %f ms.", t1 - t0));
-                shader_component.shader->locs[SHADER_LOC_VECTOR_VIEW] = GetShaderLocation(*shader_component.shader,
-                "viewPos");
-                int ambientLoc = GetShaderLocation(*shader_component.shader, "ambient");
-                SetShaderValue(*shader_component.shader, ambientLoc, (float[4]) {0.1f, 0.1f, 0.1f, 1.0f},
-                SHADER_UNIFORM_VEC4);
-            }
-        }
     }
 
     void load_title_menu(Registry &ecs, const InitModelEvent &) {

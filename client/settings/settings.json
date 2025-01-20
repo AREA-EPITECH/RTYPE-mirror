@@ -8,6 +8,6 @@
     "ResolutionH": 1022,
     "ResolutionW": 1920,
     "Sound": 7,
-    "Special Shoot": 340,
-    "filter": "Deuteranopia"
+    "Special Shoot": 50,
+    "filter": "None"
 }

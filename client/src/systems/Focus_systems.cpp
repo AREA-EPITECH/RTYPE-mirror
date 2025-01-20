@@ -5,6 +5,11 @@
 #include "ecs/Systems.hpp"
 
 namespace ecs {
+    /**
+ * change the focus of the window
+ * @param ecs
+ * @param event
+ */
     void change_focus_system(Registry &ecs, const ChangeFocusEvent &event) {
         auto &focus = ecs.get_components<FocusComponent>();
 
@@ -15,6 +20,10 @@ namespace ecs {
         }
     }
 
+    /**
+* get the focus of the window
+* @param ecs
+*/
     WindowFocus get_focus(Registry &ecs) {
         auto &focus = ecs.get_components<FocusComponent>();
 
