@@ -23,17 +23,6 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y build-essential cmake clang-tidy
 
-      - name: Set up vcpkg
-        uses: lukka/run-vcpkg@v11
-        with:
-          vcpkgJsonGlob: '**/vcpkg.json'
-          vcpkgGitCommitId: 'eba7c6a894fce24146af4fdf161fef8e90dd6be3'
-
-      - name: Generate compile_commands.json using CMake
-        run: |
-          cmake -S . -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=YES \
-            -DCMAKE_TOOLCHAIN_FILE=${{ env.VCPKG_ROOT }}/scripts/buildsystems/vcpkg.cmake
-
       - name: Run clang-tidy on source code
         run: |
           find . -name "*.cpp" -or -name "*.h" | xargs clang-tidy -p=build
