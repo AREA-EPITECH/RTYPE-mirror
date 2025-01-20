@@ -5,9 +5,9 @@
     "Move Right": 262,
     "Move Up": 265,
     "Music": 0,
-    "ResolutionH": 1440,
-    "ResolutionW": 2555,
+    "ResolutionH": 1022,
+    "ResolutionW": 1920,
     "Sound": 7,
     "Special Shoot": 340,
-    "filter": "None"
+    "filter": "Deuteranopia"
 }
