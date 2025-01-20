@@ -17,6 +17,7 @@ Registry init_ecs()
     ecs.register_component<ecs::Window>();
     ecs.register_component<ecs::GameComponent>();
     ecs.register_component<ecs::MapComponent>();
+    ecs.register_component<ecs::EnemyComponent>();
     ecs.register_component<ecs::Tile>();
     ecs.register_component<ecs::Money>();
     ecs.register_component<ecs::SelectorComponent>();
@@ -33,5 +34,7 @@ Registry init_ecs()
     ecs.register_event<ecs::ControlsEvent>();
     ecs.register_event<ecs::CreateTextEvent>();
     ecs.register_event<ecs::CreateTowerEvent>();
+    ecs.register_event<ecs::CreateEnemyEvent>();
+
     return ecs;
 }

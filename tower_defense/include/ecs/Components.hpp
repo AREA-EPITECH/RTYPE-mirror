@@ -120,7 +120,6 @@ namespace ecs {
         std::vector<Tile> _grass;
         std::vector<Tile> _path;
         std::vector<Tile> _decors;
-        std::vector<EnemyComponent> _enemies;
         GameComponent _game;
     };
 

@@ -40,4 +40,17 @@ namespace ecs
                                           event._color,
                                           event._font_size});
     }
-}
+
+    /**
+     * @brief Create enemy component
+     * @param ecs
+     * @param event
+     */
+    void create_enemy_component(Registry &ecs, const CreateEnemyEvent &event)
+    {
+        const auto entity = ecs.spawn_entity();
+        ecs.add_component<EnemyComponent>(entity,
+                                          {event._health, event._speed, event._damage, event._reward, event._texture,
+                                           event._position, 0, 0.0f, std::chrono::steady_clock::now()});
+    }
+} // namespace ecs

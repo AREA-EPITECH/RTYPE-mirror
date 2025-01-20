@@ -44,8 +44,10 @@ namespace ecs
      * @brief Check wave state
      * @param map
      */
-    void check_wave(MapComponent &map)
+    void check_wave(Registry &ecs, MapComponent &map)
     {
+        auto &enemies = ecs.get_components<EnemyComponent>();
+
         if (map._game._life._health <= 0)
         {
             exit(0); // Change to game over screen -> restart game
@@ -59,7 +61,7 @@ namespace ecs
             }
         }
 
-        if (map._enemies.empty())
+        if (enemies.size() == 0 && map._game._wave_started)
         {
             map._game._current_wave++;
             map._game._wave_started = false;
@@ -80,6 +82,8 @@ namespace ecs
     void check_towers(Registry &ecs, MapComponent &map, const int scale)
     {
         auto &towers = ecs.get_components<Tower>();
+        auto &enemies = ecs.get_components<EnemyComponent>();
+
         for (auto &tower : towers)
         {
             if (tower.has_value())
@@ -92,18 +96,19 @@ namespace ecs
                 {
                     EnemyComponent *target_enemy = nullptr;
                     double min_distance = tower.value()._range;
-
-                    for (EnemyComponent &enemy : map._enemies)
+                    for (auto &enemy : enemies)
                     {
-
-                        const double dx = std::abs(enemy._position.x - tower.value()._position.x);
-                        const double dy = std::abs(enemy._position.y - tower.value()._position.y);
-                        const double distance = std::sqrt(dx * dx + dy * dy);
-
-                        if (distance <= tower.value()._range && distance < min_distance)
+                        if (enemy.has_value())
                         {
-                            target_enemy = &enemy;
-                            min_distance = distance;
+                            const double dx = std::abs(enemy.value()._position.x - tower.value()._position.x);
+                            const double dy = std::abs(enemy.value()._position.y - tower.value()._position.y);
+                            const double distance = std::sqrt(dx * dx + dy * dy);
+
+                            if (distance <= tower.value()._range && distance < min_distance)
+                            {
+                                target_enemy = &enemy.value();
+                                min_distance = distance;
+                            }
                         }
                     }
 
@@ -161,60 +166,73 @@ namespace ecs
      */
     void check_enemies(Registry &ecs, MapComponent &map, const int scale)
     {
-        for (int i = 0; i < map._enemies.size(); i++)
+        auto &enemies = ecs.get_components<EnemyComponent>();
+
+        for (int i = 0; i < enemies.size(); i++)
         {
-            if (map._enemies[i]._health <= 0)
+            if (enemies[i].has_value())
             {
-                map._game._money._value += map._enemies[i]._reward;
-                ecs.run_event(CreateTextEvent{"+" + std::to_string(map._enemies[i]._reward), 1,
-                                              map._enemies[i]._position.x * 32 * scale,
-                                              map._enemies[i]._position.y * 32 * scale, 0, -1, GOLD, 32});
-                map._enemies.erase(map._enemies.begin() + i);
-                continue;
-            }
-            if (map._enemies[i]._position.x == map._path[map._path.size() - 1]._position.x &&
-                map._enemies[i]._position.y == map._path[map._path.size() - 1]._position.y)
-            {
-                map._game._life._health -= map._enemies[i]._damage;
-                ecs.run_event(CreateTextEvent{"-" + std::to_string(map._enemies[i]._damage),
-                                              1,
-                                              map._enemies[i]._position.x * 32 * scale,
-                                              map._enemies[i]._position.y * 32 * scale,
-                                              0,
-                                              -1,
-                                              {136, 8, 8, 255},
-                                              32});
-                map._enemies.erase(map._enemies.begin() + i);
+                if (enemies[i].value()._health <= 0)
+                {
+                    map._game._money._value += enemies[i].value()._reward;
+                    ecs.run_event(CreateTextEvent{"+" + std::to_string(enemies[i].value()._reward), 1,
+                                                  enemies[i].value()._position.x * 32 * scale,
+                                                  enemies[i].value()._position.y * 32 * scale, 0, -1, GOLD, 32});
+                    ecs.kill_entity(i);
+                    continue;
+                }
+                if (enemies[i].value()._position.x == map._path[map._path.size() - 1]._position.x &&
+                    enemies[i].value()._position.y == map._path[map._path.size() - 1]._position.y)
+                {
+                    map._game._life._health -= enemies[i].value()._damage;
+                    ecs.run_event(CreateTextEvent{"-" + std::to_string(enemies[i].value()._damage),
+                                                  1,
+                                                  enemies[i].value()._position.x * 32 * scale,
+                                                  enemies[i].value()._position.y * 32 * scale,
+                                                  0,
+                                                  -1,
+                                                  {136, 8, 8, 255},
+                                                  32});
+                    ecs.kill_entity(i);
+                }
             }
         }
     }
 
     /**
      * @brief Update the enemies position
+     * @param ecs
      * @param map
      */
-    void update_enemies_pos(MapComponent &map)
+    void update_enemies_pos(Registry &ecs, MapComponent &map)
     {
-        for (auto &enemy : map._enemies)
+        auto &enemies = ecs.get_components<EnemyComponent>();
+
+        for (auto &enemy : enemies)
         {
-            std::chrono::time_point<std::chrono::steady_clock> now = std::chrono::steady_clock::now();
-            double elapsed_time_since_start_round = std::chrono::duration<double>(now - enemy._last_move).count();
-            if (elapsed_time_since_start_round < enemy._speed)
+            if (enemy.has_value())
             {
-                continue;
-            }
-            {
-                for (size_t j = 0; j < map._path.size(); j++)
+                std::chrono::time_point<std::chrono::steady_clock> now = std::chrono::steady_clock::now();
+                double elapsed_time_since_start_round =
+                    std::chrono::duration<double>(now - enemy.value()._last_move).count();
+                if (elapsed_time_since_start_round < enemy.value()._speed)
                 {
-                    if (map._path[j]._position.x == enemy._position.x && map._path[j]._position.y == enemy._position.y)
+                    continue;
+                }
+                {
+                    for (size_t j = 0; j < map._path.size(); j++)
                     {
-                        if (j + 1 < map._path.size())
+                        if (map._path[j]._position.x == enemy.value()._position.x &&
+                            map._path[j]._position.y == enemy.value()._position.y)
                         {
-                            enemy._position.x = map._path[j + 1]._position.x;
-                            enemy._position.y = map._path[j + 1]._position.y;
+                            if (j + 1 < map._path.size())
+                            {
+                                enemy.value()._position.x = map._path[j + 1]._position.x;
+                                enemy.value()._position.y = map._path[j + 1]._position.y;
+                            }
+                            enemy.value()._last_move = std::chrono::steady_clock::now();
+                            break;
                         }
-                        enemy._last_move = std::chrono::steady_clock::now();
-                        break;
                     }
                 }
             }
@@ -223,10 +241,11 @@ namespace ecs
 
     /**
      * @brief Update the enemies position
+     * @param ecs
      * @param map
      * @param texture_manager
      */
-    void spawn_enemies(MapComponent &map, TextureManager &texture_manager)
+    void spawn_enemies(Registry &ecs, MapComponent &map, TextureManager &texture_manager)
     {
         if (!map._game._wave_started)
         {
@@ -256,19 +275,17 @@ namespace ecs
                     switch (map._game._enemy_waves[map._game._current_wave][i]._enemy_type)
                     {
                     case tower_defense::Basic_slime:
-                        map._enemies.emplace_back(
-                            EnemyComponent{10, 2, 1, 10, texture_manager.get_texture(tower_defense::BASIC_SLIME),
-                                           map._path[0]._position.x, map._path[0]._position.y, 0, 0});
+                        ecs.run_event(CreateEnemyEvent{10, 2, 1, 10,
+                                                       texture_manager.get_texture(tower_defense::BASIC_SLIME),
+                                                       map._path[0]._position});
                         break;
                     case tower_defense::Bat:
-                        map._enemies.emplace_back(
-                            EnemyComponent{5, 1, 2, 5, texture_manager.get_texture(tower_defense::BAT),
-                                           map._path[0]._position.x, map._path[0]._position.y, 0, 0});
+                        ecs.run_event(CreateEnemyEvent{5, 1, 2, 5, texture_manager.get_texture(tower_defense::BAT),
+                                                       map._path[0]._position});
                         break;
                     case tower_defense::Zombie:
-                        map._enemies.emplace_back(
-                            EnemyComponent{15, 3, 5, 15, texture_manager.get_texture(tower_defense::ZOMBIE),
-                                           map._path[0]._position.x, map._path[0]._position.y, 0, 0});
+                        ecs.run_event(CreateEnemyEvent{15, 3, 5, 15, texture_manager.get_texture(tower_defense::ZOMBIE),
+                                                       map._path[0]._position});
                         break;
                     default:
                         break;
@@ -285,32 +302,39 @@ namespace ecs
 
     /**
      * @brief Draw the enemies
+     * @param ecs
      * @param map
      * @param scale
      */
-    void draw_enemies(MapComponent &map, const float scale)
+    void draw_enemies(Registry &ecs, MapComponent &map, const float scale)
     {
-        for (auto &enemy : map._enemies)
+        auto &enemies = ecs.get_components<EnemyComponent>();
+
+        for (auto &enemy : enemies)
         {
-            const Texture2D texture = *enemy._texture;
-
-            enemy._frame_counter += map._game._frame_time;
-            if (enemy._frame_counter >= map._game._frame_time * 15)
+            if (enemy.has_value())
             {
-                enemy._frame_counter = 0.0f;
-                enemy._frame++;
+                const Texture2D texture = *enemy.value()._texture;
 
-                if (enemy._frame >= 4)
+                enemy.value()._frame_counter += map._game._frame_time;
+                if (enemy.value()._frame_counter >= map._game._frame_time * 15)
                 {
-                    enemy._frame = 0;
-                }
-            }
-            const Rectangle source_rect = {0.0f, static_cast<float>(enemy._frame * 32), 32, 32};
-            const Rectangle dest_rect = {
-                static_cast<float>(enemy._position.x * 32) * scale, static_cast<float>(enemy._position.y * 32) * scale,
-                source_rect.width * static_cast<float>(scale), source_rect.height * static_cast<float>(scale)};
+                    enemy.value()._frame_counter = 0.0f;
+                    enemy.value()._frame++;
 
-            DrawTexturePro(texture, source_rect, dest_rect, {0.0f, 0.0f}, 0.0f, WHITE);
+                    if (enemy.value()._frame >= 4)
+                    {
+                        enemy.value()._frame = 0;
+                    }
+                }
+                const Rectangle source_rect = {0.0f, static_cast<float>(enemy.value()._frame * 32), 32, 32};
+                const Rectangle dest_rect = {static_cast<float>(enemy.value()._position.x * 32) * scale,
+                                             static_cast<float>(enemy.value()._position.y * 32) * scale,
+                                             source_rect.width * static_cast<float>(scale),
+                                             source_rect.height * static_cast<float>(scale)};
+
+                DrawTexturePro(texture, source_rect, dest_rect, {0.0f, 0.0f}, 0.0f, WHITE);
+            }
         }
     }
 
@@ -324,6 +348,7 @@ namespace ecs
     void draw_game_infos(Registry &ecs, const SelectorComponent &selector, MapComponent &map, const float scale)
     {
         auto &towers = ecs.get_components<Tower>();
+
         for (const auto &tower : towers)
         {
             if (tower.has_value())
@@ -560,16 +585,16 @@ namespace ecs
                             auto &m = map.value();
                             const float scale = 4;
 
-                            check_wave(m);
+                            check_wave(ecs, m);
                             draw_map(m, scale);
                             draw_game_infos(ecs, s, m, scale);
-                            draw_enemies(m, scale);
+                            draw_enemies(ecs, m, scale);
                             draw_towers(ecs, m, scale, tm);
                             draw_text_components(ecs);
                             handle_shop(ecs, scale, m);
                             check_enemies(ecs, m, static_cast<int>(scale));
-                            update_enemies_pos(m);
-                            spawn_enemies(m, tm);
+                            update_enemies_pos(ecs, m);
+                            spawn_enemies(ecs, m, tm);
                             check_towers(ecs, m, static_cast<int>(scale));
                         }
                     }
@@ -577,55 +602,5 @@ namespace ecs
                 }
             }
         }
-    }
-
-    /**
-     * @brief Close the game
-     * @param ecs
-     */
-    void close_game_system(Registry &ecs)
-    {
-        auto &maps = ecs.get_components<MapComponent>();
-        auto &selectors = ecs.get_components<SelectorComponent>();
-        auto &textures_managers = ecs.get_components<TextureManager>();
-
-        for (auto &map : maps)
-        {
-            if (map.has_value())
-            {
-                UnloadTexture(map.value()._game._money._texture);
-                UnloadTexture(map.value()._game._life._texture);
-            }
-        }
-
-        for (auto &selector : selectors)
-        {
-            if (selector.has_value())
-            {
-                UnloadTexture(selector.value()._texture);
-            }
-        }
-
-        for (auto &texture_manager : textures_managers)
-        {
-            if (texture_manager.has_value())
-            {
-                for (auto &texture : texture_manager.value()._textures)
-                {
-                    UnloadTexture(*texture.second);
-                }
-                for (auto &decor_texture : texture_manager.value()._decors_textures)
-                {
-                    UnloadTexture(*decor_texture);
-                }
-            }
-        }
-
-        kill_entities_with_component<MapComponent>(ecs);
-        kill_entities_with_component<Shop>(ecs);
-        kill_entities_with_component<Tower>(ecs);
-        kill_entities_with_component<SelectorComponent>(ecs);
-        kill_entities_with_component<TextureManager>(ecs);
-        kill_entities_with_component<TextComponent>(ecs);
     }
 } // namespace ecs

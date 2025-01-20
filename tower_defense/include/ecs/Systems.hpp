@@ -30,4 +30,7 @@ namespace ecs {
 
     // Tower
     void create_tower_component(Registry &ecs, const CreateTowerEvent &);
+
+    // Enemy
+    void create_enemy_component(Registry &ecs, const CreateEnemyEvent &);
 }

@@ -58,4 +58,14 @@ namespace ecs {
         tower_defense::TileType _tower_type;
         tower_defense::Position _position;
     };
+
+    struct CreateEnemyEvent
+    {
+        int _health;
+        int _speed;
+        int _damage;
+        int _reward;
+        std::shared_ptr<Texture2D> _texture;
+        tower_defense::Position _position;
+    };
 }

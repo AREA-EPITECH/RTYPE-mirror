@@ -53,6 +53,7 @@ void empty_ecs(Registry &ecs)
     kill_entities_with_component<ecs::MapComponent>(ecs);
     kill_entities_with_component<ecs::Shop>(ecs);
     kill_entities_with_component<ecs::Tower>(ecs);
+    kill_entities_with_component<ecs::EnemyComponent>(ecs);
     kill_entities_with_component<ecs::SelectorComponent>(ecs);
     kill_entities_with_component<ecs::TextureManager>(ecs);
     kill_entities_with_component<ecs::TextComponent>(ecs);
