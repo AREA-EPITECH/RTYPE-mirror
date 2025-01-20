@@ -14,7 +14,8 @@ void updateKeysAndVolumesInJson(const std::string &filePath,
                                 float soundVolume,
                                 float musicVolume,
                                 int s_width,
-                                int s_height) {
+                                int s_height,
+                                ecs::ColorBlindMode filter_mode) {
     try {
         std::ifstream inputFile(filePath);
         nlohmann::json jsonData;
@@ -34,6 +35,24 @@ void updateKeysAndVolumesInJson(const std::string &filePath,
         jsonData["ResolutionH"] = s_height;
         jsonData["ResolutionW"] = s_width;
 
+        std::string filterModeStr;
+        switch (filter_mode) {
+            case ecs::ColorBlindMode::PROTANOPIA:
+                filterModeStr = "Protanopia";
+                break;
+            case ecs::ColorBlindMode::DEUTERANOPIA:
+                filterModeStr = "Deuteranopia";
+                break;
+            case ecs::ColorBlindMode::TRITANOPIA:
+                filterModeStr = "Tritanopia";
+                break;
+            case ecs::ColorBlindMode::NONE:
+            default:
+                filterModeStr = "None";
+                break;
+        }
+        jsonData["filter"] = filterModeStr;
+
         std::ofstream outputFile(filePath);
         outputFile << jsonData.dump(4);
         outputFile.close();
@@ -47,10 +66,12 @@ void updateSettings(Registry &ecs, const std::string &jsonFilePath, int s_width,
     auto &keys = ecs.get_components<ecs::KeyBindingComponent>();
     auto &sounds = ecs.get_components<ecs::SoundComponent>();
     auto &musics = ecs.get_components<ecs::MusicComponent>();
+    auto &filters = ecs.get_components<ecs::FilterComponent>();
 
     std::unordered_map<std::string, int> allKeyBindings;
     float soundVolume = 100.0f;
     float musicVolume = 100.0f;
+    ecs::ColorBlindMode filter_mode = ecs::ColorBlindMode::NONE;
 
     for (auto &keyComponent : keys) {
         if (keyComponent.has_value()) {
@@ -78,5 +99,12 @@ void updateSettings(Registry &ecs, const std::string &jsonFilePath, int s_width,
         }
     }
 
-    updateKeysAndVolumesInJson(jsonFilePath, allKeyBindings, soundVolume, musicVolume, s_width, s_height);
+    for (auto &filter : filters) {
+        if (filter.has_value()) {
+            filter_mode = filter.value().currentMode;
+            break;
+        }
+    }
+
+    updateKeysAndVolumesInJson(jsonFilePath, allKeyBindings, soundVolume, musicVolume, s_width, s_height, filter_mode);
 }
