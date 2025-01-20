@@ -12,18 +12,32 @@ on:
       - dev
 
 jobs:
-  lint:
+  lint_and_format:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout source code
+      # Checkout the repository
+      - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Install required tools
+      # Install clang-format and clang-tidy
+      - name: Install clang-format and clang-tidy
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential cmake clang-tidy
+          sudo apt-get install -y clang-format clang-tidy
 
-      - name: Run clang-tidy on source code
+      # Check formatting with clang-format using .clang-format
+      - name: Check formatting with clang-format
+        run: |
+          find . -name "*.cpp" -or -name "*.h" | xargs clang-format --dry-run --Werror
+
+      # Generate compile_commands.json using CMake (if needed for clang-tidy)
+      - name: Generate compile_commands.json using CMake
+        run: |
+          cmake -S . -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=YES
+
+      # Run clang-tidy using .clang-tidy
+      - name: Run clang-tidy
         run: |
           find . -name "*.cpp" -or -name "*.h" | xargs clang-tidy -p=build
 
