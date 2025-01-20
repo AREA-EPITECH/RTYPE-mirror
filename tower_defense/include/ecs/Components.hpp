@@ -17,11 +17,10 @@
 namespace ecs {
     class TextureManager
     {
-    private:
+    public:
         std::map<tower_defense::TileType, std::shared_ptr<Texture2D>> _textures;
         std::vector<std::shared_ptr<Texture2D>> _decors_textures;
 
-    public:
         TextureManager() = default;
         ~TextureManager() = default;
 
