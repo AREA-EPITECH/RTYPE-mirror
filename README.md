@@ -60,7 +60,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
 <table>
   <tbody>
     <tr>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/maxencelupion"><img src="https://avatars.githubusercontent.com/u/114016583?v=4?s=100" width="100px;" alt="Maxence Lupion"/><br /><sub><b>Maxence Lupion</b></sub></a><br /><a href="https://github.com/AREA-EPITECH/RTYPE-mirror/commits?author=maxencelupion" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/maxencelupion"><img src="https://avatars.githubusercontent.com/u/114016583?v=4?s=100" width="100px;" alt="Maxence Lupion"/><br /><sub><b>Maxence Lupion</b></sub></a><br /><a href="https://github.com/AREA-EPITECH/RTYPE-mirror/commits?author=maxencelupion" title="Code">💻</a> <a href="#projectManagement-maxencelupion" title="Project Management">📆</a></td>
     </tr>
   </tbody>
 </table>
