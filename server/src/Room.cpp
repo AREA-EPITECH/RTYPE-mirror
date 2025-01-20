@@ -710,6 +710,9 @@ namespace server
                 if (data.getReadyState()) {
                     data.setReadyState();
                 }
+                if (!data.getAlive()) {
+                    data.setAlive();
+                }
             }
             if (life[i].has_value()) {
                 life[i].value() = MAX_HEALTH;

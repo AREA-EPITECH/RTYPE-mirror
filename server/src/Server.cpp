@@ -209,6 +209,10 @@ namespace server
                 return true;
             }
         }
+        struct network::ErrorPacket error_packet;
+        error_packet.message = std::string("Room not found");
+        error_packet.type = network::ErrorType::RoomNotFound;
+        this->getServer().sendErrorPacket(error_packet, client);
         spdlog::error("Room {} doesn't exist", room_id);
         return false;
     }

@@ -27,6 +27,7 @@ namespace ecs
         MENU_FOCUS,
         JOIN_ROOM_FOCUS,
         SETTINGS_FOCUS,
+        POPUP_FOCUS,
 
         // LOBBY
         LOBBY_FOCUS,

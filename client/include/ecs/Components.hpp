@@ -12,10 +12,12 @@
 #include <utility>
 
 #include "Events.hpp"
+#include "Registry.hpp"
 #include "Components/Selectors.hpp"
 #include "Components/Controls.hpp"
 #include "core/ParticleSystem.hpp"
 #include <cstring>
+#include <string>
 #include <spdlog/spdlog.h>
 
 namespace ecs {
@@ -400,4 +402,30 @@ namespace ecs {
         }
     };
 
+    class PopupComponent
+    {
+    public:
+        Rectangle boxRect;
+        std::string title;
+        std::string message;
+        Color boxColor;
+        Color textColor;
+        bool isVisible = true;
+        std::function<int(int screenWidth, int screenHeight)> dynamicX;
+        std::function<int(int screenWidth, int screenHeight)> dynamicY;
+        WindowFocus focus;
+        std::function<void()> close_func;
+
+        explicit PopupComponent(Rectangle _boxRect, std::string _title, std::string _message, Color _boxColor, Color _textColor,
+                                WindowFocus _focus,
+                                std::function<int(int screenWidth, int screenHeight)> _dynamicX = nullptr,
+                                std::function<int(int screenWidth, int screenHeight)> _dynamicY = nullptr,
+                                std::function<void()> _close_func = nullptr);
+
+        PopupComponent() = default;
+
+        void draw(WindowFocus _focus);
+        void updateBox(int screenWidth, int screenHeight);
+        static void createPopup(Registry &ecs, const std::string &title, const std::string &message);
+    };
 }
