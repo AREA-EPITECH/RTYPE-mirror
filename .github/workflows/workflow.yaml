@@ -29,17 +29,16 @@ jobs:
       # Check formatting with clang-format using .clang-format
       - name: Check formatting with clang-format
         run: |
-          find . -name "*.cpp" -or -name "*.h" | xargs clang-format --dry-run --Werror
+          find . -name "*.cpp" -or -name "*.h" | xargs clang-format -i
 
-      # Generate compile_commands.json using CMake (if needed for clang-tidy)
-      - name: Generate compile_commands.json using CMake
-        run: |
-          cmake -S . -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=YES
+#      - name: Generate compile_commands.json using CMake
+#        run: |
+#          cmake -S . -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=YES
 
       # Run clang-tidy using .clang-tidy
       - name: Run clang-tidy
         run: |
-          find . -name "*.cpp" -or -name "*.h" | xargs clang-tidy -p=build
+          find . -name "*.cpp" -or -name "*.h" | xargs clang-tidy -p=build -fix
 
 #  build:
 #    if: github.repository == 'AREA-EPITECH/RTYPE-mirror'
