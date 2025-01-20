@@ -95,9 +95,11 @@ Registry init_ecs()
                         gameState->get().setRoomId(received_packet.roomId);
                         for (auto player: received_packet.players) {
                             int saved_score;
+                            int saved_total;
                             for (auto s_player: saved_players) {
-                                if (s_player.id == user.id) {
+                                if (s_player.id == player.id) {
                                     saved_score = s_player.score;
+                                    saved_total = s_player.total_score;
                                     break;
                                 }
                             }
@@ -109,7 +111,8 @@ Registry init_ecs()
                                     player.shipId,
                                     player.ready,
                                     {0, 0},
-                                    saved_score
+                                    saved_score,
+                                    saved_total,
                                 });
                             }
                         }

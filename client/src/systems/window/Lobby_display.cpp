@@ -36,7 +36,7 @@ void update_board_component(Registry &ecs, int screenWidth, int screenHeight) {
                 int lineY = 50 + text.fontSize + 50;
                 text.posY = lineY + 50 + (100 * players_ids);
                 if (players_ids == 0) {
-                    text.text = user.name;
+                    text.text = fmt::format("{} (ME)", user.name);
                     if (user.is_ready) {
                         text.color = GREEN;
                     } else {
