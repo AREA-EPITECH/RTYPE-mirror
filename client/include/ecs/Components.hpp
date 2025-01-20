@@ -289,10 +289,9 @@ namespace ecs {
     };
 
     class FilterComponent {
-    private:
+    public:
         ColorBlindMode currentMode;
 
-    public:
         FilterComponent(ColorBlindMode mode = ColorBlindMode::NONE)
                 : currentMode(mode) {
 

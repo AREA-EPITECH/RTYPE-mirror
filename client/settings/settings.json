@@ -1,12 +1,13 @@
 {
     "Basic Shoot": 32,
-    "Move Down": 83,
-    "Move Left": 81,
-    "Move Right": 68,
-    "Move Up": 90,
-    "Music": 20,
-    "ResolutionH": 1022,
-    "ResolutionW": 1920,
-    "Sound": 40,
-    "Special Shoot": 340
+    "Move Down": 264,
+    "Move Left": 263,
+    "Move Right": 262,
+    "Move Up": 265,
+    "Music": 0,
+    "ResolutionH": 1440,
+    "ResolutionW": 2555,
+    "Sound": 7,
+    "Special Shoot": 340,
+    "filter": "None"
 }
