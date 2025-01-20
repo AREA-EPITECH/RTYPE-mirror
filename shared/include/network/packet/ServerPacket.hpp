@@ -75,6 +75,7 @@ namespace network
     {
         RoomNotFound = 1, ///< Represents an room not found error.
         NoMoreLevel = 2, ///< Represents no more level error.
+        RoomFull = 3, ///< Represents a room that is full as an error.
     };
 
     /**

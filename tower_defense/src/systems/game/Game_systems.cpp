@@ -68,7 +68,9 @@ namespace ecs
 
                 if (target_enemy)
                 {
+                    spdlog::info("Tower {} is shooting at enemy", tower._name);
                     target_enemy->_health -= tower._damage;
+                    spdlog::info("Enemy health: {}", target_enemy->_health);
                     tower._last_shot = std::chrono::steady_clock::now();
                 }
             }
@@ -202,11 +204,11 @@ namespace ecs
                         break;
                     case tower_defense::Bat:
                         map._enemies.emplace_back(EnemyComponent{
-                            5, 3, 2, 5, texture_manager.get_texture(tower_defense::BAT), start_x, start_y, 0, 0});
+                            5, 1, 2, 5, texture_manager.get_texture(tower_defense::BAT), start_x, start_y, 0, 0});
                         break;
                     case tower_defense::Zombie:
                         map._enemies.emplace_back(EnemyComponent{
-                            15, 1, 3, 15, texture_manager.get_texture(tower_defense::ZOMBIE), start_x, start_y, 0, 0});
+                            15, 3, 3, 15, texture_manager.get_texture(tower_defense::ZOMBIE), start_x, start_y, 0, 0});
                         break;
                     default:
                         break;
@@ -503,5 +505,53 @@ namespace ecs
                 }
             }
         }
+    }
+
+    /**
+     * @brief Close the game
+     * @param ecs
+     */
+    void close_game_system(Registry &ecs)
+    {
+        auto &maps = ecs.get_components<MapComponent>();
+        auto &selectors = ecs.get_components<SelectorComponent>();
+        auto &textures_managers = ecs.get_components<TextureManager>();
+
+        for (auto &map: maps)
+        {
+            if (map.has_value())
+            {
+                UnloadTexture(map.value()._game._money._texture);
+                UnloadTexture(map.value()._game._life._texture);
+            }
+        }
+
+        for (auto &selector: selectors)
+        {
+            if (selector.has_value())
+            {
+                UnloadTexture(selector.value()._texture);
+            }
+        }
+
+        for (auto &texture_manager : textures_managers)
+        {
+            if (texture_manager.has_value())
+            {
+                for (auto &texture : texture_manager.value()._textures)
+                {
+                    UnloadTexture(*texture.second);
+                }
+                for (auto &decor_texture : texture_manager.value()._decors_textures)
+                {
+                    UnloadTexture(*decor_texture);
+                }
+            }
+        }
+
+        kill_entities_with_component<MapComponent>(ecs);
+        kill_entities_with_component<Shop>(ecs);
+        kill_entities_with_component<SelectorComponent>(ecs);
+        kill_entities_with_component<TextureManager>(ecs);
     }
 } // namespace ecs

@@ -27,6 +27,7 @@ namespace server {
 #define MINY_MAP 0
 #define MAXY_MAP 332
 #define MAX_HEALTH 10
+#define MAX_CLIENTS 4
     class Server;
     struct Enemy;
     class Room {
@@ -79,6 +80,7 @@ namespace server {
         bool isClientinsideRoom();
         network::LobbyGameState getState() const;
         void setState(network::LobbyGameState state);
+        uint32_t getNumberClients() const;
 
         Registry &getRegistry();
     };

@@ -710,6 +710,9 @@ namespace server
                 if (data.getReadyState()) {
                     data.setReadyState();
                 }
+                if (!data.getAlive()) {
+                    data.setAlive();
+                }
             }
             if (life[i].has_value()) {
                 life[i].value() = MAX_HEALTH;
@@ -733,6 +736,19 @@ namespace server
     network::LobbyGameState Room::getState() const { return this->_state; }
 
     void Room::setState(const network::LobbyGameState state) { this->_state = state; }
+
+
+    uint32_t Room::getNumberClients() const {
+        auto &clients = _registry.get_components<std::shared_ptr<network::PeerWrapper>>();
+        uint32_t count = 0;
+        for (int i = 0; i < clients.size(); i++) {
+            if (clients[i].has_value()) {
+                count++;
+            }
+        }
+        return count;
+    }
+
 
     Registry &Room::getRegistry() {
         return this->_registry;

@@ -10,7 +10,6 @@ float map_value(float x, float in_min, float in_max, float out_min, float out_ma
     return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 
-
 /**
  * Init the ecs
  * @return
@@ -42,6 +41,7 @@ Registry init_ecs()
     ecs.register_component<game::GameState>();
     ecs.register_component<ecs::ScoreComponent>();
     ecs.register_component<ecs::ExplosionComponent>();
+    ecs.register_component<ecs::PopupComponent>();
 
     ecs.register_event<ecs::CreateWindowEvent>();
     ecs.register_event<ecs::WindowOpenEvent>();
@@ -95,9 +95,11 @@ Registry init_ecs()
                         gameState->get().setRoomId(received_packet.roomId);
                         for (auto player: received_packet.players) {
                             int saved_score;
+                            int saved_total;
                             for (auto s_player: saved_players) {
-                                if (s_player.id == user.id) {
+                                if (s_player.id == player.id) {
                                     saved_score = s_player.score;
+                                    saved_total = s_player.total_score;
                                     break;
                                 }
                             }
@@ -109,7 +111,8 @@ Registry init_ecs()
                                     player.shipId,
                                     player.ready,
                                     {0, 0},
-                                    saved_score
+                                    saved_score,
+                                    saved_total,
                                 });
                             }
                         }
@@ -385,6 +388,14 @@ Registry init_ecs()
                         if (received_packet.type == network::ErrorType::NoMoreLevel) {
                             spdlog::info("GAME OVER");
                             ecs::change_window(ecs, ecs::WindowType::END_GAME);
+                        } else if (received_packet.type == network::ErrorType::RoomNotFound)
+                        {
+                            spdlog::error("Room not found");
+                            ecs::PopupComponent::createPopup(ecs, "Error", "Room not found");
+                        } else if (received_packet.type == network::ErrorType::RoomFull)
+                        {
+                            spdlog::error("Room not found");
+                            ecs::PopupComponent::createPopup(ecs, "Error", "Sorry the rooom is full");
                         }
                     }
                     else

@@ -187,6 +187,14 @@ namespace server
     {
         for (auto &room: this->_waiting_rooms) {
             if (room->getId() == room_id) {
+                if (room->getNumberClients() == MAX_CLIENTS) {
+                    struct network::ErrorPacket error_packet;
+                    error_packet.message = std::string("Room is full");
+                    error_packet.type = network::ErrorType::RoomFull;
+                    this->getServer().sendErrorPacket(error_packet, client);
+                    spdlog::error("Room {} is full", room_id);
+                    return false;
+                }
                 auto &data = client->getData<ClientData>();
                 data.setRoom(room);
                 const auto client_id = data.getId();
@@ -201,7 +209,11 @@ namespace server
                 return true;
             }
         }
-        spdlog::error("Room doesn't exist {}", room_id);
+        struct network::ErrorPacket error_packet;
+        error_packet.message = std::string("Room not found");
+        error_packet.type = network::ErrorType::RoomNotFound;
+        this->getServer().sendErrorPacket(error_packet, client);
+        spdlog::error("Room {} doesn't exist", room_id);
         return false;
     }
 

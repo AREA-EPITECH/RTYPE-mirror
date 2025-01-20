@@ -114,6 +114,19 @@ namespace ecs
 
         update_menu_selectors(ecs, screenWidth, screenHeight);
         display_menu_selectors(ecs);
+
+        auto &popups = ecs.get_components<PopupComponent>();
+        ecs::WindowFocus focus = ecs::get_focus(ecs);
+        for (int i = 0; i < popups.size(); i++) {
+            if (popups[i].has_value()) {
+                if (popups[i]->isVisible) {
+                    popups[i]->updateBox(screenWidth, screenHeight);
+                    popups[i]->draw(focus);
+                } else {
+                    ecs.kill_entity(i);
+                }
+            }
+        }
         auto &filters = ecs.get_components<FilterComponent>();
         for (auto &filter : filters) {
             if (filter.has_value()) {
