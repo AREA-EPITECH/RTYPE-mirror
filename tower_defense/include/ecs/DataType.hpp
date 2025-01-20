@@ -58,4 +58,9 @@ namespace tower_defense
         std::chrono::time_point<std::chrono::steady_clock> _time_since_last_spawn = std::chrono::steady_clock::now();
     };
 
+    struct Position
+    {
+        int x;
+        int y;
+    };
 } // namespace tower_defense

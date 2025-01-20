@@ -31,6 +31,14 @@ namespace ecs {
         }
     }
 
+    void init_register_system(Registry &ecs, const InitRegisterEvent &)
+    {
+        ecs.subscribe<ControlsEvent>(game_controls_system);
+        ecs.subscribe<WindowDrawEvent>(draw_game_system);
+        ecs.subscribe<CreateTextEvent>(create_text_component);
+        ecs.subscribe<CreateTowerEvent>(create_tower_component);
+    }
+
     /**
      * Close the window
      * @param ecs

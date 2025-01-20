@@ -109,7 +109,7 @@ namespace tower_defense
         }
 
         const auto map_entity = ecs.spawn_entity();
-        ecs.add_component<ecs::MapComponent>(map_entity, {map, path, decors, {}, {}, game_component});
+        ecs.add_component<ecs::MapComponent>(map_entity, {map, path, decors, {}, game_component});
 
         std::vector<Rectangle> no_clickable = {};
         int scale = 4;

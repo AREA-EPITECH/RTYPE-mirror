@@ -9,19 +9,6 @@
 
 namespace ecs
 {
-    void create_text_component(Registry &ecs, const CreateTextEvent &event)
-    {
-        const auto entity = ecs.spawn_entity();
-        ecs.add_component<TextComponent>(entity,
-                                         {event._text,
-                                          std::chrono::steady_clock::now(),
-                                          event._duration,
-                                          {event._position_x, event._position_y},
-                                          {event._velocity_x, event._velocity_y},
-                                          event._color,
-                                          event._font_size});
-    }
-
     /**
      * @brief Draw text components
      * @param ecs
@@ -92,39 +79,42 @@ namespace ecs
      */
     void check_towers(Registry &ecs, MapComponent &map, const int scale)
     {
-        for (Tower &tower : map._towers)
+        auto &towers = ecs.get_components<Tower>();
+        for (auto &tower : towers)
         {
-            std::chrono::time_point<std::chrono::steady_clock> now = std::chrono::steady_clock::now();
-            double elapsed_time_since_last_shot = std::chrono::duration<double>(now - tower._last_shot).count();
-
-            if (elapsed_time_since_last_shot > tower._fire_rate)
+            if (tower.has_value())
             {
-                EnemyComponent *target_enemy = nullptr;
-                double min_distance = tower._range;
+                std::chrono::time_point<std::chrono::steady_clock> now = std::chrono::steady_clock::now();
+                double elapsed_time_since_last_shot =
+                    std::chrono::duration<double>(now - tower.value()._last_shot).count();
 
-                for (EnemyComponent &enemy : map._enemies)
+                if (elapsed_time_since_last_shot > tower.value()._fire_rate)
                 {
+                    EnemyComponent *target_enemy = nullptr;
+                    double min_distance = tower.value()._range;
 
-                    const double dx = std::abs(enemy._position.x - tower._position.x);
-                    const double dy = std::abs(enemy._position.y - tower._position.y);
-                    const double distance = std::sqrt(dx * dx + dy * dy);
-
-                    if (distance <= tower._range && distance < min_distance)
+                    for (EnemyComponent &enemy : map._enemies)
                     {
-                        target_enemy = &enemy;
-                        min_distance = distance;
-                    }
-                }
 
-                if (target_enemy)
-                {
-                    spdlog::info("Tower {} is shooting at enemy", tower._name);
-                    target_enemy->_health -= tower._damage;
-                    ecs.run_event(CreateTextEvent{"-" + std::to_string(tower._damage), 1,
-                                                  target_enemy->_position.x * 32 * scale,
-                                                  target_enemy->_position.y * 32 * scale, 0, -1, RED, 32});
-                    spdlog::info("Enemy health: {}", target_enemy->_health);
-                    tower._last_shot = std::chrono::steady_clock::now();
+                        const double dx = std::abs(enemy._position.x - tower.value()._position.x);
+                        const double dy = std::abs(enemy._position.y - tower.value()._position.y);
+                        const double distance = std::sqrt(dx * dx + dy * dy);
+
+                        if (distance <= tower.value()._range && distance < min_distance)
+                        {
+                            target_enemy = &enemy;
+                            min_distance = distance;
+                        }
+                    }
+
+                    if (target_enemy)
+                    {
+                        target_enemy->_health -= tower.value()._damage;
+                        ecs.run_event(CreateTextEvent{"-" + std::to_string(tower.value()._damage), 1,
+                                                      target_enemy->_position.x * 32 * scale,
+                                                      target_enemy->_position.y * 32 * scale, 0, -1, RED, 32});
+                        tower.value()._last_shot = std::chrono::steady_clock::now();
+                    }
                 }
             }
         }
@@ -133,27 +123,32 @@ namespace ecs
 
     /**
      * @brief Draw the towers
+     * @param ecs
      * @param map
      * @param scale
      * @param tm
      */
-    void draw_towers(MapComponent &map, const float scale, TextureManager &tm)
+    void draw_towers(Registry &ecs, MapComponent &map, const float scale, TextureManager &tm)
     {
-        for (auto &tower : map._towers)
+        auto &towers = ecs.get_components<Tower>();
+        for (auto &tower : towers)
         {
-            const Texture2D tower_texture = *tower._texture;
-            const Texture2D base_texture = *tm.get_texture(tower_defense::BASE_TOWER);
+            if (tower.has_value())
+            {
+                const Texture2D tower_texture = *tower.value()._texture;
+                const Texture2D base_texture = *tm.get_texture(tower_defense::BASE_TOWER);
 
-            DrawTextureEx(base_texture,
-                          {static_cast<float>(tower._position.x * base_texture.width) * scale,
-                           static_cast<float>(tower._position.y * base_texture.height) * scale},
-                          0, scale, WHITE);
+                DrawTextureEx(base_texture,
+                              {static_cast<float>(tower.value()._position.x * base_texture.width) * scale,
+                               static_cast<float>(tower.value()._position.y * base_texture.height) * scale},
+                              0, scale, WHITE);
 
-            const Rectangle source_rect = {0.0f, static_cast<float>(2 * 32), 32.0f, 32.0f};
-            const Rectangle dest_rect = {static_cast<float>(tower._position.x * 32) * scale,
-                                         static_cast<float>(tower._position.y * 32) * scale, source_rect.width * scale,
-                                         source_rect.height * scale};
-            DrawTexturePro(tower_texture, source_rect, dest_rect, {0, 0}, 0.0f, WHITE);
+                const Rectangle source_rect = {0.0f, static_cast<float>(2 * 32), 32.0f, 32.0f};
+                const Rectangle dest_rect = {static_cast<float>(tower.value()._position.x * 32) * scale,
+                                             static_cast<float>(tower.value()._position.y * 32) * scale,
+                                             source_rect.width * scale, source_rect.height * scale};
+                DrawTexturePro(tower_texture, source_rect, dest_rect, {0, 0}, 0.0f, WHITE);
+            }
         }
     }
 
@@ -321,20 +316,28 @@ namespace ecs
 
     /**
      * @brief Draw the game infos
+     * @param ecs
      * @param selector
      * @param map
      * @param scale
      */
-    void draw_game_infos(const SelectorComponent &selector, MapComponent &map, const float scale)
+    void draw_game_infos(Registry &ecs, const SelectorComponent &selector, MapComponent &map, const float scale)
     {
-        for (const auto &tower : map._towers)
+        auto &towers = ecs.get_components<Tower>();
+        for (const auto &tower : towers)
         {
-            if (selector._position.x == tower._position.x && selector._position.y == tower._position.y)
+            if (tower.has_value())
             {
-                DrawCircle(
-                    static_cast<int>(static_cast<float>(selector._position.x) * 32.0f * scale + (32.0f * scale / 2.0f)),
-                    static_cast<int>(static_cast<float>(selector._position.y) * 32.0f * scale + (32.0f * scale / 2.0f)),
-                    (static_cast<float>(tower._range) * 32.0f * scale) + (32.0f * scale / 2.0f), Fade(GRAY, 0.3f));
+                Tower t = tower.value();
+                if (selector._position.x == t._position.x && selector._position.y == t._position.y)
+                {
+                    DrawCircle(static_cast<int>(static_cast<float>(selector._position.x) * 32.0f * scale +
+                                                (32.0f * scale / 2.0f)),
+                               static_cast<int>(static_cast<float>(selector._position.y) * 32.0f * scale +
+                                                (32.0f * scale / 2.0f)),
+                               (static_cast<float>(t._range) * 32.0f * scale) + (32.0f * scale / 2.0f),
+                               Fade(GRAY, 0.3f));
+                }
             }
         }
 
@@ -433,6 +436,7 @@ namespace ecs
     {
         auto &shops = ecs.get_components<Shop>();
         auto &selectors = ecs.get_components<SelectorComponent>();
+        auto &towers = ecs.get_components<Tower>();
 
         for (auto &shop : shops)
         {
@@ -470,29 +474,24 @@ namespace ecs
                                     {
                                         purchasable = false; // No tile selected
                                     }
-                                    for (const auto &_tower : map._towers)
+                                    for (const auto &tower_component : towers)
                                     {
-                                        if (selector.value()._position.x == _tower._position.x &&
-                                            selector.value()._position.y == _tower._position.y)
+                                        if (tower_component.has_value())
                                         {
-                                            purchasable = false; // Tower already here
+                                            const Tower &t = tower_component.value();
+                                            if (selector.value()._position.x == t._position.x &&
+                                                selector.value()._position.y == t._position.y)
+                                            {
+                                                purchasable = false; // Tower already here
+                                            }
                                         }
                                     }
                                     if (map._game._money._value >= tower._cost && purchasable)
                                     {
                                         map._game._money._value -= tower._cost;
-                                        map._towers.emplace_back(
-                                            Tower{tower._range,
-                                                  tower._damage,
-                                                  tower._fire_rate,
-                                                  std::chrono::steady_clock::now(),
-                                                  tower._cost,
-                                                  tower._name,
-                                                  tower._texture,
-                                                  0,
-                                                  0.0f,
-                                                  tower._tower_type,
-                                                  {selector.value()._position.x, selector.value()._position.y}});
+                                        ecs.run_event(CreateTowerEvent{tower._range, tower._damage, tower._fire_rate,
+                                                                       tower._cost, tower._name, tower._texture,
+                                                                       tower._tower_type, selector.value()._position});
                                         selector.value()._drawable = false;
                                     }
                                 }
@@ -563,9 +562,9 @@ namespace ecs
 
                             check_wave(m);
                             draw_map(m, scale);
-                            draw_game_infos(s, m, scale);
+                            draw_game_infos(ecs, s, m, scale);
                             draw_enemies(m, scale);
-                            draw_towers(m, scale, tm);
+                            draw_towers(ecs, m, scale, tm);
                             draw_text_components(ecs);
                             handle_shop(ecs, scale, m);
                             check_enemies(ecs, m, static_cast<int>(scale));
@@ -624,6 +623,7 @@ namespace ecs
 
         kill_entities_with_component<MapComponent>(ecs);
         kill_entities_with_component<Shop>(ecs);
+        kill_entities_with_component<Tower>(ecs);
         kill_entities_with_component<SelectorComponent>(ecs);
         kill_entities_with_component<TextureManager>(ecs);
         kill_entities_with_component<TextComponent>(ecs);

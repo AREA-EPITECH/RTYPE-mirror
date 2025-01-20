@@ -26,11 +26,12 @@ Registry init_ecs()
     ecs.register_component<ecs::TextComponent>();
 
     ecs.register_event<ecs::CreateWindowEvent>();
+    ecs.register_event<ecs::InitRegisterEvent>();
     ecs.register_event<ecs::WindowOpenEvent>();
     ecs.register_event<ecs::WindowCloseEvent>();
     ecs.register_event<ecs::WindowDrawEvent>();
     ecs.register_event<ecs::ControlsEvent>();
     ecs.register_event<ecs::CreateTextEvent>();
-
+    ecs.register_event<ecs::CreateTowerEvent>();
     return ecs;
 }

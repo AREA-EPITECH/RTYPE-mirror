@@ -15,12 +15,6 @@
 #include "ecs/DataType.hpp"
 
 namespace ecs {
-    struct Position
-    {
-        int x;
-        int y;
-    };
-
     class TextureManager
     {
     public:
@@ -89,7 +83,7 @@ namespace ecs {
     };
 
     struct Tile {
-        Position _position;
+        tower_defense::Position _position;
         tower_defense::TileType _type;
         std::shared_ptr<Texture2D> _texture;
     };
@@ -101,7 +95,7 @@ namespace ecs {
         int _damage;
         int _reward;
         std::shared_ptr<Texture2D> _texture;
-        Position _position;
+        tower_defense::Position _position;
         int _frame = 0;
         float _frame_counter = 0.0f;
         std::chrono::time_point<std::chrono::steady_clock> _last_move = std::chrono::steady_clock::now();
@@ -119,8 +113,7 @@ namespace ecs {
         int _frame = 0;
         float _frame_counter = 0.0f;
         tower_defense::TileType _tower_type;
-        Position _position;
-        float _rotation = 0.0f;
+        tower_defense::Position _position;
     };
 
     struct MapComponent {
@@ -128,7 +121,6 @@ namespace ecs {
         std::vector<Tile> _path;
         std::vector<Tile> _decors;
         std::vector<EnemyComponent> _enemies;
-        std::vector<Tower> _towers;
         GameComponent _game;
     };
 
@@ -140,7 +132,7 @@ namespace ecs {
     struct SelectorComponent
     {
         Texture2D _texture{};
-        Position _position{};
+        tower_defense::Position _position{};
         bool _drawable{};
         std::vector<Rectangle> _no_clickable;
     };
@@ -156,8 +148,8 @@ namespace ecs {
         std::string _text;
         std::chrono::time_point<std::chrono::steady_clock> _creation;
         int _duration;
-        Position _position;
-        Position _velocity;
+        tower_defense::Position _position;
+        tower_defense::Position _velocity;
         Color _color;
         int _font_size = 32;
     };
