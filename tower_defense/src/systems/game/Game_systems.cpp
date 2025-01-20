@@ -272,7 +272,7 @@ namespace ecs
                         break;
                     case tower_defense::Zombie:
                         map._enemies.emplace_back(
-                            EnemyComponent{15, 3, 3, 15, texture_manager.get_texture(tower_defense::ZOMBIE),
+                            EnemyComponent{15, 3, 5, 15, texture_manager.get_texture(tower_defense::ZOMBIE),
                                            map._path[0]._position.x, map._path[0]._position.y, 0, 0});
                         break;
                     default:
