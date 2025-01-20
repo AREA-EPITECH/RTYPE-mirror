@@ -27,7 +27,7 @@ jobs:
         uses: lukka/run-vcpkg@v11
         with:
           vcpkgJsonGlob: '**/vcpkg.json'
-          vcpkgGitCommitId: 'dcf046e3737b56a96f274782ae4ad3c899ad6e4d' # Replace with your specific commit ID if needed
+          vcpkgGitCommitId: 'eba7c6a894fce24146af4fdf161fef8e90dd6be3'
 
       - name: Generate compile_commands.json using CMake
         run: |
