@@ -23,4 +23,7 @@ namespace ecs {
 
     // Controls
     void game_controls_system(Registry &ecs, const ControlsEvent &);
+
+    // Text
+    void create_text_component(Registry &ecs, const CreateTextEvent &);
 }

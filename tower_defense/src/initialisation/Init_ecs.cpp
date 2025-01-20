@@ -23,11 +23,14 @@ Registry init_ecs()
     ecs.register_component<ecs::Tower>();
     ecs.register_component<ecs::Shop>();
     ecs.register_component<ecs::TextureManager>();
+    ecs.register_component<ecs::TextComponent>();
 
     ecs.register_event<ecs::CreateWindowEvent>();
     ecs.register_event<ecs::WindowOpenEvent>();
     ecs.register_event<ecs::WindowCloseEvent>();
     ecs.register_event<ecs::WindowDrawEvent>();
     ecs.register_event<ecs::ControlsEvent>();
+    ecs.register_event<ecs::CreateTextEvent>();
+
     return ecs;
 }

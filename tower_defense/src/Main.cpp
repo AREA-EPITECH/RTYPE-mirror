@@ -54,6 +54,7 @@ void empty_ecs(Registry &ecs)
     kill_entities_with_component<ecs::Shop>(ecs);
     kill_entities_with_component<ecs::SelectorComponent>(ecs);
     kill_entities_with_component<ecs::TextureManager>(ecs);
+    kill_entities_with_component<ecs::TextComponent>(ecs);
     spdlog::info("ECS emptied.");
 }
 
@@ -88,6 +89,7 @@ int main(const int argc, const char *argv[])
     ecs = parser.fill_ecs(ecs);
 
     ecs.subscribe<ecs::WindowDrawEvent>(ecs::draw_game_system);
+    ecs.subscribe<ecs::CreateTextEvent>(ecs::create_text_component);
 
     while (!WindowShouldClose())
     {

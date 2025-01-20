@@ -31,7 +31,7 @@ namespace ecs
 
         if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
         {
-            for (auto &selector: selectors)
+            for (auto &selector : selectors)
             {
                 if (selector.has_value())
                 {
@@ -41,12 +41,13 @@ namespace ecs
                     }
                     auto &s = selector.value();
                     int scale = 4;
-                    Vector2 mouse_pos =  GetMousePosition();
+                    Vector2 mouse_pos = GetMousePosition();
                     bool is_click_in_no_clickable = false;
 
                     for (int i = 0; i < selector->_no_clickable.size(); i++)
                     {
-                        if (CheckCollisionPointRec(mouse_pos, selector->_no_clickable[i])) {
+                        if (CheckCollisionPointRec(mouse_pos, selector->_no_clickable[i]))
+                        {
                             is_click_in_no_clickable = true;
                             break;
                         }
@@ -56,14 +57,15 @@ namespace ecs
                         break;
                     }
 
-                    if (s._pos._x == static_cast<int>(mouse_pos.x) / (32 * scale) &&
-                        s._pos._y == static_cast<int>(mouse_pos.y) / (32 * scale) && s._drawable)
+                    if (s._position.x == static_cast<int>(mouse_pos.x) / (32 * scale) &&
+                        s._position.y == static_cast<int>(mouse_pos.y) / (32 * scale) && s._drawable)
                     {
                         s._drawable = false;
-                    } else
+                    }
+                    else
                     {
-                        s._pos._x = static_cast<int>(mouse_pos.x) / (32 * scale);
-                        s._pos._y = static_cast<int>(mouse_pos.y) / (32 * scale);
+                        s._position.x = static_cast<int>(mouse_pos.x) / (32 * scale);
+                        s._position.y = static_cast<int>(mouse_pos.y) / (32 * scale);
                         s._drawable = true;
                     }
                 }

@@ -30,4 +30,16 @@ namespace ecs {
     };
 
     struct ControlsEvent {};
+
+    struct CreateTextEvent
+    {
+        std::string _text;
+        int _duration;
+        int _position_x;
+        int _position_y;
+        int _velocity_x;
+        int _velocity_y;
+        Color _color;
+        int _font_size;
+    };
 }
