@@ -16,6 +16,15 @@
         "code",
         "projectManagement"
       ]
+    },
+    {
+      "login": "AlexandreVig",
+      "name": "Alexandre Vigneau",
+      "avatar_url": "https://avatars.githubusercontent.com/u/83456688?v=4",
+      "profile": "https://www.alexvig.ovh/",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
