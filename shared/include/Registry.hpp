@@ -162,3 +162,13 @@ private:
     std::vector<std::function<void()>> _systems;
     std::unordered_map<std::type_index, std::any> _event_systems;
 };
+
+template <typename ComponentType>
+void kill_entities_with_component(Registry& ecs) {
+    auto& components = ecs.get_components<ComponentType>();
+    for (std::size_t i = 0; i < components.size(); ++i) {
+        if (components[i].has_value()) {
+            ecs.kill_entity(i);
+        }
+    }
+}
