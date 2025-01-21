@@ -4,10 +4,9 @@
     "Move Left": 263,
     "Move Right": 262,
     "Move Up": 265,
-    "Music": 32,
-    "ResolutionH": 1022,
-    "ResolutionW": 1920,
+    "Music": 0,
+    "ResolutionH": 1490,
+    "ResolutionW": 2555,
     "Sound": 7,
-    "Special Shoot": 50,
     "filter": "None"
 }
