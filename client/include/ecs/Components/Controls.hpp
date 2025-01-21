@@ -22,7 +22,6 @@ namespace ecs {
             key_bindings["Move Left"] = std::make_tuple(KEY_Q, KEY_Q);
             key_bindings["Move Right"] = std::make_tuple(KEY_D, KEY_D);
             key_bindings["Basic Shoot"] = std::make_tuple(KEY_SPACE, KEY_SPACE);
-            key_bindings["Special Shoot"] = std::make_tuple(KEY_LEFT_SHIFT, KEY_LEFT_SHIFT);
         }
 
         int getKey(const std::string &action) const {
