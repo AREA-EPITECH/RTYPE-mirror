@@ -25,7 +25,7 @@
     },
     {
       "type" : 3,
-      "spawn_rate": 30,
+      "spawn_rate": 17,
       "score" : 0,
       "acc": 3,
       "shot_rate": 2
