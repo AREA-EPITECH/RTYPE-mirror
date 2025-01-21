@@ -353,6 +353,14 @@ Registry init_ecs()
                                     }
                                 }
                                 if (!found) {
+                                    auto explosion = ecs.spawn_entity();
+                                    Vector3 pos = projectiles[i]->position;
+                                    ecs.add_component<ecs::ExplosionComponent>(explosion, {"./client/assets/images/explosion.png", 64, 64, 15, 0.1f, pos});
+                                    /*for (auto &sound : sounds) {
+                                        if (sound.has_value()) {
+                                            sound.value().play("kill_enemy");
+                                        }
+                                    }*/
                                     projectiles[i]->light->UpdateLightValues(shader, false);
                                     ecs.kill_entity(i);
                                 }
@@ -368,9 +376,9 @@ Registry init_ecs()
                                     }
                                 }
                                 if (!found) {
-                                    auto explosion = ecs.spawn_entity();
+                                    /*auto explosion = ecs.spawn_entity();
                                     Vector3 pos = vessels[i].value().position;
-                                    ecs.add_component<ecs::ExplosionComponent>(explosion, {"./client/assets/images/explosion.png", 64, 64, 15, 0.1f, pos});
+                                    ecs.add_component<ecs::ExplosionComponent>(explosion, {"./client/assets/images/explosion.png", 64, 64, 15, 0.1f, pos});*/
                                     ecs.kill_entity(i);
                                     for (auto &sound : sounds) {
                                         if (sound.has_value()) {

@@ -452,7 +452,7 @@ namespace server
             {
                 if (projectiles[i].value()._from_player)
                 {
-                    if (projectiles[i].value().pos.x >= ENDX_MAP)
+                    if (projectiles[i].value().pos.x >= ENDX_MAP + 100)
                     {
                         _registry.kill_entity(i);
                     }
@@ -463,7 +463,7 @@ namespace server
                 }
                 else
                 {
-                    if (projectiles[i].value().pos.x <= MINX_MAP)
+                    if (projectiles[i].value().pos.x <= MINX_MAP - 100)
                     {
                         _registry.kill_entity(i);
                     }
@@ -540,6 +540,10 @@ namespace server
             acc.x = 10;
             acc.y = 10;
             break;
+        case Boss:
+            acc.x = 12;
+            acc.y = 12;
+            break;
         default:
             break;
         }
@@ -570,12 +574,9 @@ namespace server
             {
                 if (pos[i].has_value())
                 {
-                    if (enemies[i].value().type != Boss) {
-                        pos[i].value().x -= 1 * enemies[i].value().acc.x;
-                        pos[i].value().y = enemies[i].value().init_pos.y + enemies[i].value().moveFunction(pos[i].value().y);
-                    } else {
-                        pos[i].value().y = enemies[i].value().init_pos.y + enemies[i].value().moveFunction(pos[i].value().y);
-                    }
+                    pos[i].value().x -= 1 * enemies[i].value().acc.x;
+                    pos[i].value().y =
+                        (enemies[i].value().init_pos.y + enemies[i].value().moveFunction(pos[i].value().x));
                     if (pos[i].value().x < MINX_MAP)
                     {
                         _registry.kill_entity(i);
@@ -607,15 +608,16 @@ namespace server
                                     spdlog::info("Client {} is dead by vessel", data.getId());
                                 }
                             }
-                            clients[i].value()->getData<ClientData>().setScore(enemies[j].value().score);
                             if (lives[j].has_value() && lives[j].value() != 1 && enemies[j].value().type == Boss) {
                                 lives[j].value() -= 1;
                                 spdlog::info("Enemy Boss took a collision by vessel. {} lives remaining", lives[j].value());
                             } else if (enemies[j].value().type == Boss && lives[j].has_value() && lives[j].value() == 1) {
+                                clients[i].value()->getData<ClientData>().setScore(enemies[j].value().score);
                                 spdlog::info("Enemy Boss is dead by shot", j);
                                 _registry.kill_entity(j);
                             }
                             else {
+                                clients[i].value()->getData<ClientData>().setScore(enemies[j].value().score);
                                 spdlog::info("Enemy {} is dead by vessel", j);
                                 _registry.kill_entity(j);
                             }
@@ -642,17 +644,20 @@ namespace server
                                 proj[i].value().pos.x <= pos[j].value().x + enemies[j].value().hitbox.x &&
                                 proj[i].value().pos.y >= pos[j].value().y - enemies[j].value().hitbox.y &&
                                 proj[i].value().pos.y <= pos[j].value().y + enemies[j].value().hitbox.y) {
-                                if (clients[proj[i].value().player_id].has_value()) {
-                                    clients[proj[i].value().player_id].value()->getData<ClientData>().setScore(enemies[j].value().score);
-                                }
                                 if (enemies[j].value().type == Boss && lives[j].has_value() && lives[j].value() > 1) {
                                     lives[j].value() -= 1;
                                     spdlog::info("Enemy Boss took a shot. {} lives remaining", lives[j].value());
                                 } else if (enemies[j].value().type == Boss && lives[j].has_value() && lives[j].value() == 1) {
+                                    if (clients[proj[i].value().player_id].has_value()) {
+                                        clients[proj[i].value().player_id].value()->getData<ClientData>().setScore(enemies[j].value().score);
+                                    }
                                     spdlog::info("Enemy Boss is dead by shot", j);
                                     _registry.kill_entity(j);
                                 }
                                 else {
+                                    if (clients[proj[i].value().player_id].has_value()) {
+                                        clients[proj[i].value().player_id].value()->getData<ClientData>().setScore(enemies[j].value().score);
+                                    }
                                     spdlog::info("Enemy {} is dead by shot", j);
                                     _registry.kill_entity(j);
                                 }
@@ -707,11 +712,6 @@ namespace server
         for (int i = 0; i < clients.size(); i++) {
             if (clients[i].has_value() && clients[i].value()->getData<ClientData>().getScore() >= score_to_achieve) {
                 return true;
-            }
-        }
-        for (int i = 0; i < enemies.size(); i++) {
-            if (enemies[i].has_value() && enemies[i].value().type == Boss) {
-                return false;
             }
         }
         return false;
