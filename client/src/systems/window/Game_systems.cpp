@@ -384,7 +384,7 @@ namespace ecs {
 
         auto players = gameState->get().getOtherPlayer();
         for (auto &player: players) {
-            player.total_score + player.score;
+            player.total_score += player.score;
         }
         gameState->get().updateOtherPlayer(players);
     }

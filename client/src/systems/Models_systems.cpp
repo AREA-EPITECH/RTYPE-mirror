@@ -241,9 +241,7 @@ namespace ecs {
         Shader shader = LoadShader(event.vs_file.c_str(), event.fs_file.c_str());
         shader.locs[SHADER_LOC_VECTOR_VIEW] = GetShaderLocation(shader, "viewPos");
         int ambientLoc = GetShaderLocation(shader, "ambient");
-        float tab[4] = {0.1f, 0.1f, 0.1f, 1.0f};
-        SetShaderValue(shader, ambientLoc, tab, SHADER_UNIFORM_VEC4);
-        SetShaderValue(shader, ambientLoc, tab, SHADER_UNIFORM_VEC4);
+        SetShaderValue(shader, ambientLoc, (float[4]) {0.1f, 0.1f, 0.1f, 1.0f}, SHADER_UNIFORM_VEC4);
 
         auto entity = ecs.spawn_entity();
         ecs.add_component<ShaderComponent>(entity, {std::make_shared<Shader>(shader), event.vs_file, event.fs_file});

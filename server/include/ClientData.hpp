@@ -23,7 +23,7 @@ namespace server {
         Ship _ship;
         std::shared_ptr<Room> _room = nullptr;
     public:
-        ClientData(u_int32_t id);
+        ClientData(uint32_t id);
         ~ClientData();
 
         uint32_t getId() const;

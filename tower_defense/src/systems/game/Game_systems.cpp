@@ -513,7 +513,8 @@ namespace ecs
             if (shop.has_value())
             {
                 auto &s = shop.value();
-                if (GuiButton((Rectangle){24, 24, 100, 30}, "Shop"))
+                Rectangle box = {24, 24, 100, 30};
+                if (GuiButton(box, "Shop"))
                 {
                     s._open = !s._open;
                 }
@@ -523,7 +524,8 @@ namespace ecs
                     {
                         if (selector.has_value())
                         {
-                            GuiLabel((Rectangle){10, 100, 200, 200}, "Shop");
+                            box = {10, 100, 200, 200};
+                            GuiLabel(box, "Shop");
                             for (int i = 0; i < s._towers.size(); i++)
                             {
                                 Tower &tower = s._towers[i];
@@ -533,11 +535,14 @@ namespace ecs
 
                                 GuiGroupBox((Rectangle){static_cast<float>(x), static_cast<float>(y), 240, 140}, "");
 
-                                GuiLabel((Rectangle){x + 10, y + 10, 200, 20}, tower._name.c_str());
-                                GuiLabel((Rectangle){x + 10, y + 40, 200, 20}, TextFormat("Price : %d", tower._cost));
-                                GuiLabel((Rectangle){x + 10, y + 70, 200, 20}, TextFormat("Range : %d", tower._range));
-
-                                if (GuiButton((Rectangle){x + 10, y + 100, 100, 30}, "Buy"))
+                                box = {x + 10, y + 10, 200, 20};
+                                GuiLabel(box, tower._name.c_str());
+                                box = {x + 10, y + 40, 200, 20};
+                                GuiLabel(box}, TextFormat("Price : %d", tower._cost));
+                                box = {x + 10, y + 70, 200, 20};
+                                GuiLabel(box, TextFormat("Range : %d", tower._range));
+                                box = {x + 10, y + 100, 100, 30};
+                                if (GuiButton(box, "Buy"))
                                 {
                                     bool purchasable = true;
                                     if (!selector.value()._drawable)

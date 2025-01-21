@@ -7,6 +7,11 @@
 
 #pragma once
 
+#if defined(_WIN32)
+	#define NOGDI // All GDI defines and routines
+	#define NOUSER // All USER defines and routines
+#endif
+
 #include "network/Client.hpp"
 #include "network/packet/Packet.hpp"
 #include <thread>

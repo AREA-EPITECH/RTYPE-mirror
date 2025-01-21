@@ -18,7 +18,7 @@ endif()
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-project(r-type)
+project(rtype)
 
 # Enable C++17 or later
 set(CMAKE_CXX_STANDARD 17)
@@ -27,4 +27,4 @@ set(CMAKE_CXX_STANDARD 17)
 add_subdirectory(shared)
 add_subdirectory(client)
 add_subdirectory(server)
-add_subdirectory(tower_defense)
+#add_subdirectory(tower_defense)
