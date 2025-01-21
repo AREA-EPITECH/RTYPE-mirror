@@ -39,6 +39,7 @@ namespace server {
         long _projectile_accumulated_time = 0;
         std::vector<Enemy> _enemies;
         int level = 1;
+        bool _boss_spawned = false;
     public:
         explicit Room(uint32_t id);
         ~Room();
@@ -90,6 +91,7 @@ namespace server {
         Easy = 0,
         Medium = 1,
         Hard = 2,
+        Boss = 3,
     };
 
     struct Enemy {

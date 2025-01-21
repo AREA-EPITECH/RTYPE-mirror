@@ -101,21 +101,4 @@ namespace ecs {
         }
     }
 
-    /**
-     * Close the window
-     * @param ecs
-     */
-    void close_window_system(Registry &ecs, const WindowCloseEvent &) {
-        auto &windows = ecs.get_components<Window>();
-        for (size_t i = 0; i < windows.size(); ++i) {
-            if (windows[i]) {
-                auto &win = windows[i].value();
-                if (win.isOpen) {
-                    CloseWindow();
-                    win.isOpen = false;
-                    break;
-                }
-            }
-        }
-    }
 }

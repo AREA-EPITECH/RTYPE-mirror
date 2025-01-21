@@ -109,7 +109,7 @@ namespace tower_defense
         }
 
         const auto map_entity = ecs.spawn_entity();
-        ecs.add_component<ecs::MapComponent>(map_entity, {map, path, decors, {}, {}, game_component});
+        ecs.add_component<ecs::MapComponent>(map_entity, {map, path, decors, game_component});
 
         std::vector<Rectangle> no_clickable = {};
         int scale = 4;
@@ -117,19 +117,19 @@ namespace tower_defense
         Texture2D decor_texture = *texture_manager.get_texture(DECOR);
 
 
-        for (int i = 0; i < this->_enemy_path.size(); i++)
+        for (auto & i : this->_enemy_path)
         {
             no_clickable.emplace_back(Rectangle{
-                static_cast<float>(this->_enemy_path[i].first * path_texture.width * scale),
-                static_cast<float>(this->_enemy_path[i].second * path_texture.height * scale),
+                static_cast<float>(i.first * path_texture.width * scale),
+                static_cast<float>(i.second * path_texture.height * scale),
                 static_cast<float>(path_texture.width * scale), static_cast<float>(path_texture.height * scale)});
         }
 
-        for (int i = 0; i < this->_decorations.size(); i++)
+        for (auto & _decoration : this->_decorations)
         {
             no_clickable.emplace_back(Rectangle{
-                static_cast<float>(this->_decorations[i].first * decor_texture.width * scale),
-                static_cast<float>(this->_decorations[i].second * decor_texture.height * scale),
+                static_cast<float>(_decoration.first * decor_texture.width * scale),
+                static_cast<float>(_decoration.second * decor_texture.height * scale),
                 static_cast<float>(decor_texture.width * scale), static_cast<float>(decor_texture.height * scale)});
         }
 
@@ -139,7 +139,7 @@ namespace tower_defense
         ecs.add_component<ecs::SelectorComponent>(
             selector_entity, {LoadTexture("tower_defense/assets/infos/selector.png"), {}, false, no_clickable});
 
-        ecs::Tower tower = {2, 3, 1, {}, 100, "Archer", texture_manager.get_texture(ARCHER), 0, 0, ARCHER};
+        ecs::Tower tower = {2, 3, 1, {}, 50, "Archer", texture_manager.get_texture(ARCHER), 0, 0, ARCHER};
 
         const auto shop_entity = ecs.spawn_entity();
         ecs.add_component<ecs::Shop>(shop_entity, {std::vector<ecs::Tower>{tower}, false});
