@@ -166,7 +166,12 @@ namespace ecs {
 
             const Matrix matTranslate = MatrixTranslate(-center.x, 0, -center.z);
             const Matrix matRotate = MatrixRotateY(DEG2RAD * 270.0f);
-            const Matrix matScale = MatrixScale(0.7, 0.7, 0.7);
+            Matrix matScale;
+            if (i == vox_files.size() - 1) {
+                matScale = MatrixScale(1.2, 1.2, 1.2);
+            } else {
+                matScale = MatrixScale(0.7, 0.7, 0.7);
+            }
             model.transform = MatrixMultiply(MatrixMultiply(matTranslate, matRotate), matScale);
             ecs.add_component<VesselsComponent>(EnemyEntity, {0, model, false, vox_files[i], vessel_name, static_cast<int>(i), true});
         }
