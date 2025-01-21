@@ -7,14 +7,14 @@
 
 #pragma once
 
-#include "ecs/Systems.hpp"
-#include "Registry.hpp"
-
 #include <cstdint>
 #include <string>
 #include <tuple>
 #include <vector>
 #include <map>
+
+#include "Registry.hpp"
+#include "ecs/Systems.hpp"
 
 namespace game
 {
@@ -33,7 +33,7 @@ namespace game
             std::string name;
             uint16_t ship_id = 0;
             bool is_ready = false;
-            std::tuple<uint32_t, uint32_t> position;
+            std::tuple<uint, uint> position;
             int score = 0;
             int total_score = 0;
         };

@@ -7,18 +7,17 @@
 
 #pragma once
 
-#include "raylib.h"
-#include "raylib/raygui.h"
-#include "raymath.h"
 #include "iostream"
-#include "core/ParticleSystem.hpp"
-#include "core/Lights.hpp"
-#include "DataType.hpp"
 #include <utility>
 #include <vector>
+#include "core/Lights.hpp"
 #include <filesystem>
 #include <string>
+#include "raymath.h"
+#include "core/ParticleSystem.hpp"
 #include <functional>
+#include "raylib/raygui.h"
+#include "DataType.hpp"
 
 namespace ecs {
 // Window

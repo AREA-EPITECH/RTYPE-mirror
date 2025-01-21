@@ -83,21 +83,19 @@ namespace ecs {
     };
 
     struct Tile {
-        int _x;
-        int _y;
+        tower_defense::Position _position;
         tower_defense::TileType _type;
         std::shared_ptr<Texture2D> _texture;
     };
 
     struct EnemyComponent
     {
-        unsigned int _health;
-        unsigned int _speed; // Moves every _speed second(s)
-        unsigned int _damage;
-        unsigned int _reward;
+        int _health;
+        int _speed; // Moves every _speed second(s)
+        int _damage;
+        int _reward;
         std::shared_ptr<Texture2D> _texture;
-        int _pos_x;
-        int _pos_y;
+        tower_defense::Position _position;
         int _frame = 0;
         float _frame_counter = 0.0f;
         std::chrono::time_point<std::chrono::steady_clock> _last_move = std::chrono::steady_clock::now();
@@ -105,25 +103,23 @@ namespace ecs {
 
     struct Tower
     {
-        unsigned int _range;
-        unsigned int _damage;
-        unsigned int _fire_rate; // Time between each shot
+        int _range;
+        int _damage;
+        int _fire_rate; // Time between each shot
         std::chrono::time_point<std::chrono::steady_clock> _last_shot = std::chrono::steady_clock::now();
-        unsigned int _cost;
+        int _cost;
         std::string _name;
         std::shared_ptr<Texture2D> _texture;
         int _frame = 0;
         float _frame_counter = 0.0f;
         tower_defense::TileType _tower_type;
-        Tile _pos;
+        tower_defense::Position _position;
     };
 
     struct MapComponent {
         std::vector<Tile> _grass;
         std::vector<Tile> _path;
         std::vector<Tile> _decors;
-        std::vector<EnemyComponent> _enemies;
-        std::vector<Tower> _towers;
         GameComponent _game;
     };
 
@@ -135,7 +131,7 @@ namespace ecs {
     struct SelectorComponent
     {
         Texture2D _texture{};
-        Tile _pos{};
+        tower_defense::Position _position{};
         bool _drawable{};
         std::vector<Rectangle> _no_clickable;
     };
@@ -144,5 +140,16 @@ namespace ecs {
     {
         std::vector<Tower> _towers;
         bool _open;
+    };
+
+    struct TextComponent
+    {
+        std::string _text;
+        std::chrono::time_point<std::chrono::steady_clock> _creation;
+        int _duration;
+        tower_defense::Position _position;
+        tower_defense::Position _velocity;
+        Color _color;
+        int _font_size = 32;
     };
 }

@@ -26,4 +26,5 @@ You can find in it:
 - 'lobby' subfolder containing the lobby background.
 
 ## Lights
-The lights are created in the client and are applied to the models. These lights come from the Raylib examples.
+The lights are created in the client and are applied to the models. These lights files come from the Raylib examples.
+Lights are coming from the camera, and from shots fired by the player.

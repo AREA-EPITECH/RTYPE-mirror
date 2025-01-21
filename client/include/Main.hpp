@@ -12,14 +12,13 @@
 	#define NOUSER // All USER defines and routines
 #endif
 
-#include "raylib/raygui.h"
-#include "ecs/Systems.hpp"
 #include "network/Client.hpp"
 #include "network/packet/Packet.hpp"
 #include <thread>
 #include <atomic>
 #include <chrono>
 #include <spdlog/spdlog.h>
+#include "ecs/Systems.hpp"
 
 void init_menu_window (Registry& ecs);
 void init_lobby_window (Registry& ecs);

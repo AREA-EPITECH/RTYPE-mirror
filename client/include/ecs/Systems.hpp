@@ -7,13 +7,13 @@
 
 #pragma once
 
+#include <algorithm>
 #include "Registry.hpp"
 #include "Events.hpp"
 #include "Components.hpp"
 #include "DataType.hpp"
 #include "Display.hpp"
 #include "Main.hpp"
-#include <algorithm>
 
 namespace ecs {
 // Window

@@ -5,7 +5,6 @@
 ** init_menu_entity
 */
 
-#include "raylib/raygui.h"
 #include "ecs/Systems.hpp"
 #include "game/GameState.hpp"
 

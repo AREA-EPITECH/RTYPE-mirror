@@ -97,8 +97,7 @@ namespace ecs {
                     if (model.has_value()) {
                         VesselsComponent &modelComponent = model.value();
                         if (modelComponent.drawable) {
-                            Vector3 vec = {0.0f, 1.0f, 0.0f};
-                            Matrix rotation = MatrixRotate(vec, rotationAngle);
+                            Matrix rotation = MatrixRotate((Vector3){0.0f, 1.0f, 0.0f}, rotationAngle);
                             modelComponent.model.transform = MatrixMultiply(modelComponent.model.transform, rotation);
                             DrawModel(modelComponent.model, {0, 0, 0}, 1.0f, WHITE);
                         }
@@ -134,16 +133,16 @@ namespace ecs {
 
 
         if (gameState->get().getShowScore()) {
-            int scoreBoardWidth = static_cast<int>(screenWidth / 1.5);
-            int scoreBoardHeight = static_cast<int>(screenHeight / 1.5);
+            int scoreBoardWidth = screenWidth / 1.5;
+            int scoreBoardHeight = screenHeight / 1.5;
             int headerHeight = scoreBoardHeight / 10;
             int fontSize = 52;
             Color blackTransparent = {0, 48, 73, 200};
             DrawRectangle(0, 0, screenWidth, screenHeight, blackTransparent);
             Vector2 center = {screenWidth / 2.0f, screenHeight / 2.0f};
-            DrawRectangle(static_cast<int>(center.x - scoreBoardWidth / 2), static_cast<int>(center.y - scoreBoardHeight / 2), scoreBoardWidth, scoreBoardHeight, BLACK);
-            DrawRectangleLines(static_cast<int>(center.x - scoreBoardWidth / 2), static_cast<int>(center.y - scoreBoardHeight / 2), scoreBoardWidth, scoreBoardHeight, WHITE);
-            DrawRectangleLines(static_cast<int>(center.x - scoreBoardWidth / 2), static_cast<int>(center.y - scoreBoardHeight / 2), scoreBoardWidth, headerHeight, WHITE);
+            DrawRectangle(center.x - scoreBoardWidth / 2, center.y - scoreBoardHeight / 2, scoreBoardWidth, scoreBoardHeight, BLACK);
+            DrawRectangleLines(center.x - scoreBoardWidth / 2, center.y - scoreBoardHeight / 2, scoreBoardWidth, scoreBoardHeight, WHITE);
+            DrawRectangleLines(center.x - scoreBoardWidth / 2, center.y - scoreBoardHeight / 2, scoreBoardWidth, headerHeight, WHITE);
             auto &scores = ecs.get_components<ecs::ScoreComponent>();
             int level = 0;
             for (auto &score_i: scores) {
@@ -163,7 +162,7 @@ namespace ecs {
                 }
             }
             std::vector<std::tuple<std::string, int, bool>> lines;
-            int startY = static_cast<int>(center.y - scoreBoardHeight / 2 + headerHeight + 10);
+            int startY = center.y - scoreBoardHeight / 2 + headerHeight + 10;
             fontSize = 64;
             auto user = gameState->get().getUser();
             lines.push_back({user.name, user.score, true});

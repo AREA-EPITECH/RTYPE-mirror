@@ -52,8 +52,11 @@ void empty_ecs(Registry &ecs)
 
     kill_entities_with_component<ecs::MapComponent>(ecs);
     kill_entities_with_component<ecs::Shop>(ecs);
+    kill_entities_with_component<ecs::Tower>(ecs);
+    kill_entities_with_component<ecs::EnemyComponent>(ecs);
     kill_entities_with_component<ecs::SelectorComponent>(ecs);
     kill_entities_with_component<ecs::TextureManager>(ecs);
+    kill_entities_with_component<ecs::TextComponent>(ecs);
     spdlog::info("ECS emptied.");
 }
 
@@ -78,16 +81,15 @@ int main(const int argc, const char *argv[])
     ecs.add_component<ecs::Window>(windowEntity, {1024, 1024, "R-Type - Tower Defense"});
 
     ecs.subscribe<ecs::CreateWindowEvent>(ecs::init_window_system);
-    ecs.subscribe<ecs::ControlsEvent>(ecs::game_controls_system);
+    ecs.subscribe<ecs::InitRegisterEvent>(ecs::init_register_system);
 
     ecs.run_event(ecs::CreateWindowEvent{});
+    ecs.run_event(ecs::InitRegisterEvent{});
     ecs.run_event(ecs::WindowOpenEvent{});
 
     tower_defense::Parser parser;
     parser.parse_filemap(map_filename);
     ecs = parser.fill_ecs(ecs);
-
-    ecs.subscribe<ecs::WindowDrawEvent>(ecs::draw_game_system);
 
     while (!WindowShouldClose())
     {

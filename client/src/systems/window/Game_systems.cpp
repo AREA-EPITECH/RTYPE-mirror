@@ -318,9 +318,6 @@ namespace ecs {
     void close_game_system(Registry &ecs, const WindowCloseEvent &) {
         auto &vessels_models = ecs.get_components<VesselsComponent>();
         auto &projectiles_models = ecs.get_components<ProjectilesComponent>();
-        auto &shaders = ecs.get_components<ShaderComponent>();
-        auto &backgrounds = ecs.get_components<BackgroundComponent>();
-        auto &decors = ecs.get_components<DecorElementComponent>();
         auto &explosions = ecs.get_components<ExplosionComponent>();
 
         auto gameState = getGameState(ecs);

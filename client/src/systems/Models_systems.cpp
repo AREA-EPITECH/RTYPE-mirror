@@ -8,8 +8,6 @@
 #include "ecs/Systems.hpp"
 #include "game/GameState.hpp"
 
-#include <filesystem>
-
 namespace ecs {
 
     /**
@@ -22,12 +20,9 @@ namespace ecs {
         auto gameState = getGameState(ecs);
         int shipId = gameState->get().getUser().ship_id;
 
-        for (const auto &entry : std::filesystem::directory_iterator("client/assets/voxels/player/spaceship"))
-        {
-            if (entry.is_regular_file() && entry.path().extension() == ".vox")
-            {
-                vox_files.emplace_back(entry.path().string());
-            }
+        for (const auto &entry: std::filesystem::directory_iterator("client/assets/voxels/player/spaceship")) {
+            if (std::string file = entry.path().c_str(); file.find(".vox") != std::string::npos)
+                vox_files.emplace_back(file);
         }
         std::sort(vox_files.begin(), vox_files.end());
 
@@ -73,12 +68,9 @@ namespace ecs {
                 ecs.kill_entity(i);
             }
         }
-        for (const auto &entry : std::filesystem::directory_iterator("client/assets/voxels/player/spaceship"))
-        {
-            if (entry.is_regular_file() && entry.path().extension() == ".vox")
-            {
-                vox_files.emplace_back(entry.path().string());
-            }
+        for (const auto &entry: std::filesystem::directory_iterator("client/assets/voxels/player/spaceship")) {
+            if (std::string file = entry.path().c_str(); file.find(".vox") != std::string::npos)
+                vox_files.emplace_back(file);
         }
         std::sort(vox_files.begin(), vox_files.end());
         auto user = gameState->get().getUser();
@@ -103,7 +95,7 @@ namespace ecs {
 
         const Matrix matTranslate = MatrixTranslate(-center.x, 0, -center.z);
         const Matrix matRotate = MatrixRotateY(DEG2RAD * 90.0f);
-        const Matrix matScale = MatrixScale(0.70f, 0.70f, 0.70f);
+        const Matrix matScale = MatrixScale(0.7, 0.7, 0.7);
         model.transform = MatrixMultiply(MatrixMultiply(matTranslate, matRotate), matScale);
 
         ecs.add_component<VesselsComponent>(user.entity, {user.id, model, true, vox_files[user.ship_id], vessel_name, user.ship_id, false});
@@ -132,7 +124,7 @@ namespace ecs {
 
             const Matrix matTranslate = MatrixTranslate(-center.x, 0, -center.z);
             const Matrix matRotate = MatrixRotateY(DEG2RAD * 90.0f);
-            const Matrix matScale = MatrixScale(0.70f, 0.70f, 0.70f);
+            const Matrix matScale = MatrixScale(0.7, 0.7, 0.7);
             model.transform = MatrixMultiply(MatrixMultiply(matTranslate, matRotate), matScale);
             ecs.add_component<VesselsComponent>(players[i].entity, {players[i].id, model, true, vox_files[players[i].ship_id], vessel_name, players[i].ship_id, false});
         }
@@ -141,15 +133,12 @@ namespace ecs {
 
     void load_enemys_for_game(Registry &ecs, const InitModelEvent &)
     {
-        auto &vessels = ecs.get_components<VesselsComponent>();
         std::vector<std::string> vox_files;
         auto gameState = getGameState(ecs);
         const int screenWidth = GetScreenWidth();
-        for (const auto &entry : std::filesystem::directory_iterator("client/assets/voxels/enemy/spaceship"))
-        {
-            if (entry.is_regular_file() && entry.path().extension() == ".vox")
-            {
-                vox_files.emplace_back(entry.path().string());
+        for (const auto &entry: std::filesystem::directory_iterator("client/assets/voxels/enemy/spaceship")) {
+            if (std::string file = entry.path().c_str(); file.find(".vox") != std::string::npos) {
+                vox_files.emplace_back(file);
             }
         }
         std::sort(vox_files.begin(), vox_files.end());
@@ -157,7 +146,7 @@ namespace ecs {
 
         for (std::size_t i = 0; i < vox_files.size(); i++) {
             auto EnemyEntity = ecs.spawn_entity();
-            enemy_entities[i] = static_cast<unsigned int>(EnemyEntity);
+            enemy_entities[i] = EnemyEntity;
             const double t_0 = GetTime() * 1000.0;
             TraceLog(LOG_WARNING, TextFormat("Trying to load file %s...", vox_files[i].c_str()));
             Model model = LoadModel(vox_files[i].c_str());
@@ -177,93 +166,16 @@ namespace ecs {
 
             const Matrix matTranslate = MatrixTranslate(-center.x, 0, -center.z);
             const Matrix matRotate = MatrixRotateY(DEG2RAD * 270.0f);
-            const Matrix matScale = MatrixScale(0.70f, 0.70f, 0.70f);
+            Matrix matScale;
+            if (i == vox_files.size() - 1) {
+                matScale = MatrixScale(1.2, 1.2, 1.2);
+            } else {
+                matScale = MatrixScale(0.7, 0.7, 0.7);
+            }
             model.transform = MatrixMultiply(MatrixMultiply(matTranslate, matRotate), matScale);
             ecs.add_component<VesselsComponent>(EnemyEntity, {0, model, false, vox_files[i], vessel_name, static_cast<int>(i), true});
         }
         gameState->get().setEnemyEntities(enemy_entities);
-    }
-
-    /**
-    * Load vessels by filepath
-    * @param ecs
-    */
-    void load_model_from_file_system(Registry &ecs, const InitModelEvent &) {
-        auto &vessels = ecs.get_components<VesselsComponent>();
-        auto gameState = getGameState(ecs);
-        int ship_id = gameState->get().getUser().ship_id;
-        for (std::size_t i = 0; i < vessels.size(); ++i) {
-            if (vessels[i].has_value()) {
-                auto &modelComponent = vessels[i].value();
-
-                UnloadModel(modelComponent.model);
-
-                if (!std::filesystem::exists(modelComponent.path)) {
-                    TraceLog(LOG_ERROR, TextFormat("File %s does not exist!", modelComponent.path.c_str()));
-                    continue;
-                }
-
-                const double t0 = GetTime() * 1000.0;
-                TraceLog(LOG_WARNING, TextFormat("Reloading model from %s...", modelComponent.path.c_str()));
-                modelComponent.model = LoadModel(modelComponent.path.c_str());
-                const double t1 = GetTime() * 1000.0;
-                TraceLog(LOG_WARNING, TextFormat("Reloaded model from %s in %f ms.", modelComponent.path.c_str(), t1 - t0));
-
-                auto [min, max] = GetModelBoundingBox(modelComponent.model);
-                Vector3 center = {};
-                center.x = min.x + (max.x - min.x) / 2;
-                center.z = min.z + (max.z - min.z) / 2;
-
-                const Matrix matTranslate = MatrixTranslate(-center.x, 0, -center.z);
-                const Matrix matRotate = MatrixRotateY(DEG2RAD * 90.0f);
-                modelComponent.model.transform = MatrixMultiply(matTranslate, matRotate);
-
-                if (vessels[i].value().ship_id == ship_id) {
-                    ecs.add_component<ControllableComponent>(i, {});
-                }
-                TraceLog(LOG_INFO, TextFormat("Model reloaded and centered from %s", modelComponent.path.c_str()));
-            }
-        }
-    }
-
-
-
-    /**
-    * Load shaders by filepath
-    * @param ecs
-    */
-    void load_shader_from_file_system(Registry &ecs, const InitShaderEvent &) {
-        auto &shaders = ecs.get_components<ShaderComponent>();
-        for (std::size_t i = 0; i < shaders.size(); ++i) {
-            if (shaders[i].has_value()) {
-                auto &shader_component = shaders[i].value();
-                std::string vs_file = shader_component.vs_file;
-                std::string fs_file = shader_component.fs_file;
-
-                UnloadShader(*shader_component.shader);
-
-                TraceLog(LOG_WARNING, TextFormat("Trying to load shader from files %s and %s.",
-                    shader_component.vs_file.c_str(), shader_component.fs_file.c_str()));
-                if (!std::filesystem::exists(vs_file) ||
-                    !std::filesystem::exists(fs_file)) {
-                    TraceLog(LOG_ERROR, TextFormat("\n\nFile %s nor %s do not exist!", shader_component.vs_file.c_str(),
-                        shader_component.fs_file.c_str()));
-                    continue;
-                }
-
-                const double t0 = GetTime() * 1000.0;
-                shader_component.shader = std::make_shared<Shader>(LoadShader(vs_file.c_str(),
-                    fs_file.c_str()));
-                const double t1 = GetTime() * 1000.0;
-                TraceLog(LOG_WARNING, TextFormat("Reloaded shader in %f ms.", t1 - t0));
-                shader_component.shader->locs[SHADER_LOC_VECTOR_VIEW] = GetShaderLocation(*shader_component.shader,
-                "viewPos");
-                int ambientLoc = GetShaderLocation(*shader_component.shader, "ambient");
-                float values[4] = {0.1f, 0.1f, 0.1f, 1.0f};
-                SetShaderValue(*shader_component.shader, ambientLoc, values,
-                SHADER_UNIFORM_VEC4);
-            }
-        }
     }
 
     void load_title_menu(Registry &ecs, const InitModelEvent &) {
@@ -329,8 +241,7 @@ namespace ecs {
         Shader shader = LoadShader(event.vs_file.c_str(), event.fs_file.c_str());
         shader.locs[SHADER_LOC_VECTOR_VIEW] = GetShaderLocation(shader, "viewPos");
         int ambientLoc = GetShaderLocation(shader, "ambient");
-        float values[4] = {0.1f, 0.1f, 0.1f, 1.0f};
-        SetShaderValue(shader, ambientLoc, values, SHADER_UNIFORM_VEC4);
+        SetShaderValue(shader, ambientLoc, (float[4]) {0.1f, 0.1f, 0.1f, 1.0f}, SHADER_UNIFORM_VEC4);
 
         auto entity = ecs.spawn_entity();
         ecs.add_component<ShaderComponent>(entity, {std::make_shared<Shader>(shader), event.vs_file, event.fs_file});
@@ -459,21 +370,15 @@ namespace ecs {
         std::vector<std::string> vox_files_enemy;
         std::vector<std::string> vox_files_player;
 
-        for (const auto &entry : std::filesystem::directory_iterator("client/assets/voxels/player/shot"))
-        {
-            if (entry.is_regular_file() && entry.path().extension() == ".vox")
-            {
-                vox_files_player.emplace_back(entry.path().string());
-            }
+        for (const auto &entry: std::filesystem::directory_iterator("client/assets/voxels/player/shot")) {
+            if (std::string file = entry.path().c_str(); file.find(".vox") != std::string::npos)
+                vox_files_player.emplace_back(file);
         }
         std::sort(vox_files_player.begin(), vox_files_player.end());
 
-        for (const auto &entry : std::filesystem::directory_iterator("client/assets/voxels/enemy/shot"))
-        {
-            if (entry.is_regular_file() && entry.path().extension() == ".vox")
-            {
-                vox_files_enemy.emplace_back(entry.path().string());
-            }
+        for (const auto &entry: std::filesystem::directory_iterator("client/assets/voxels/enemy/shot")) {
+            if (std::string file = entry.path().c_str(); file.find(".vox") != std::string::npos)
+                vox_files_enemy.emplace_back(file);
         }
         std::sort(vox_files_enemy.begin(), vox_files_enemy.end());
 
@@ -492,7 +397,7 @@ namespace ecs {
             center.z = min.z + (max.z - min.z) / 2;
 
             const Matrix matTranslate = MatrixTranslate(-center.x, 0, -center.z);
-            const Matrix matScale = MatrixScale(0.70f, 0.70f, 0.70f);
+            const Matrix matScale = MatrixScale(0.7, 0.7, 0.7);
             models.transform = MatrixMultiply(matTranslate, matScale);
             auto ModelEntity = ecs.spawn_entity();
             std::cout << "MODEL ID : " << ModelEntity << std::endl;
@@ -516,7 +421,7 @@ namespace ecs {
             center.z = min.z + (max.z - min.z) / 2;
 
             const Matrix matTranslate = MatrixTranslate(-center.x, 0, -center.z);
-            const Matrix matScale = MatrixScale(0.70f, 0.70f, 0.70f);
+            const Matrix matScale = MatrixScale(0.7, 0.7, 0.7);
             models.transform = MatrixMultiply(matTranslate, matScale);
 
             auto ModelEntity = ecs.spawn_entity();
@@ -534,10 +439,8 @@ namespace ecs {
 
         for (const auto &entry : std::filesystem::directory_iterator(event.path))
         {
-            if (entry.is_regular_file() && entry.path().extension() == ".vox")
-            {
-                files.emplace_back(entry.path().string());
-            }
+            if (std::string file = entry.path().c_str(); file.find(".png") != std::string::npos)
+                files.emplace_back(file);
         }
 
         std::sort(files.begin(), files.end());

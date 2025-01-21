@@ -8,6 +8,13 @@
 #include "ecs/Systems.hpp"
 #include "game/GameState.hpp"
 
+/**
+ * Update the board components, including text and button elements.
+
+ * @param ecs
+ * @param screenWidth
+ * @param screenHeight
+ */
 void update_board_component(Registry &ecs, int screenWidth, int screenHeight) {
 
     auto &texts = ecs.get_components<ecs::TextComponent>();
@@ -68,6 +75,12 @@ void update_board_component(Registry &ecs, int screenWidth, int screenHeight) {
     }
 }
 
+/**
+ * Display the game board, including text, buttons, and vessels.
+ * @param ecs
+ * @param screenWidth
+ * @param screenHeight
+ */
 void display_board(Registry &ecs, int screenWidth, int screenHeight) {
     Color blackTransparent = {0, 48, 73, 200};
     Color redColor = {120, 0, 0, 255};
@@ -109,7 +122,7 @@ void display_board(Registry &ecs, int screenWidth, int screenHeight) {
             if (vessel.drawable) {
                 vessel.name.updateText(screenWidth, screenHeight);
                 int textWidth = MeasureText(vessel.name.text.c_str(), vessel.name.fontSize);
-                int posX = static_cast<int>(screenWidth * 0.66 - (textWidth / 2) + 20);
+                int posX = screenWidth * 0.66 - (textWidth / 2) + 20;
                 vessel.name.posX = posX;
                 DrawText(vessel.name.text.c_str(), vessel.name.posX, vessel.name.posY, vessel.name.fontSize, vessel.name.color);
             }

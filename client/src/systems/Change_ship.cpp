@@ -10,6 +10,11 @@
 #include "ecs/Components.hpp"
 #include "game/GameState.hpp"
 
+/**
+ * Send an update to the server when the ship selection changes.
+ * @param ecs
+ * @param ship_id
+ */
 static void send_update_to_server(Registry &ecs, int ship_id)
 {
     auto gameState = getGameState(ecs);
@@ -24,6 +29,10 @@ static void send_update_to_server(Registry &ecs, int ship_id)
     ecs.run_event(packet);
 }
 
+/**
+ * Switch to the previous ship in the list of available ships.
+ * @param ecs
+ */
 void previous_ship(Registry &ecs)
 {
     auto &models = ecs.get_components<ecs::VesselsComponent>();
@@ -58,6 +67,10 @@ void previous_ship(Registry &ecs)
     }
 }
 
+/**
+ * Switch to the next ship in the list of available ships.
+ * @param ecs
+ */
 void next_ship(Registry &ecs)
 {
     auto &models = ecs.get_components<ecs::VesselsComponent>();

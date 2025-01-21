@@ -6,8 +6,9 @@
 */
 
 #include "Main.hpp"
-#include "game/GameState.hpp"
+
 #include "queue/MessageQueue.hpp"
+#include "game/GameState.hpp"
 
 #include <variant>
 

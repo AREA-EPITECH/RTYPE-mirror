@@ -5,33 +5,29 @@
 ** PopupComponent
 */
 
+#include <utility>
+#include <string>
 
 #include "ecs/Components.hpp"
-#include "ecs/DataType.hpp"
 #include "Registry.hpp"
+#include "ecs/Systems.hpp"
 
 namespace ecs
 {
-    void change_window(Registry &ecs, ecs::WindowType type);
-}
-
-
-
-#include <utility>
-
-namespace ecs
-{
-    PopupComponent::PopupComponent(Rectangle _boxRect, std::string _title, std::string _message, Color _boxColor,
-                                   Color _textColor, WindowFocus _focus, std::function<int(int, int)> _dynamicX,
-                                   std::function<int(int, int)> _dynamicY, std::function<void()> _close_func) :
-        boxRect(_boxRect), title(std::move(_title)), message(std::move(_message)), boxColor(_boxColor),
-        textColor(_textColor), focus(_focus), dynamicX(std::move(_dynamicX)), dynamicY(std::move(_dynamicY)),
-        close_func(std::move(_close_func))
+    PopupComponent::PopupComponent(Rectangle _boxRect, std::string _title, std::string _message, Color _boxColor, Color _textColor,
+                                       WindowFocus _focus,
+                                       std::function<int(int screenWidth, int screenHeight)> _dynamicX,
+                                       std::function<int(int screenWidth, int screenHeight)> _dynamicY,
+                                       std::function<void()> _close_func) :
+        boxRect(_boxRect), message(std::move(_message)), title(std::move(_title)), boxColor(_boxColor), textColor(_textColor), isVisible(true),
+        dynamicX(std::move(_dynamicX)), dynamicY(std::move(_dynamicY)),
+        focus(_focus), close_func(std::move(_close_func))
     {
+        spdlog::info("Create Popup");
         if (dynamicX)
-            boxRect.x = static_cast<float>(dynamicX(GetScreenWidth(), GetScreenHeight()));
+            boxRect.x = dynamicX(GetScreenWidth(), GetScreenHeight());
         if (dynamicY)
-            boxRect.y = static_cast<float>(dynamicY(GetScreenWidth(), GetScreenHeight()));
+            boxRect.y = dynamicY(GetScreenWidth(), GetScreenHeight());
     }
 
     void PopupComponent::draw(WindowFocus _focus)
@@ -47,9 +43,9 @@ namespace ecs
         }
 
         if (dynamicX)
-            boxRect.x = static_cast<float>(dynamicX(GetScreenWidth(), GetScreenHeight()));
+            boxRect.x = dynamicX(GetScreenWidth(), GetScreenHeight());
         if (dynamicY)
-            boxRect.y = static_cast<float>(dynamicY(GetScreenWidth(), GetScreenHeight()));
+            boxRect.y = dynamicY(GetScreenWidth(), GetScreenHeight());
 
         DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), Fade(BLACK, 0.5f));
         GuiPanel(boxRect, title.c_str());
@@ -68,7 +64,7 @@ namespace ecs
 
         const int fontSize = 32;
 
-        DrawText(message.c_str(), static_cast<int>(boxRect.x + (boxRect.width / 2) - (MeasureText(message.c_str(), fontSize) / 2)), static_cast<int>(boxRect.y + (boxRect.height / 2) - (fontSize / 2)), fontSize, textColor);
+        DrawText(message.c_str(), boxRect.x + (boxRect.width / 2) - (MeasureText(message.c_str(), fontSize) / 2), boxRect.y + (boxRect.height / 2) - (fontSize / 2), fontSize, textColor);
 
         GuiSetState(previousState);
     }
@@ -76,9 +72,9 @@ namespace ecs
     void PopupComponent::updateBox(int screenWidth, int screenHeight)
     {
         if (dynamicX)
-            boxRect.x = static_cast<float>(dynamicX(screenWidth, screenHeight));
+            boxRect.x = dynamicX(screenWidth, screenHeight);
         if (dynamicY)
-            boxRect.y = static_cast<float>(dynamicY(screenWidth, screenHeight));
+            boxRect.y = dynamicY(screenWidth, screenHeight);
     }
 
     void PopupComponent::createPopup(Registry &ecs, const std::string &title, const std::string &message)
@@ -109,7 +105,7 @@ namespace ecs
                 boxRect, title, message, DARKGRAY, BLACK, ecs::POPUP_FOCUS,
                 [boxRect](int screenWidth, int screenHeight) { return screenWidth / 2 - (boxRect.width / 2); },
                 [boxRect](int screenWidth, int screenHeight) { return screenHeight / 2 - (boxRect.height / 2); },
-                [&ecs]() { ecs.run_event(ecs::ChangeFocusEvent{ecs::MENU_FOCUS}); }
+                [&ecs](){ecs.run_event(ecs::ChangeFocusEvent{ecs::MENU_FOCUS});}
             )
         );
         ecs::change_window(ecs, ecs::WindowType::MENU);

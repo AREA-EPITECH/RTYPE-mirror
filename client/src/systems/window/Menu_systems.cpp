@@ -141,6 +141,11 @@ namespace ecs
         }
     }
 
+    /**
+ * Open the menu system
+ * @param ecs
+ * @param event
+ */
     void open_menu_system(Registry &ecs, const WindowOpenEvent &)
     {
         ecs.run_event(InitCameraEvent{
@@ -185,7 +190,7 @@ namespace ecs
                                                                     std::string back_path = ASSET_FILE("backgrounds/menu/setting_back.jpg");
                                                                     ImageComponent setting_back(back_path, SETTINGS_FOCUS,
                                                                                                [](int screenWidth, int screenHeight) {return 0;},
-                                                                                                 [](int screenWidth, int screenHeight) {return 0;}, static_cast<float>(GetScreenWidth()), static_cast<float>(GetScreenHeight()));
+                                                                                                 [](int screenWidth, int screenHeight) {return 0;}, GetScreenWidth(), GetScreenHeight());
                                                                     ecs.add_component<SettingsComponent>(settingEntity, {setting_back});
                                                                     ecs.run_event(ChangeFocusEvent{SETTINGS_FOCUS});
                                                                 }});
@@ -206,6 +211,11 @@ namespace ecs
 
     }
 
+    /**
+* Close the menu system
+* @param ecs
+* @param event
+*/
     void close_menu_system(Registry &ecs, const WindowCloseEvent &)
     {
         auto &images = ecs.get_components<ImageComponent>();

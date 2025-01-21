@@ -9,6 +9,11 @@
 #include "game/GameState.hpp"
 
 namespace ecs {
+    /**
+ * Draw the endgame screen.
+ * @param ecs
+ * @param event
+ */
     void draw_endgame_system(Registry &ecs, const WindowDrawEvent &) {
         auto &musics = ecs.get_components<ecs::MusicComponent>();
         auto &backgrounds = ecs.get_components<BackgroundComponent>();
@@ -64,15 +69,15 @@ namespace ecs {
             }
         }
 
-        int scoreBoardWidth = static_cast<int>(screenWidth / 1.5);
-        int scoreBoardHeight = static_cast<int>(screenHeight / 1.5);
+        int scoreBoardWidth = screenWidth / 1.5;
+        int scoreBoardHeight = screenHeight / 1.5;
         int headerHeight = scoreBoardHeight / 10;
         int fontSize = 52;
         Vector2 center = {screenWidth / 2.0f, screenHeight / 2.0f};
-        DrawText("GAME OVER", static_cast<int>(center.x - MeasureText("GAME OVER", fontSize + 64) / 2), static_cast<int>((center.y - scoreBoardHeight / 2) / 2 - (fontSize + 64) / 2), fontSize + 64, WHITE);
-        DrawRectangle(static_cast<int>(center.x - scoreBoardWidth / 2), static_cast<int>(center.y - scoreBoardHeight / 2), scoreBoardWidth, scoreBoardHeight, Fade(BLACK, 0.5f));
-        DrawRectangleLines(static_cast<int>(center.x - scoreBoardWidth / 2), static_cast<int>(center.y - scoreBoardHeight / 2), scoreBoardWidth, scoreBoardHeight, WHITE);
-        DrawRectangleLines(static_cast<int>(center.x - scoreBoardWidth / 2), static_cast<int>(center.y - scoreBoardHeight / 2), scoreBoardWidth, headerHeight, WHITE);
+        DrawText("GAME OVER", center.x - MeasureText("GAME OVER", fontSize + 64) / 2, (center.y - scoreBoardHeight / 2) / 2 - (fontSize + 64) / 2, fontSize + 64, WHITE);
+        DrawRectangle(center.x - scoreBoardWidth / 2, center.y - scoreBoardHeight / 2, scoreBoardWidth, scoreBoardHeight, Fade(BLACK, 0.5f));
+        DrawRectangleLines(center.x - scoreBoardWidth / 2, center.y - scoreBoardHeight / 2, scoreBoardWidth, scoreBoardHeight, WHITE);
+        DrawRectangleLines(center.x - scoreBoardWidth / 2, center.y - scoreBoardHeight / 2, scoreBoardWidth, headerHeight, WHITE);
         auto &scores = ecs.get_components<ecs::ScoreComponent>();
         int level = 0;
         for (auto &score_i: scores) {
@@ -81,9 +86,9 @@ namespace ecs {
                 break;
             }
         }
-        DrawText("LEADERBOARD", static_cast<int>(center.x - MeasureText("LEADERBOARD", fontSize) / 2), static_cast<int>(center.y - scoreBoardHeight / 2 + headerHeight / 2 - fontSize / 2), fontSize, WHITE);
+        DrawText("LEADERBOARD", center.x - MeasureText("LEADERBOARD", fontSize) / 2, center.y - scoreBoardHeight / 2 + headerHeight / 2 - fontSize / 2, fontSize, WHITE);
         std::vector<std::tuple<std::string, int, bool>> lines;
-        int startY = static_cast<int>(center.y - scoreBoardHeight / 2 + headerHeight + 10);
+        int startY = center.y - scoreBoardHeight / 2 + headerHeight + 10;
         fontSize = 64;
         auto user = gameState->get().getUser();
         lines.push_back({user.name, user.total_score, true});
@@ -95,8 +100,8 @@ namespace ecs {
             return std::get<1>(a) > std::get<1>(b);
         });
         for (auto &line: lines) {
-            DrawText(std::get<0>(line).c_str(), static_cast<int>(center.x - scoreBoardWidth / 2 + 20), startY, fontSize, std::get<2>(line) ? GREEN : WHITE);
-            DrawText(std::to_string(std::get<1>(line)).c_str(), static_cast<int>(center.x + scoreBoardWidth / 2 - 20 - MeasureText(std::to_string(std::get<1>(line)).c_str(), fontSize)), startY, fontSize, WHITE);
+            DrawText(std::get<0>(line).c_str(), center.x - scoreBoardWidth / 2 + 20, startY, fontSize, std::get<2>(line) ? GREEN : WHITE);
+            DrawText(std::to_string(std::get<1>(line)).c_str(), center.x + scoreBoardWidth / 2 - 20 - MeasureText(std::to_string(std::get<1>(line)).c_str(), fontSize), startY, fontSize, WHITE);
             startY += fontSize + 10;
         }
 
@@ -109,6 +114,12 @@ namespace ecs {
         EndDrawing();
     }
 
+    /**
+ * Open the endgame screen.
+
+ * @param ecs
+ * @param event
+ */
     void open_endgame_system(Registry &ecs, const WindowOpenEvent &) {
         kill_entities_with_component<ecs::ShowBoxComponent>(ecs);
         kill_entities_with_component<ecs::TextInputComponent>(ecs);
@@ -162,7 +173,7 @@ namespace ecs {
             }, [buttonHeight](int screenWidth, int screenHeight)
             {
                 Vector2 center = {screenWidth / 2.0f, screenHeight / 2.0f};
-                int scoreBoardHeight = static_cast<int>(screenHeight / 1.5);
+                int scoreBoardHeight = screenHeight / 1.5;
                 return screenHeight - (screenHeight - (center.y + scoreBoardHeight / 2)) / 2 - buttonHeight / 2;
             }, 48, 4, ecs::ButtonStyleColors.at(ecs::BUTTON_BASE_COLOR_NORMAL),
             ecs::ButtonStyleColors.at(ecs::BUTTON_TEXT_COLOR_NORMAL),
@@ -172,6 +183,11 @@ namespace ecs {
             ecs::ButtonStyleColors.at(ecs::BUTTON_BORDER_COLOR_FOCUSED)));
     }
 
+    /**
+ * Close the endgame screen.
+ * @param ecs
+ * @param event
+ */
     void close_endgame_system(Registry &ecs, const WindowCloseEvent &) {
         auto &musics = ecs.get_components<ecs::MusicComponent>();
         for (auto &music : musics) {

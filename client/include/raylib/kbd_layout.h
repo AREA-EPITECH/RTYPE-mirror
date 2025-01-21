@@ -1,8 +1,6 @@
 #ifndef KBD_LAYOUT_H
 #define KBD_LAYOUT_H
-extern "C" {
-    #include "raylib.h"
-}
+#include "raylib.h"
 // kbd_layout ver 0.1
 
 enum KBD_Layout

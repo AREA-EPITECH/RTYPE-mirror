@@ -15,12 +15,9 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 )
 target_link_libraries(${PROJECT_NAME} PRIVATE shared)
 
-#find_package(fmt CONFIG REQUIRED)
-#find_package(spdlog CONFIG REQUIRED)
-#find_package(raylib CONFIG REQUIRED)
-#find_package(glfw3 CONFIG REQUIRED)
-#target_link_libraries(${PROJECT_NAME} PRIVATE fmt::fmt spdlog::spdlog raylib glfw)
+find_package(spdlog REQUIRED)
+find_package(raylib CONFIG REQUIRED)
+find_package(glfw3 CONFIG REQUIRED)
+target_link_libraries(${PROJECT_NAME} PRIVATE spdlog::spdlog raylib glfw)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/)
-set_target_properties(${PROJECT_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_SOURCE_DIR}/)
-set_target_properties(${PROJECT_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_SOURCE_DIR}/)

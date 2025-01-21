@@ -93,7 +93,7 @@ void init_lobby_entity(Registry &ecs)
     ecs.add_component<ecs::CloseLeaderBoard>(
         closeScoreBoard,
         ecs::CloseLeaderBoard(
-            static_cast<int>((screenHeight / 1.5) / 10), static_cast<int>((screenHeight / 1.5) / 10), "X", ecs::LOBBY_FOCUS, [&ecs]()
+            (screenHeight / 1.5) / 10, (screenHeight / 1.5) / 10, "X", ecs::LOBBY_FOCUS, [&ecs]()
             {
                 auto gameState = getGameState(ecs);
                 if (gameState->get().getShowScore()) {
@@ -102,13 +102,13 @@ void init_lobby_entity(Registry &ecs)
             }, [buttonWidth](int screenWidth, int screenHeight)
             {
                 Vector2 center = {screenWidth / 2.0f, screenHeight / 2.0f};
-                int scoreBoardWidth = static_cast<int>(screenWidth / 1.5);
-                int buttonWidth = static_cast<int>((screenHeight / 1.5) / 10);
+                int scoreBoardWidth = screenWidth / 1.5;
+                int buttonWidth = (screenHeight / 1.5) / 10;
                 return center.x + scoreBoardWidth / 2 - buttonWidth;
             }, [](int screenWidth, int screenHeight)
             {
                 Vector2 center = {screenWidth / 2.0f, screenHeight / 2.0f};
-                int scoreBoardHeight = static_cast<int>(screenHeight / 1.5);
+                int scoreBoardHeight = screenHeight / 1.5;
                 return center.y - scoreBoardHeight / 2;
             }, 24, 1, BLACK,
             WHITE,

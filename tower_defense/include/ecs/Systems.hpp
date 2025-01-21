@@ -16,6 +16,7 @@
 namespace ecs {
     // Window
     void init_window_system(Registry &ecs, const CreateWindowEvent &);
+    void init_register_system(Registry &ecs, const InitRegisterEvent &);
     void close_window_system(Registry &ecs, const WindowCloseEvent &);
 
     // Game
@@ -23,4 +24,13 @@ namespace ecs {
 
     // Controls
     void game_controls_system(Registry &ecs, const ControlsEvent &);
+
+    // Text
+    void create_text_component(Registry &ecs, const CreateTextEvent &);
+
+    // Tower
+    void create_tower_component(Registry &ecs, const CreateTowerEvent &);
+
+    // Enemy
+    void create_enemy_component(Registry &ecs, const CreateEnemyEvent &);
 }
