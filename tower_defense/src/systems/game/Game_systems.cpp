@@ -83,6 +83,7 @@ namespace ecs
     {
         auto &towers = ecs.get_components<Tower>();
         auto &enemies = ecs.get_components<EnemyComponent>();
+        auto &sounds = ecs.get_components<SoundComponent>();
 
         for (auto &tower : towers)
         {
@@ -108,6 +109,20 @@ namespace ecs
                             {
                                 target_enemy = &enemy.value();
                                 min_distance = distance;
+                            }
+                            for (auto &sound : sounds)
+                            {
+                                if (sound.has_value())
+                                {
+                                    switch (tower.value()._tower_type)
+                                    {
+                                    case tower_defense::ARCHER:
+                                        sound.value().play(tower_defense::ARCHER_SHOT);
+                                        break;
+                                    default:
+                                        break;
+                                    }
+                                }
                             }
                         }
                     }
@@ -167,6 +182,7 @@ namespace ecs
     void check_enemies(Registry &ecs, MapComponent &map, const int scale)
     {
         auto &enemies = ecs.get_components<EnemyComponent>();
+        auto &sounds = ecs.get_components<SoundComponent>();
 
         for (int i = 0; i < enemies.size(); i++)
         {
@@ -178,12 +194,33 @@ namespace ecs
                     ecs.run_event(CreateTextEvent{"+" + std::to_string(enemies[i].value()._reward), 1,
                                                   enemies[i].value()._position.x * 32 * scale,
                                                   enemies[i].value()._position.y * 32 * scale, 0, -1, GOLD, 32});
+                    for (auto &sound : sounds)
+                    {
+                        if (sound.has_value())
+                        {
+                            switch (enemies[i].value()._enemy_type)
+                            {
+                            case tower_defense::Bat:
+                                sound.value().play(tower_defense::BAT_DEATH);
+                                break;
+                            case tower_defense::Basic_slime:
+                                sound.value().play(tower_defense::BASIC_SLIME_DEATH);
+                                break;
+                            case tower_defense::Zombie:
+                                sound.value().play(tower_defense::ZOMBIE_DEATH);
+                                break;
+                            default:
+                                break;
+                            }
+                        }
+                    }
                     ecs.kill_entity(i);
                     continue;
                 }
                 if (enemies[i].value()._position.x == map._path[map._path.size() - 1]._position.x &&
                     enemies[i].value()._position.y == map._path[map._path.size() - 1]._position.y)
                 {
+
                     map._game._life._health -= enemies[i].value()._damage;
                     ecs.run_event(CreateTextEvent{"-" + std::to_string(enemies[i].value()._damage),
                                                   1,
@@ -194,6 +231,13 @@ namespace ecs
                                                   {136, 8, 8, 255},
                                                   32});
                     ecs.kill_entity(i);
+                    for (auto &sound : sounds)
+                    {
+                        if (sound.has_value())
+                        {
+                            sound.value().play(tower_defense::LIFE_LOST);
+                        }
+                    }
                 }
             }
         }
@@ -277,15 +321,15 @@ namespace ecs
                     case tower_defense::Basic_slime:
                         ecs.run_event(CreateEnemyEvent{10, 2, 1, 10,
                                                        texture_manager.get_texture(tower_defense::BASIC_SLIME),
-                                                       map._path[0]._position});
+                                                       map._path[0]._position, tower_defense::Basic_slime});
                         break;
                     case tower_defense::Bat:
                         ecs.run_event(CreateEnemyEvent{5, 1, 2, 5, texture_manager.get_texture(tower_defense::BAT),
-                                                       map._path[0]._position});
+                                                       map._path[0]._position, tower_defense::Bat});
                         break;
                     case tower_defense::Zombie:
                         ecs.run_event(CreateEnemyEvent{15, 3, 5, 15, texture_manager.get_texture(tower_defense::ZOMBIE),
-                                                       map._path[0]._position});
+                                                       map._path[0]._position, tower_defense::Zombie});
                         break;
                     default:
                         break;
@@ -462,6 +506,7 @@ namespace ecs
         auto &shops = ecs.get_components<Shop>();
         auto &selectors = ecs.get_components<SelectorComponent>();
         auto &towers = ecs.get_components<Tower>();
+        auto &sounds = ecs.get_components<SoundComponent>();
 
         for (auto &shop : shops)
         {
@@ -518,6 +563,13 @@ namespace ecs
                                                                        tower._cost, tower._name, tower._texture,
                                                                        tower._tower_type, selector.value()._position});
                                         selector.value()._drawable = false;
+                                        for (auto &sound: sounds)
+                                        {
+                                            if (sound.has_value())
+                                            {
+                                                sound.value().play(tower_defense::TOWER_BUILT);
+                                            }
+                                        }
                                     }
                                 }
                                 const Texture2D texture = *tower._texture;
@@ -546,6 +598,7 @@ namespace ecs
         auto &maps = ecs.get_components<MapComponent>();
         auto &selectors = ecs.get_components<SelectorComponent>();
         auto &textures_managers = ecs.get_components<TextureManager>();
+        auto &musics = ecs.get_components<MusicComponent>();
 
         SelectorComponent s = {};
         TextureManager tm = {};
@@ -575,6 +628,16 @@ namespace ecs
                 auto &win = window.value();
                 if (win.isOpen)
                 {
+                    for (auto &music: musics)
+                    {
+                        if (music.has_value())
+                        {
+                            if (!music.value().isPlaying(tower_defense::GAME_MUSIC))
+                                music.value().play(tower_defense::GAME_MUSIC);
+                            music.value().update(tower_defense::GAME_MUSIC);
+                        }
+                    }
+
                     BeginDrawing();
                     ClearBackground(RAYWHITE);
 

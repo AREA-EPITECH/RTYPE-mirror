@@ -51,6 +51,68 @@ namespace ecs
         const auto entity = ecs.spawn_entity();
         ecs.add_component<EnemyComponent>(entity,
                                           {event._health, event._speed, event._damage, event._reward, event._texture,
-                                           event._position, 0, 0.0f, std::chrono::steady_clock::now()});
+                                           event._position, event._type, 0, 0.0f, std::chrono::steady_clock::now()});
+    }
+
+    /**
+     * @brief Create sound component
+     * @param ecs
+     */
+    void create_sound_component(Registry &ecs, const CreateSoundEvent &)
+    {
+        const auto entity = ecs.spawn_entity();
+        ecs.add_component<SoundComponent>(entity, {});
+    }
+
+    /**
+     * @brief Add sounds to the sound component
+     * @param ecs
+     */
+    void add_sounds(Registry &ecs, const CreateSoundEvent &)
+    {
+        auto &sounds = ecs.get_components<SoundComponent>();
+
+        for (auto &sound : sounds)
+        {
+            if (sound.has_value())
+            {
+                sound.value().addSound(tower_defense::ARCHER_SHOT, "tower_defense/assets/sounds/archer_shot.wav");
+                sound.value().addSound(tower_defense::BAT_DEATH, "tower_defense/assets/sounds/bat_death.wav");
+                sound.value().addSound(tower_defense::BASIC_SLIME_DEATH,
+                                       "tower_defense/assets/sounds/basic_slime_death.wav");
+                sound.value().addSound(tower_defense::ZOMBIE_DEATH,
+                       "tower_defense/assets/sounds/zombie_death.wav");
+                sound.value().addSound(tower_defense::TOWER_BUILT, "tower_defense/assets/sounds/tower_built.wav");
+                sound.value().addSound(tower_defense::LIFE_LOST, "tower_defense/assets/sounds/life_lost.wav");
+            }
+        }
+    }
+
+    /**
+     * @brief Create music component
+     * @param ecs
+     */
+    void create_music_component(Registry &ecs, const CreateMusicEvent &)
+    {
+        const auto entity = ecs.spawn_entity();
+        ecs.add_component<MusicComponent>(entity, {});
+    }
+
+    /**
+     * @brief Add musics to the music component
+     * @param ecs
+     */
+    void add_musics(Registry &ecs, const CreateMusicEvent &)
+    {
+        auto &musics = ecs.get_components<MusicComponent>();
+
+        for (auto &music : musics)
+        {
+            if (music.has_value())
+            {
+                music.value().addMusic(tower_defense::GAME_MUSIC, "tower_defense/assets/musics/game.wav");
+                music.value().play(tower_defense::GAME_MUSIC);
+            }
+        }
     }
 } // namespace ecs

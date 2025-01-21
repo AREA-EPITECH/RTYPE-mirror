@@ -96,6 +96,7 @@ namespace ecs {
         int _reward;
         std::shared_ptr<Texture2D> _texture;
         tower_defense::Position _position;
+        tower_defense::EnemyType _enemy_type;
         int _frame = 0;
         float _frame_counter = 0.0f;
         std::chrono::time_point<std::chrono::steady_clock> _last_move = std::chrono::steady_clock::now();
@@ -151,5 +152,156 @@ namespace ecs {
         tower_defense::Position _velocity;
         Color _color;
         int _font_size = 32;
+    };
+
+    class SoundComponent {
+    public:
+        float volume;
+        std::unordered_map<tower_defense::SoundType, Sound> sounds;
+
+        SoundComponent(float initialVolume = 50.0f)
+                : volume(initialVolume) {}
+
+        ~SoundComponent() {
+            for (auto &[key, sound] : sounds) {
+                UnloadSound(sound);
+            }
+        }
+
+        void addSound(const tower_defense::SoundType key, const std::string &file_path) {
+            if (sounds.find(key) != sounds.end()) {
+                return;
+            }
+            Sound sound = LoadSound(file_path.c_str());
+            SetSoundVolume(sound, volume / 100.0f);
+            sounds[key] = sound;
+        }
+
+        void play(const tower_defense::SoundType key) {
+            if (sounds.find(key) == sounds.end()) {
+                return;
+            }
+            PlaySound(sounds[key]);
+        }
+
+        void stop(const tower_defense::SoundType key) {
+            auto it = sounds.find(key);
+            if (it == sounds.end()) {
+                return;
+            }
+
+            StopSound(it->second);
+            UnloadSound(it->second);
+
+            sounds.erase(it);
+        }
+
+
+        void pause(const tower_defense::SoundType key) {
+            if (sounds.find(key) == sounds.end()) {
+                return;
+            }
+            PauseSound(sounds[key]);
+        }
+
+        void resume(const tower_defense::SoundType key) {
+            if (sounds.find(key) == sounds.end()) {
+                return;
+            }
+            ResumeSound(sounds[key]);
+        }
+
+        bool isPlaying(const tower_defense::SoundType key) const {
+            if (sounds.find(key) == sounds.end()) {
+                return false;
+            }
+            return IsSoundPlaying(sounds.at(key));
+        }
+
+        void setVolume(float newVolume) {
+            volume = newVolume;
+            for (auto &[key, sound] : sounds) {
+                SetSoundVolume(sound, volume / 100.0f);
+            }
+        }
+    };
+
+    class MusicComponent {
+    public:
+        float volume;
+        std::unordered_map<tower_defense::MusicType, Music> musics;
+
+        MusicComponent(float initialVolume = 50.0f)
+                : volume(initialVolume) {}
+
+        ~MusicComponent() {
+            for (auto &[key, music] : musics) {
+                StopMusicStream(music);
+                UnloadMusicStream(music);
+            }
+        }
+
+        void addMusic(const tower_defense::MusicType key, const std::string &filePath) {
+            if (musics.find(key) != musics.end()) {
+                return;
+            }
+            Music music = LoadMusicStream(filePath.c_str());
+            SetMusicVolume(music, volume / 100.0f);
+            musics[key] = music;
+        }
+
+        void play(const tower_defense::MusicType key) {
+            if (musics.find(key) == musics.end()) {
+                return;
+            }
+            PlayMusicStream(musics[key]);
+        }
+
+        void stop(const tower_defense::MusicType key) {
+            auto it = musics.find(key);
+            if (it == musics.end()) {
+                return;
+            }
+
+            StopMusicStream(it->second);
+            UnloadMusicStream(it->second);
+
+            musics.erase(it);
+        }
+
+        void pause(const tower_defense::MusicType key) {
+            if (musics.find(key) == musics.end()) {
+                return;
+            }
+            PauseMusicStream(musics[key]);
+        }
+
+        void resume(const tower_defense::MusicType key) {
+            if (musics.find(key) == musics.end()) {
+                return;
+            }
+            ResumeMusicStream(musics[key]);
+        }
+
+        void update(const tower_defense::MusicType key) {
+            if (musics.find(key) == musics.end()) {
+                return;
+            }
+            UpdateMusicStream(musics[key]);
+        }
+
+        bool isPlaying(const tower_defense::MusicType key) const {
+            if (musics.find(key) == musics.end()) {
+                return false;
+            }
+            return IsMusicStreamPlaying(musics.at(key));
+        }
+
+        void setVolume(float newVolume) {
+            volume = newVolume;
+            for (auto &[key, music] : musics) {
+                SetMusicVolume(music, volume / 100.0f);
+            }
+        }
     };
 }

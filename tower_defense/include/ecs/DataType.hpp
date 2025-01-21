@@ -47,6 +47,21 @@ namespace tower_defense
         ZOMBIE
     };
 
+    enum SoundType
+    {
+        ARCHER_SHOT,
+        BAT_DEATH,
+        BASIC_SLIME_DEATH,
+        ZOMBIE_DEATH,
+        LIFE_LOST,
+        TOWER_BUILT
+    };
+
+    enum MusicType
+    {
+        GAME_MUSIC
+    };
+
     struct EnemyWave
     {
         EnemyType _enemy_type;

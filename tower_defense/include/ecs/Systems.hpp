@@ -33,4 +33,12 @@ namespace ecs {
 
     // Enemy
     void create_enemy_component(Registry &ecs, const CreateEnemyEvent &);
+
+    // Sound
+    void create_sound_component(Registry &ecs, const CreateSoundEvent &);
+    void add_sounds(Registry &ecs, const CreateSoundEvent &);
+
+    // Music
+    void create_music_component(Registry &ecs, const CreateMusicEvent &);
+    void add_musics(Registry &ecs, const CreateMusicEvent &);
 }

@@ -25,6 +25,8 @@ Registry init_ecs()
     ecs.register_component<ecs::Shop>();
     ecs.register_component<ecs::TextureManager>();
     ecs.register_component<ecs::TextComponent>();
+    ecs.register_component<ecs::SoundComponent>();
+    ecs.register_component<ecs::MusicComponent>();
 
     ecs.register_event<ecs::CreateWindowEvent>();
     ecs.register_event<ecs::InitRegisterEvent>();
@@ -35,6 +37,8 @@ Registry init_ecs()
     ecs.register_event<ecs::CreateTextEvent>();
     ecs.register_event<ecs::CreateTowerEvent>();
     ecs.register_event<ecs::CreateEnemyEvent>();
+    ecs.register_event<ecs::CreateSoundEvent>();
+    ecs.register_event<ecs::CreateMusicEvent>();
 
     return ecs;
 }
