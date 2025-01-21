@@ -17,6 +17,8 @@ void empty_ecs(Registry &ecs)
     auto &maps = ecs.get_components<ecs::MapComponent>();
     auto &selectors = ecs.get_components<ecs::SelectorComponent>();
     auto &textures_managers = ecs.get_components<ecs::TextureManager>();
+    auto &musics = ecs.get_components<ecs::MusicComponent>();
+    auto &sounds = ecs.get_components<ecs::SoundComponent>();
 
     for (auto &map: maps)
     {
@@ -57,6 +59,8 @@ void empty_ecs(Registry &ecs)
     kill_entities_with_component<ecs::SelectorComponent>(ecs);
     kill_entities_with_component<ecs::TextureManager>(ecs);
     kill_entities_with_component<ecs::TextComponent>(ecs);
+    kill_entities_with_component<ecs::MusicComponent>(ecs);
+    kill_entities_with_component<ecs::SoundComponent>(ecs);
     spdlog::info("ECS emptied.");
 }
 

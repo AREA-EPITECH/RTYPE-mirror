@@ -67,5 +67,14 @@ namespace ecs {
         int _reward;
         std::shared_ptr<Texture2D> _texture;
         tower_defense::Position _position;
+        tower_defense::EnemyType _type;
+    };
+
+    struct CreateSoundEvent
+    {
+    };
+
+    struct CreateMusicEvent
+    {
     };
 }

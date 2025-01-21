@@ -47,6 +47,19 @@ namespace ecs
         ecs.subscribe<CreateTextEvent>(create_text_component);
         ecs.subscribe<CreateTowerEvent>(create_tower_component);
         ecs.subscribe<CreateEnemyEvent>(create_enemy_component);
+        ecs.subscribe<CreateSoundEvent>([](Registry &e, const CreateSoundEvent &event)
+        {
+            create_sound_component(e, event);
+            add_sounds(e, event);
+        });
+        ecs.subscribe<CreateMusicEvent>([](Registry &e, const CreateMusicEvent &event)
+        {
+            create_music_component(e, event);
+            add_musics(e, event);
+        });
+
+        ecs.run_event(CreateSoundEvent{});
+        ecs.run_event(CreateMusicEvent{});
     }
 
     /**
@@ -55,6 +68,16 @@ namespace ecs
      */
     void close_window_system(Registry &ecs, const WindowCloseEvent &)
     {
+        //auto &musics = ecs.get_components<MusicComponent>();
+//
+        //for (auto &music : musics)
+        //{
+        //    if (music.has_value())
+        //    {
+        //        StopMusicStream(music.value().musics[tower_defense::GAME_MUSIC]);
+        //    }
+        //}
+
         auto &windows = ecs.get_components<Window>();
         for (size_t i = 0; i < windows.size(); ++i)
         {
