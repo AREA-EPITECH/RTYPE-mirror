@@ -12,44 +12,6 @@ on:
       - dev
 
 jobs:
-#  lint_and_format:
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: Checkout code
-#        uses: actions/checkout@v3
-#        with:
-#          fetch-depth: 0
-#
-#      - name: Install dependencies
-#        run: sudo apt-get install clang-tidy clang-format cmake build-essential
-#
-#      - name: Set up vcpkg
-#        uses: lukka/run-vcpkg@v11
-#        with:
-#          vcpkgJsonGlob: '**/vcpkg.json'
-#          vcpkgGitCommitId: 'eba7c6a894fce24146af4fdf161fef8e90dd6be3'
-#
-#      - name: Run Clang-Tidy
-#        run: |
-#          mkdir -p build
-#          cd build
-#          cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_TOOLCHAIN_FILE=${{ env.VCPKG_ROOT }}/scripts/buildsystems/vcpkg.cmake ..
-#          cd ..
-#          clang-tidy -p build $(find . -name '*.cpp')
-#
-#      - name: Run Clang-Format
-#        run: |
-#          find . -name '*.cpp' -o -name '*.h' | xargs clang-format -i
-#
-#      - name: Commit and push changes
-#        run: |
-#          git config --global user.name 'github-actions[bot]'
-#          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-#          git add .
-#          git commit -m "[STYLE] Apply clang-tidy and clang-format changes"
-#          git push
-#        env:
-#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   build:
     if: github.repository == 'AREA-EPITECH/RTYPE-mirror'
     name: Build project using CMake
