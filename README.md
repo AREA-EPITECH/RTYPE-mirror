@@ -7,11 +7,11 @@ RTYPE Epitech project mirror
 
 # Table of Contents
 ___
-1. [Server](./server/Server.md)
-2. [Client](./client/GraphicalLibraryChoice.md)
-3. [ECS](./shared/Ecs.md)
-4. [Networking](./shared/Network_library.md)
-5. [Doxygen](./html/index.html)
+1. [Server](./docs/server/Server.md)
+2. [Client](./docs/client/GraphicalLibraryChoice.md)
+3. [ECS](./docs/shared/Ecs.md)
+4. [Networking](./docs/shared/Network_library.md)
+5. [Doxygen](./docs/html/index.html)
 # Usage
 ___
 ### Install VCPKG
